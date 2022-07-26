@@ -1,0 +1,22 @@
+<h2><%= DAYS_OF_WEEK[@game.start_time.wday] %>, <%= MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %></h2>
+<h3><%= @game.group %></h3>
+<p>
+  Location: <%= @game.location %>
+  <br>
+  Attendees: <%= @game.filled_slots %> / <%= @game.total_slots %>
+  <br>
+  Fee: $<%= @game.fee %>
+</p>
+
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Fee Paid?</th>
+  </tr>
+  <% @game.players.each do |player| %>
+  <tr>
+    <td><%= player[:name] %><td>
+    <td><%= player[:fee_paid] %></td>
+  </tr>
+  <% end %>
+</table>

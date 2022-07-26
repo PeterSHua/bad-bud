@@ -5,16 +5,19 @@ DAYS_OF_WEEK = %w(Sun Mon Tues Wed Thurs Fri Sat)
 
 class Game
   attr_accessor :start_time, :duration, :group, :location, :fee, :filled_slots, :total_slots
-  attr_reader :players
+  attr_reader :id, :players
 
-  def initialize(start_time,
+  def initialize(id,
+                start_time,
                 duration,
                 group,
                 location,
                 fee,
                 filled_slots,
-                total_slots)
+                total_slots,
+                players = {})
 
+    self.id = id;
     self.start_time = Time.parse(start_time)
     self.duration = duration
     self.group = group
@@ -22,8 +25,7 @@ class Game
     self.fee = fee
     self.filled_slots = filled_slots
     self.total_slots = total_slots
-
-    self.players = {} # player: boolean -> true = paid
+    self.players = players
   end
 
   def add_player
@@ -36,5 +38,5 @@ class Game
 
   private
 
-  attr_writer :players
+  attr_writer :id, :players
 end

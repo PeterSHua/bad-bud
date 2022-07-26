@@ -22,6 +22,14 @@ helpers do
 
 end
 
+def load_game(id)
+  game = @storage.find_game(id)
+  return game if game
+
+  session[:error] = "The specified game was not found."
+  redirect "/game_list" 
+end
+
 before do
   @storage = DatabasePersistence.new(logger)
 end
@@ -44,7 +52,10 @@ end
 
 # View game detail
 get "/games/:id" do
+  @game_id = params[:id].to_i
+  @game = load_game(@game_id)
 
+  erb :game, layout: :layout
 end
 
 # View group listing
