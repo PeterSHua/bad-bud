@@ -50,3 +50,16 @@ CREATE TABLE games(
     fee         integer CHECK(fee <= 1000) NOT NULL,
     total_slots integer CHECK(total_slots <= 1000) NOT NULL
 );
+
+CREATE TABLE games_players(
+    PRIMARY KEY (id),
+    id serial,
+    game_id integer NOT NULL,
+    FOREIGN KEY (game_id)
+    REFERENCES games (id),
+    player_id integer NOT NULL,
+    FOREIGN KEY (player_id)
+    REFERENCES players (id),
+    fee_paid boolean NOT NULL,
+    UNIQUE (game_id, player_id)
+);

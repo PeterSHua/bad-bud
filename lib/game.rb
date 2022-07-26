@@ -1,6 +1,6 @@
 class Game
-  attr_accessor date, time, duration, location, fee, filled_slots, total_slots
-  attr_reader players
+  attr_accessor :date, :time, :duration, :location, :fee, :filled_slots, :total_slots
+  attr_reader :players
 
   def initialize(date, time, duration, location, fee, filled_slots, total_slots)
     self.date = date
@@ -24,5 +24,5 @@ class Game
 
   private
 
-  attr_writer players
+  attr_writer :players
 end

@@ -1,5 +1,5 @@
 class Player
-  attr_accessor name, rating, games_played, about
+  attr_accessor :name, :rating, :games_played, :about
 
   def initialize(name, rating, games_played, about)
     self.name = name

@@ -1,5 +1,6 @@
 class Group
-  attr_accessor name, about, organizers
+  attr_accessor :name, :about
+  attr_reader :organizers
 
   def initialize(name, about)
     self.name = name
@@ -12,10 +13,10 @@ class Group
   end
 
   def remove_organizer
-    
+
   end
 
   private
 
-  attr_writer organizers
+  attr_writer :organizers
 end

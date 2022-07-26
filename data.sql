@@ -50,3 +50,12 @@ VALUES (default, 1, '2022-07-25 20:00:00', 2, 1, 12, 18),
        (default, 2, '2022-07-30 18:00:00', 4, 4, 13, 6),
        (default, 3, '2022-07-29 17:00:00', 2, 3, 13, 12);
 
+INSERT INTO games_players
+VALUES (default, 1, 1, true),
+       (default, 1, 4, false),
+       (default, 1, 5, true),
+       (default, 2, 1, true),
+       (default, 4, 1, true),
+       (default, 4, 5, true),
+       (default, 4, 7, true),
+       (default, 3, 6, true);
