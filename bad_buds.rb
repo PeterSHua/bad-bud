@@ -38,6 +38,7 @@ end
 # View game listing
 get "/game_list" do
   @game_list = @storage.all_games
+
   erb :game_list, layout: :layout
 end
 
@@ -55,5 +56,3 @@ end
 get "/groups/:id" do
 
 end
-
-

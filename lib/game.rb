@@ -1,11 +1,23 @@
+require "time"
+
+MONTHS = %w(Jan Feb Mar Apr May Jun Jul Aug Sept Oct Nov Dec)
+DAYS_OF_WEEK = %w(Sun Mon Tues Wed Thurs Fri Sat)
+
 class Game
-  attr_accessor :date, :time, :duration, :location, :fee, :filled_slots, :total_slots
+  attr_accessor :start_time, :duration, :group, :location, :fee, :filled_slots, :total_slots
   attr_reader :players
 
-  def initialize(date, time, duration, location, fee, filled_slots, total_slots)
-    self.date = date
-    self.time = time
+  def initialize(start_time,
+                duration,
+                group,
+                location,
+                fee,
+                filled_slots,
+                total_slots)
+
+    self.start_time = Time.parse(start_time)
     self.duration = duration
+    self.group = group
     self.location = location
     self.fee = fee
     self.filled_slots = filled_slots
