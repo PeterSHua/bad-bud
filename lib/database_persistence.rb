@@ -19,7 +19,6 @@ class DatabasePersistence
            gp.name AS group_name,
            l.name AS location,
            gm.fee,
-           p.name,
            gm.total_slots,
            gm.notes
       FROM games AS gm
@@ -29,8 +28,6 @@ class DatabasePersistence
            ON gm.group_id = gp.id
            INNER JOIN locations as l
            ON gm.location_id = l.id
-           INNER JOIN players AS p
-           ON g_p.player_id = p.id
      WHERE gm.id = $1
      ORDER BY start_time ASC;
     SQL
@@ -145,6 +142,22 @@ class DatabasePersistence
     end
   end
 
+  def find_player(id)
+    sql = <<~SQL
+      SELECT *
+        FROM players
+       WHERE id = $1;
+    SQL
+
+    result = query(sql, id).first
+
+    Player.new(result["id"],
+               result["name"],
+               result["rating"],
+               result["games_played"],
+               result["about"])
+  end
+
   def disconnect
     @db.close
   end
@@ -157,7 +170,7 @@ class DatabasePersistence
   end
 
   def find_players_for_game(game_id)
-    sql = "SELECT name, fee_paid
+    sql = "SELECT players.id, name, fee_paid
              FROM players
                   INNER JOIN games_players
                   ON games_players.player_id = players.id
@@ -165,14 +178,15 @@ class DatabasePersistence
 
     result = query(sql, game_id)
 
-    result.map do |player|
-      fee_paid = if player["fee_paid"] == 't'
+    result.map do |tuple|
+      fee_paid = if tuple["fee_paid"] == 't'
                    true
                  else
                    false
                  end
 
-      { name: player["name"], fee_paid: fee_paid }
+      Player.new(tuple["id"], tuple["name"], tuple["rating"],
+                 tuple["games_played"], tuple["about"], fee_paid)
     end
   end
 end

@@ -38,6 +38,14 @@ def load_location(id)
   redirect "/game_list"
 end
 
+def load_player(id)
+  player = @storage.find_player(id)
+  return player if player
+
+  session[:error] = "The specified player was not found."
+  redirect "/game_list"
+end
+
 before do
   @storage = DatabasePersistence.new(logger)
 end
@@ -87,4 +95,12 @@ get "/locations/:id" do
   @location = load_location(@location_id)
 
   erb :location, layout: :layout
+end
+
+# View player detail
+get "/players/:id" do
+  @player_id = params[:id].to_i
+  @player = load_player(@player_id)
+
+  erb :player, layout: :layout
 end

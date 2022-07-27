@@ -1,0 +1,16 @@
+<h2><%= @player.name %></h2>
+
+<p>
+  <a href="https://www.dropbox.com/s/vmk48yybqhd35dj/rr-rating-reformatted.pdf?dl=0">Rating:</a> <%= @player.rating%>
+  <br>
+  Games played: <%= @player.games_played %>
+</p>
+
+<p>
+  <%= @player.about %>
+</p>
+
+<% content_for :header_links do %>
+  <a href="/game_list">Games</a>
+  <a href="/group_list">Groups</a>
+<% end %>
