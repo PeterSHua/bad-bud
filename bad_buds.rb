@@ -31,11 +31,19 @@ def load_game(id)
 end
 
 def load_location(id)
-  location = @storage.find_location(idd)
+  location = @storage.find_location(id)
   return location if location
 
   session[:error] = "The specified location was not found."
   redirect "/game_list"
+end
+
+def load_group(id)
+  group = @storage.find_group(id)
+  return group if group
+
+  session[:error] = "The specified group was not found."
+  redirect "/group_list"
 end
 
 def load_player(id)
@@ -44,6 +52,12 @@ def load_player(id)
 
   session[:error] = "The specified player was not found."
   redirect "/game_list"
+end
+
+def error_for_player_name(name)
+  if !(1..20).cover? name.size
+    "Your name must be between 1 and 20 characters."
+  end
 end
 
 before do
@@ -74,6 +88,24 @@ get "/games/:id" do
   erb :game, layout: :layout
 end
 
+# Add player without account to game
+post "/games/:game_id/players" do
+  @game_id = params[:game_id].to_i
+  @game = load_game(@game_id)
+  player_name = params[:player_name].strip
+
+  error = error_for_player_name(player_name)
+  if error
+    session[:error] = error
+    erb :game, layout: :layout
+  else
+    @storage.rsvp_anon_player(@game_id, player_name)
+
+    session[:success] = "You've been added."
+    redirect "/games/#{@game_id}"
+  end
+end
+
 # View group listing
 get "/group_list" do
   @group_list = @storage.all_groups
@@ -84,6 +116,7 @@ end
 # View group detail
 get "/groups/:group_id" do
   @group_id = params[:group_id].to_i
+  @group = load_group(@group_id)
   @group_games = @storage.find_group_games(@group_id)
 
   erb :group, layout: :layout

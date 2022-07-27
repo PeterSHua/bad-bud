@@ -1,6 +1,5 @@
 class Group
-  attr_accessor :name, :about
-  attr_reader :id, :organizers
+  attr_reader :id, :name, :about, :organizers
 
   def initialize(id, name, about)
     self.id = id
@@ -9,15 +8,5 @@ class Group
     self.organizers = []
   end
 
-  def add_organizer
-
-  end
-
-  def remove_organizer
-
-  end
-
-  private
-
-  attr_writer :id, :organizers
+  attr_writer :id, :name, :about, :organizers
 end

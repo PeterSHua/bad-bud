@@ -24,17 +24,35 @@
 <table>
   <tr>
     <th>Name</th>
-    <th>Fee Paid?</th>
+    <th>Payment Confirmed?</th>
   </tr>
   <% @game.players.each do |player| %>
   <tr>
     <td>
-      <a href="/players/<%= player.id %>"><%= player.name %></a>
+      <% unless player.username.nil? %>
+        <a href="/players/<%= player.id %>">
+      <% end %>
+          <%= player.name %>
+      <% unless player.username.nil? %>
+        </a>
+      <% end %>
     <td>
     <td><%= player.fee_paid %></td>
   </tr>
   <% end %>
 </table>
+
+<form action="/games/<%= @game_id %>/players" method="post">
+  <dl>
+    <dt>
+      <label for="player_name">RVSP for this game:</label>
+    </dt>
+    <dd>
+      <input name="player_name" placeholder="Your name" type="text">
+    </dd>
+  </dl>
+  <button type="submit">Register</button>
+</form>
 
 <% content_for :header_links do %>
   <a href="/game_list">Games</a>

@@ -1,9 +1,11 @@
 CREATE TABLE players(
     PRIMARY KEY (id),
     id           serial,
-    name         varchar(20) UNIQUE NOT NULL,
-    rating       integer CHECK(rating BETWEEN 1 AND 6),
-    games_played integer,
+    username     varchar(10) UNIQUE,
+    password     varchar(100),
+    name         varchar(20) NOT NULL,
+    rating       integer CHECK(rating BETWEEN 1 AND 6) DEFAULT 1,
+    games_played integer DEFAULT 0,
     about        varchar(300)
 );
 
@@ -61,6 +63,6 @@ CREATE TABLE games_players(
     player_id integer NOT NULL,
     FOREIGN KEY (player_id)
     REFERENCES players (id),
-    fee_paid boolean NOT NULL,
+    fee_paid boolean NOT NULL DEFAULT false,
     UNIQUE (game_id, player_id)
 );

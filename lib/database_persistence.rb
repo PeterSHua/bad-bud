@@ -40,17 +40,17 @@ class DatabasePersistence
     players = find_players_for_game(id)
     filled_slots = players.count
 
-    Game.new(tuple["id"],
-             tuple["start_time"],
-             tuple["duration"],
-             tuple["group_name"],
-             tuple["group_id"],
-             tuple["location"],
-             tuple["fee"],
-             filled_slots,
-             tuple["total_slots"],
-             players,
-            tuple["notes"])
+    Game.new(id: tuple["id"],
+             start_time: tuple["start_time"],
+             duration: tuple["duration"],
+             group_name: tuple["group_name"],
+             group_id: tuple["group_id"],
+             location: tuple["location"],
+             fee: tuple["fee"],
+             filled_slots: filled_slots,
+             total_slots: tuple["total_slots"],
+             players: players,
+             notes: tuple["notes"])
   end
 
   def find_group_games(group_id)
@@ -78,15 +78,15 @@ class DatabasePersistence
     result = query(sql, group_id)
 
     result.map do |tuple|
-      Game.new(tuple["id"],
-               tuple["start_time"],
-               tuple["duration"],
-               tuple["group_name"],
-               tuple["group_id"],
-               tuple["location"],
-               tuple["fee"],
-               tuple["filled_slots"],
-               tuple["total_slots"])
+      Game.new(id: tuple["id"],
+               start_time: tuple["start_time"],
+               duration: tuple["duration"],
+               group_name: tuple["group_name"],
+               group_id: tuple["group_id"],
+               location: tuple["location"],
+               fee: tuple["fee"],
+               filled_slots: tuple["filled_slots"],
+               total_slots: tuple["total_slots"])
     end
   end
 
@@ -115,15 +115,15 @@ class DatabasePersistence
     result = query(sql)
 
     result.map do |tuple|
-      Game.new(tuple["id"],
-               tuple["start_time"],
-               tuple["duration"],
-               tuple["group_name"],
-               tuple["group_id"],
-               tuple["location"],
-               tuple["fee"],
-               tuple["filled_slots"],
-               tuple["total_slots"])
+      Game.new(id: tuple["id"],
+               start_time: tuple["start_time"],
+               duration: tuple["duration"],
+               group_name: tuple["group_name"],
+               group_id: tuple["group_id"],
+               location: tuple["location"],
+               fee: tuple["fee"],
+               filled_slots: tuple["filled_slots"],
+               total_slots: tuple["total_slots"])
     end
   end
 
@@ -149,13 +149,58 @@ class DatabasePersistence
        WHERE id = $1;
     SQL
 
-    result = query(sql, id).first
+    result = query(sql, id)
+    tuple = result.first
 
-    Player.new(result["id"],
-               result["name"],
-               result["rating"],
-               result["games_played"],
-               result["about"])
+    return nil if result.ntuples.zero?
+
+    Player.new(id: tuple["id"],
+               name: tuple["name"],
+               rating: tuple["rating"],
+               games_played: tuple["games_played"],
+               about: tuple["about"])
+  end
+
+  def find_group(id)
+    sql = <<~SQL
+      SELECT *
+        FROM groups
+       WHERE id = $1;
+    SQL
+
+    result = query(sql, id)
+    tuple = result.first
+
+    return nil if result.ntuples.zero?
+
+    Group.new(tuple["id"],
+              tuple["name"],
+              tuple["about"])
+  end
+
+  def rsvp_anon_player(game_id, player_name)
+    sql = <<~SQL
+      INSERT INTO players (name)
+      VALUES ($1);
+    SQL
+
+    result = query(sql, player_name)
+
+    sql = <<~SQL
+      SELECT last_value
+        FROM players_id_seq;
+    SQL
+
+    result = query(sql)
+
+    player_id = result.first["last_value"].to_i
+
+    sql = <<~SQL
+      INSERT INTO games_players (player_id, game_id)
+      VALUES ($1, $2)
+    SQL
+
+    query(sql, player_id, game_id)
   end
 
   def disconnect
@@ -170,7 +215,7 @@ class DatabasePersistence
   end
 
   def find_players_for_game(game_id)
-    sql = "SELECT players.id, name, fee_paid
+    sql = "SELECT players.id, username, name, fee_paid
              FROM players
                   INNER JOIN games_players
                   ON games_players.player_id = players.id
@@ -185,8 +230,13 @@ class DatabasePersistence
                    false
                  end
 
-      Player.new(tuple["id"], tuple["name"], tuple["rating"],
-                 tuple["games_played"], tuple["about"], fee_paid)
+      Player.new(id: tuple["id"],
+                 name: tuple["name"],
+                 rating: tuple["rating"],
+                 games_played: tuple["games_played"],
+                 about: tuple["about"],
+                 username: tuple["username"],
+                 fee_paid: fee_paid)
     end
   end
 end
