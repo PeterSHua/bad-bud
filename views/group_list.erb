@@ -1,0 +1,18 @@
+<ul>
+  <% @group_list.each do |group| %>
+    <a href="/groups/<%= group.id %>">
+      <li>
+        <h2>
+          <%= group.name %>
+        </h2>
+        <p>
+          <%= group.about %>
+        </p>
+      </li>
+    </a>
+  <% end %>
+</ul>
+
+<% content_for :header_links do %>
+  <a href="/game_list">Games</a>
+<% end %>

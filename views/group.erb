@@ -1,0 +1,22 @@
+<ul>
+  <% @group_games.each do |game| %>
+    <a href="/games/<%= game.id %>">
+      <li>
+        <h2><%= DAYS_OF_WEEK[game.start_time.wday] %>, <%= MONTHS[game.start_time.month - 1] %> <%= game.start_time.day %></h2>
+        <h3><%= game.group_name %></h3>
+        <p>
+          Location: <%= game.location %>
+          <br>
+          Attendees: <%= game.filled_slots %> / <%= game.total_slots %>
+          <br>
+          Fee: $<%= game.fee %>
+        </p>
+     </li>
+    </a>
+  <% end %>
+</ul>
+
+<% content_for :header_links do %>
+  <a href="/game_list">All Games</a>
+  <a href="/group_list">Groups</a>
+<% end %>

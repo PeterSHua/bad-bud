@@ -9,8 +9,20 @@
     <header>
       <h1>Badminton Buddies</h1>
       <div>
-        <a href="/groups">Groups</a>
+        <%== yield_content :header_links %>
       </div>
+
+      <% if session[:error] %>
+        <div class="flash error">
+          <p><%= session.delete(:error) %></p>
+        </div>
+      <% end %>
+
+      <% if session[:success] %>
+        <div class="flash success">
+          <p><%= session.delete(:success) %></p>
+        </div>
+      <% end %>
     </header>
 
     <main>

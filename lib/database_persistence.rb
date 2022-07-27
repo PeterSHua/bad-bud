@@ -15,11 +15,13 @@ class DatabasePersistence
     SELECT gm.id,
            gm.start_time,
            gm.duration,
-           gp.name AS group,
+           gp.id AS group_id,
+           gp.name AS group_name,
            l.name AS location,
            gm.fee,
            p.name,
-           total_slots
+           gm.total_slots,
+           gm.notes
       FROM games AS gm
            INNER JOIN games_players AS g_p
            ON gm.id = g_p.game_id
@@ -35,18 +37,60 @@ class DatabasePersistence
 
     result = query(sql, id)
     tuple = result.first
+
+    return nil if result.ntuples.zero?
+
     players = find_players_for_game(id)
     filled_slots = players.count
 
     Game.new(tuple["id"],
              tuple["start_time"],
              tuple["duration"],
-             tuple["group"],
+             tuple["group_name"],
+             tuple["group_id"],
              tuple["location"],
              tuple["fee"],
              filled_slots,
              tuple["total_slots"],
-             players)
+             players,
+            tuple["notes"])
+  end
+
+  def find_group_games(group_id)
+    sql = <<~SQL
+    SELECT gm.id,
+           gm.start_time,
+           gm.duration,
+           gp.id AS group_id,
+           l.name AS location,
+           gm.fee,
+           count(g_p.player_id) AS filled_slots,
+           total_slots
+      FROM games AS gm
+           INNER JOIN games_players AS g_p
+           ON gm.id = g_p.game_id
+           INNER JOIN groups AS gp
+           ON gm.group_id = gp.id
+           INNER JOIN locations as l
+           ON gm.location_id = l.id
+     WHERE gp.id = $1
+     GROUP BY gm.id, gp.id, l.id
+     ORDER BY start_time ASC;
+    SQL
+
+    result = query(sql, group_id)
+
+    result.map do |tuple|
+      Game.new(tuple["id"],
+               tuple["start_time"],
+               tuple["duration"],
+               tuple["group_name"],
+               tuple["group_id"],
+               tuple["location"],
+               tuple["fee"],
+               tuple["filled_slots"],
+               tuple["total_slots"])
+    end
   end
 
   def all_games
@@ -54,7 +98,8 @@ class DatabasePersistence
       SELECT gm.id,
              gm.start_time,
              gm.duration,
-             gp.name AS group,
+             gp.name AS group_name,
+             gp.id AS group_id,
              l.name AS location,
              gm.fee,
              count(g_p.player_id) AS filled_slots,
@@ -66,7 +111,7 @@ class DatabasePersistence
              ON gm.group_id = gp.id
              INNER JOIN locations as l
              ON gm.location_id = l.id
-       GROUP BY gm.id, gp.name, l.name
+       GROUP BY gm.id, gp.id, l.id
        ORDER BY start_time ASC;
     SQL
 
@@ -76,11 +121,27 @@ class DatabasePersistence
       Game.new(tuple["id"],
                tuple["start_time"],
                tuple["duration"],
-               tuple["group"],
+               tuple["group_name"],
+               tuple["group_id"],
                tuple["location"],
                tuple["fee"],
                tuple["filled_slots"],
                tuple["total_slots"])
+    end
+  end
+
+  def all_groups
+    sql = <<~SQL
+      SELECT *
+        FROM groups;
+    SQL
+
+    result = query(sql)
+
+    result.map do |tuple|
+      Group.new(tuple["id"],
+                tuple["name"],
+                tuple["about"])
     end
   end
 

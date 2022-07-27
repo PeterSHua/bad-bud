@@ -1,11 +1,24 @@
-<h2><%= DAYS_OF_WEEK[@game.start_time.wday] %>, <%= MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %></h2>
-<h3><%= @game.group %></h3>
+<h2>
+  <%= DAYS_OF_WEEK[@game.start_time.wday] %>, <%= MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %>
+</h2>
+
+<h3>
+  <a href="/groups/<%= @game.group_id %>">
+    <%= @game.group_name %>
+  </a>
+</h3>
+
 <p>
   Location: <%= @game.location %>
   <br>
   Attendees: <%= @game.filled_slots %> / <%= @game.total_slots %>
   <br>
   Fee: $<%= @game.fee %>
+  <br>
+</p>
+
+<p>
+  <%= @game.notes %>
 </p>
 
 <table>
@@ -20,3 +33,8 @@
   </tr>
   <% end %>
 </table>
+
+<% content_for :header_links do %>
+  <a href="/game_list">Games</a>
+  <a href="/group_list">Groups</a>
+<% end %>

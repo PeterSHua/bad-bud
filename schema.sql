@@ -48,7 +48,8 @@ CREATE TABLE games(
     REFERENCES locations (id)
     ON DELETE CASCADE,
     fee         integer CHECK(fee <= 1000) NOT NULL,
-    total_slots integer CHECK(total_slots <= 1000) NOT NULL
+    total_slots integer CHECK(total_slots <= 1000) NOT NULL,
+    notes       varchar(300)
 );
 
 CREATE TABLE games_players(

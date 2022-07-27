@@ -27,7 +27,15 @@ def load_game(id)
   return game if game
 
   session[:error] = "The specified game was not found."
-  redirect "/game_list" 
+  redirect "/game_list"
+end
+
+def load_location(id)
+  location = @storage.find_location(idd)
+  return location if location
+
+  session[:error] = "The specified location was not found."
+  redirect "/game_list"
 end
 
 before do
@@ -59,11 +67,24 @@ get "/games/:id" do
 end
 
 # View group listing
-get "/groups" do
+get "/group_list" do
+  @group_list = @storage.all_groups
 
+  erb :group_list, layout: :layout
 end
 
 # View group detail
-get "/groups/:id" do
+get "/groups/:group_id" do
+  @group_id = params[:group_id].to_i
+  @group_games = @storage.find_group_games(@group_id)
 
+  erb :group, layout: :layout
+end
+
+# View location detail
+get "/locations/:id" do
+  @location_id = params[:id].to_i
+  @location = load_location(@location_id)
+
+  erb :location, layout: :layout
 end
