@@ -25,7 +25,7 @@ class DatabasePersistence
            gm.total_slots,
            gm.notes
       FROM games AS gm
-           INNER JOIN games_players AS g_p
+           LEFT JOIN games_players AS g_p
            ON gm.id = g_p.game_id
            INNER JOIN groups AS gp
            ON gm.group_id = gp.id
@@ -69,7 +69,7 @@ class DatabasePersistence
            count(g_p.player_id) AS filled_slots,
            total_slots
       FROM games AS gm
-           INNER JOIN games_players AS g_p
+           LEFT JOIN games_players AS g_p
            ON gm.id = g_p.game_id
            INNER JOIN groups AS gp
            ON gm.group_id = gp.id
@@ -144,9 +144,9 @@ class DatabasePersistence
     result = query(sql)
 
     result.map do |tuple|
-      Group.new(tuple["id"],
-                tuple["name"],
-                tuple["about"])
+      Group.new(id: tuple["id"],
+                name: tuple["name"],
+                about: tuple["about"])
     end
   end
 
@@ -181,9 +181,9 @@ class DatabasePersistence
 
     return nil if result.ntuples.zero?
 
-    Group.new(tuple["id"],
-              tuple["name"],
-              tuple["about"])
+    Group.new(id: tuple["id"],
+              name: tuple["name"],
+              about: tuple["about"])
   end
 
   def add_player(player)
