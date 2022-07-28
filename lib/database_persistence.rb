@@ -1,9 +1,11 @@
 require "pg"
 
 class DatabasePersistence
-  def initialize(logger)
+  def initialize(logger = nil)
     @db = if Sinatra::Base.production?
             PG.connect(ENV['DATABASE_URL'])
+          elsif Sinatra::Base.test?
+            PG.connect(dbname: "bad_buds_test")
           else
             PG.connect(dbname: "bad_buds")
           end
@@ -17,7 +19,8 @@ class DatabasePersistence
            gm.duration,
            gp.id AS group_id,
            gp.name AS group_name,
-           l.name AS location,
+           l.name AS location_name,
+           l.id AS location_id,
            gm.fee,
            gm.total_slots,
            gm.notes
@@ -45,7 +48,8 @@ class DatabasePersistence
              duration: tuple["duration"],
              group_name: tuple["group_name"],
              group_id: tuple["group_id"],
-             location: tuple["location"],
+             location_name: tuple["location_name"],
+             location_id: tuple["location_id"],
              fee: tuple["fee"],
              filled_slots: filled_slots,
              total_slots: tuple["total_slots"],
@@ -59,7 +63,8 @@ class DatabasePersistence
            gm.start_time,
            gm.duration,
            gp.id AS group_id,
-           l.name AS location,
+           l.name AS location_name,
+           l.id AS location_id,
            gm.fee,
            count(g_p.player_id) AS filled_slots,
            total_slots
@@ -83,7 +88,8 @@ class DatabasePersistence
                duration: tuple["duration"],
                group_name: tuple["group_name"],
                group_id: tuple["group_id"],
-               location: tuple["location"],
+               location_name: tuple["location_name"],
+               location_id: tuple["location_id"],
                fee: tuple["fee"],
                filled_slots: tuple["filled_slots"],
                total_slots: tuple["total_slots"])
@@ -97,12 +103,13 @@ class DatabasePersistence
              gm.duration,
              gp.name AS group_name,
              gp.id AS group_id,
-             l.name AS location,
+             l.name AS location_name,
+             l.id AS location_id,
              gm.fee,
              count(g_p.player_id) AS filled_slots,
              total_slots
         FROM games AS gm
-             INNER JOIN games_players AS g_p
+             LEFT JOIN games_players AS g_p
              ON gm.id = g_p.game_id
              INNER JOIN groups AS gp
              ON gm.group_id = gp.id
@@ -120,7 +127,8 @@ class DatabasePersistence
                duration: tuple["duration"],
                group_name: tuple["group_name"],
                group_id: tuple["group_id"],
-               location: tuple["location"],
+               location_name: tuple["location_name"],
+               location_id: tuple["location_id"],
                fee: tuple["fee"],
                filled_slots: tuple["filled_slots"],
                total_slots: tuple["total_slots"])
@@ -178,6 +186,46 @@ class DatabasePersistence
               tuple["about"])
   end
 
+  def add_player(player)
+    sql = <<~SQL
+      INSERT INTO players (username, password, name, rating, games_played, about)
+      VALUES ($1, $2, $3, $4, $5, $6);
+    SQL
+
+    query(sql, player.username, player.password, player.name, player.rating,
+          player.games_played, player.about)
+  end
+
+  def add_group(group)
+    sql = <<~SQL
+      INSERT INTO groups (id, name, about)
+      VALUES (1, $1, $2)
+    SQL
+
+    query(sql, group.name, group.about)
+  end
+
+  def add_location(location)
+    sql = <<~SQL
+      INSERT INTO locations (name, address, phone_number, cost_per_court)
+      VALUES ($1, $2, $3, $4);
+    SQL
+
+    query(sql, location.name, location.address, location.phone_number,
+          location.cost_per_court)
+  end
+
+  def add_game(game)
+    sql = <<~SQL
+      INSERT INTO games (group_id, start_time, duration, location_id, fee,
+                         total_slots, notes)
+      VALUES ($1, $2, $3, $4, $5, $6, $7);
+      SQL
+
+      query(sql, game.group_id, game.start_time, game.duration,
+            game.location_id, game.fee, game.total_slots, game.notes)
+  end
+
   def rsvp_anon_player(game_id, player_name)
     sql = <<~SQL
       INSERT INTO players (name)
@@ -203,6 +251,28 @@ class DatabasePersistence
     query(sql, player_id, game_id)
   end
 
+  def create_schema
+    system("psql -d bad_buds_test < schema.sql")
+  end
+
+  def delete_all_data
+    query("DELETE FROM games;")
+    query("DELETE FROM players;")
+    query("DELETE FROM groups;")
+    query("DELETE FROM groups_players;")
+    query("DELETE FROM games_players;")
+    query("DELETE FROM locations;")
+  end
+
+  def delete_all_schema
+    query("DROP TABLE IF EXISTS games_players ")
+    query("DROP TABLE IF EXISTS groups_players")
+    query("DROP TABLE IF EXISTS games")
+    query("DROP TABLE IF EXISTS groups")
+    query("DROP TABLE IF EXISTS locations")
+    query("DROP TABLE IF EXISTS players")
+  end
+
   def disconnect
     @db.close
   end
@@ -210,7 +280,7 @@ class DatabasePersistence
   private
 
   def query(statement, *params)
-    @logger.info "#{statement}: #{params}"
+    @logger.info "#{statement}: #{params}" unless @logger.nil?
     @db.exec_params(statement, params)
   end
 

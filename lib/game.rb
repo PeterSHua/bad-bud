@@ -4,11 +4,12 @@ MONTHS = %w(Jan Feb Mar Apr May Jun Jul Aug Sept Oct Nov Dec)
 DAYS_OF_WEEK = %w(Sun Mon Tues Wed Thurs Fri Sat)
 
 class Game
-  attr_reader :id, :start_time, :duration, :group_name, :group_id, :location,
-                :fee, :filled_slots, :total_slots, :players, :notes
+  attr_reader :id, :start_time, :duration, :group_name, :group_id,
+              :location_name, :location_id, :fee, :filled_slots,
+              :total_slots, :players, :notes
 
   def initialize(id:, start_time:, duration:, group_name:, group_id:,
-                 location:, fee:, filled_slots:, total_slots:, players: {},
+                 location_name:, location_id:, fee:, filled_slots:, total_slots:, players: {},
                  notes: "")
 
     self.id = id;
@@ -16,7 +17,8 @@ class Game
     self.duration = duration
     self.group_name = group_name
     self.group_id = group_id
-    self.location = location
+    self.location_name = location_name
+    self.location_id = location_id
     self.fee = fee
     self.filled_slots = filled_slots
     self.total_slots = total_slots
@@ -26,6 +28,7 @@ class Game
 
   private
 
-  attr_writer :id, :start_time, :duration, :group_name, :group_id, :location,
-  :fee, :filled_slots, :total_slots, :players, :notes
+  attr_writer :id, :start_time, :duration, :group_name, :group_id,
+              :location_name, :location_id, :fee, :filled_slots,
+              :total_slots, :players, :notes
 end

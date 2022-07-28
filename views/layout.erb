@@ -8,6 +8,18 @@
   <body>
     <header>
       <h1>Badminton Buddies</h1>
+        <div>
+          <% if session[:logged_in] %>
+            <em>Signed in as <%= session[:username] %>.</em>
+            <form class="inline" method="post" action="/logout">
+              <button type="submit">Sign Out</button>
+            </form>
+          <% else %>
+            <form method="get" action="/login">
+              <button type="submit">Sign In</button>
+            </form>
+          <% end %>
+        </div>
       <div>
         <%== yield_content :header_links %>
       </div>

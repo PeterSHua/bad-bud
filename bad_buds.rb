@@ -6,6 +6,7 @@ require_relative "lib/database_persistence"
 require_relative "lib/game.rb"
 require_relative "lib/group.rb"
 require_relative "lib/player.rb"
+require_relative "lib/location.rb"
 
 configure do
   enable :sessions

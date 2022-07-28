@@ -9,7 +9,7 @@
 </h3>
 
 <p>
-  Location: <%= @game.location %>
+  Location: <%= @game.location_name %>
   <br>
   Attendees: <%= @game.filled_slots %> / <%= @game.total_slots %>
   <br>
@@ -45,13 +45,13 @@
 <form action="/games/<%= @game_id %>/players" method="post">
   <dl>
     <dt>
-      <label for="player_name">RVSP for this game:</label>
+      <label for="player_name">Sign up for this game:</label>
     </dt>
     <dd>
       <input name="player_name" placeholder="Your name" type="text">
     </dd>
   </dl>
-  <button type="submit">Register</button>
+  <button type="submit">Sign up</button>
 </form>
 
 <% content_for :header_links do %>
