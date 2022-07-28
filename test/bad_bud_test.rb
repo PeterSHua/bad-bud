@@ -23,7 +23,7 @@ class BadBudsTest < Minitest::Test
                           games_played: 30,
                           about: 'Info about Peter.',
                           username: 'peter',
-                          password: '$2a$12$O.pnaqSa.yreN2v02FrE0uDedhSmKAzjR8vyqN3kBV5dLJrGLIG/y')
+                          password: '$2a$12$W5ACHXiMPoYIHUEjTWtnUOnO18zfz65mQiqsIn/IVabLsJQ5ZelqS')
 
     player_2 = Player.new(id: 2,
                           name: 'David M',
@@ -31,7 +31,7 @@ class BadBudsTest < Minitest::Test
                           games_played: 50,
                           about: 'Info about David.',
                           username: 'david',
-                          password: '$2a$12$O.pnaqSa.yreN2v02FrE0uDedhSmKAzjR8vyqN3kBV5dLJrGLIG/y')
+                          password: '$2a$12$W5ACHXiMPoYIHUEjTWtnUOnO18zfz65mQiqsIn/IVabLsJQ5ZelqS')
 
     group_1 = Group.new(id: 1,
                         name: 'Novice BM Vancouver',
@@ -109,7 +109,10 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_view_invalid_group
+    get "/groups/2"
 
+    assert_equal 302, last_response.status
+    assert_equal "The specified group was not found.", session[:error]
   end
 
   def test_view_game
@@ -126,7 +129,10 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_view_invalid_game
+    get "/games/2"
 
+    assert_equal 302, last_response.status
+    assert_equal "The specified game was not found.", session[:error]
   end
 
   def test_view_player
@@ -141,122 +147,162 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_view_invalid_player
+    get "/players/3"
 
+    assert_equal 302, last_response.status
+    assert_equal "The specified player was not found.", session[:error]
   end
 
   def test_login
+    get "/login"
 
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Username"
+    assert_includes last_response.body, "Password"
+
+    post "/login", { username: "peter", password: "abc123" }
+
+    assert_equal 302, last_response.status
+    assert_equal "Welcome!", session[:success]
+    assert_equal "peter", session[:username]
+    assert_equal "1", session[:player_id]
+    assert session[:logged_in]
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Signed in as <a href=\"/players/1\">peter"
   end
 
   def test_login_fail
+    post "/login", { username: "groucho", password: "marx" }
 
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "Invalid Credentials!"
+    refute session[:logged_in]
   end
 
   def test_logout
+    post "/login", { username: "peter", password: "abc123" }
+    get last_response["Location"]
 
-  end
+    assert_includes last_response.body, "Sign Out"
 
-  def test_register_already_logged_in
+    post "/logout"
 
-  end
+    assert_equal 302, last_response.status
+    assert_equal "You have been signed out.", session[:success]
 
-  def test_register_acc_exists
+    get last_response["Location"]
 
-  end
+    assert_equal 200, last_response.status
+    refute_equal "Welcome!", session[:success]
+    refute_equal "peter", session[:username]
+    refute_equal "1", session[:player_id]
+    refute session[:logged_in]
 
-  def test_register_short_username
-
-  end
-
-  def test_register_long_username
-
-  end
-
-  def test_register_invalid_chars_username
-
-  end
-
-  def test_register_short_password
-
-  end
-
-  def test_register_long_password
-
-  end
-
-  def test_register_invalid_chars_password
-
+    assert_includes last_response.body, "Sign In"
   end
 
   def test_register
+    skip
+  end
 
+  def test_register_already_logged_in
+    skip
+  end
+
+  def test_register_acc_exists
+    skip
+  end
+
+  def test_register_short_username
+    skip
+  end
+
+  def test_register_long_username
+    skip
+  end
+
+  def test_register_invalid_chars_username
+    skip
+  end
+
+  def test_register_short_password
+    skip
+  end
+
+  def test_register_long_password
+    skip
+  end
+
+  def test_register_invalid_chars_password
+    skip
   end
 
   def test_rsvp_anon_player
-
+    skip
   end
 
   def test_rsvp_anon_player_short_name
-
+    skip
   end
 
   def test_rsvp_anon_player_long_name
-
+    skip
   end
 
   def test_rsvp_anon_player_invalid_chars_name
-
+    skip
   end
 
   def test_rvsp_player
-
+    skip
   end
 
   def test_rsvp_player_already_rsvpd
-
+    skip
   end
 
   def test_un_rsvp_player
-
+    skip
   end
 
   def test_confirm_payment
-
+    skip
   end
 
   def test_un_confirm_payment
-
+    skip
   end
 
   def test_create_game
-
+    skip
   end
 
   def test_delete_game
-
+    skip
   end
 
   def test_create_group
-
+    skip
   end
 
   def test_create_group_already_exists
-
+    skip
   end
 
   def test_create_group_short_name
-
+    skip
   end
 
   def test_create_group_long_name
-
+    skip
   end
 
   def test_create_group_invalid_chars_name
-
+    skip
   end
 
   def test_delete_group
-
+    skip
   end
  end

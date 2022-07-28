@@ -1,6 +1,7 @@
 require "sinatra"
 require "sinatra/content_for"
 require "tilt/erubis"
+require "bcrypt"
 
 require_relative "lib/database_persistence"
 require_relative "lib/game.rb"
@@ -21,6 +22,29 @@ end
 
 helpers do
 
+end
+
+def logged_in?
+  session[:logged_in]
+end
+
+def prompt_login
+  return if logged_in?
+
+  session[:message] = "You must be signed in to do that."
+  redirect "/"
+end
+
+def valid_password?(password)
+  (4..10).cover?(password.size) && !/\s/.match?(password)
+end
+
+def correct_password?(username, raw_password)
+  password = @storage.find_password(username)
+
+  return false if password.nil?
+
+  BCrypt::Password.new(password) == raw_password
 end
 
 def load_game(id)
@@ -137,4 +161,33 @@ get "/players/:id" do
   @player = load_player(@player_id)
 
   erb :player, layout: :layout
+end
+
+get "/login" do
+  erb :login, layout: :layout
+end
+
+post "/login" do
+  if valid_password?(params[:password]) &&
+     correct_password?(params[:username], params[:password])
+    session[:username] = params[:username]
+    session[:player_id] = @storage.find_player_id(params[:username])
+    session[:success] = "Welcome!"
+    session[:logged_in] = true
+    redirect "/game_list"
+  else
+    session[:error] = "Invalid Credentials!"
+    status 422
+    erb :login
+  end
+end
+
+post "/logout" do
+  session[:logged_in] = false
+  session[:username] = nil
+  session[:player_id] = nil
+
+  session[:success] = "You have been signed out."
+
+  redirect "/game_list"
 end

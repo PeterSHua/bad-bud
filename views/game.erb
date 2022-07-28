@@ -55,6 +55,19 @@
 </form>
 
 <% content_for :header_links do %>
+  <div>
+    <% if session[:logged_in] %>
+      <em>Signed in as <%= session[:username] %>.</em>
+      <form class="inline" method="post" action="/logout">
+        <button type="submit">Sign Out</button>
+      </form>
+    <% else %>
+      <form method="get" action="/login">
+        <button type="submit">Sign In</button>
+      </form>
+    <% end %>
+  </div>
+
   <a href="/game_list">Games</a>
   <a href="/group_list">Groups</a>
 <% end %>

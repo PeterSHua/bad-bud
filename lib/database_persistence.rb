@@ -251,6 +251,31 @@ class DatabasePersistence
     query(sql, player_id, game_id)
   end
 
+  def find_password(username)
+    sql = <<~SQL
+      SELECT password
+        FROM players
+       WHERE username = $1;
+    SQL
+
+    result = query(sql, username)
+    return nil if result.ntuples.zero?
+
+    result.first["password"]
+  end
+
+  def find_player_id(username)
+    sql = <<~SQL
+      SELECT id
+        FROM players
+       WHERE username = $1;
+    SQL
+
+    result = query(sql, username)
+
+    result.first["id"]
+  end
+
   def create_schema
     system("psql -d bad_buds_test < schema.sql")
   end
