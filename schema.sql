@@ -59,10 +59,12 @@ CREATE TABLE games_players(
     id serial,
     game_id integer NOT NULL,
     FOREIGN KEY (game_id)
-    REFERENCES games (id),
+    REFERENCES games (id)
+    ON DELETE CASCADE,
     player_id integer NOT NULL,
     FOREIGN KEY (player_id)
-    REFERENCES players (id),
+    REFERENCES players (id)
+    ON DELETE CASCADE,
     fee_paid boolean NOT NULL DEFAULT false,
     UNIQUE (game_id, player_id)
 );

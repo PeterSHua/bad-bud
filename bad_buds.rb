@@ -85,6 +85,47 @@ def error_for_player_name(name)
   end
 end
 
+def acc_exists?(username)
+  !@storage.find_player_id(username).nil?
+end
+
+def valid_username?(username)
+  (4..10).cover?(username.size) && !/[^\w]/.match?(username)
+end
+
+def valid_password?(password)
+  (4..10).cover?(password.size) && !/\s/.match?(password)
+end
+
+def register_acc(username, password)
+  encrypted_password = BCrypt::Password.create(password).to_s
+  player = Player.new(username: username,
+                      password: encrypted_password,
+                      name: username)
+  @storage.add_player(player)
+end
+
+def signup_player(game_id, player_id)
+  @storage.rsvp_player(game_id, player_id)
+
+  session[:success] = "You've been signed up."
+  redirect "/games/#{@game_id}"
+end
+
+def signup_anon_player(game_id, player_name)
+  error = error_for_player_name(player_name)
+
+  if error
+    session[:error] = error
+    erb :game, layout: :layout
+  else
+    @storage.rsvp_anon_player(game_id, player_name)
+
+    session[:success] = "You've been signed up."
+    redirect "/games/#{@game_id}"
+  end
+end
+
 before do
   @storage = DatabasePersistence.new(logger)
 end
@@ -113,21 +154,21 @@ get "/games/:id" do
   erb :game, layout: :layout
 end
 
-# Add player without account to game
+# Add player to game
 post "/games/:game_id/players" do
   @game_id = params[:game_id].to_i
   @game = load_game(@game_id)
-  player_name = params[:player_name].strip
 
-  error = error_for_player_name(player_name)
-  if error
-    session[:error] = error
-    erb :game, layout: :layout
-  else
-    @storage.rsvp_anon_player(@game_id, player_name)
+  if @game.filled_slots >= @game.total_slots
+    session[:error] = "Sorry, no empty slots remaining."
 
-    session[:success] = "You've been added."
     redirect "/games/#{@game_id}"
+  end
+
+  if session[:logged_in]
+    signup_player(@game_id, session[:player_id])
+  else
+    signup_anon_player(@game_id, params[:player_name].strip)
   end
 end
 
@@ -163,10 +204,12 @@ get "/players/:id" do
   erb :player, layout: :layout
 end
 
+# View login page
 get "/login" do
   erb :login, layout: :layout
 end
 
+# Login
 post "/login" do
   if valid_password?(params[:password]) &&
      correct_password?(params[:username], params[:password])
@@ -182,6 +225,7 @@ post "/login" do
   end
 end
 
+# Logout
 post "/logout" do
   session[:logged_in] = false
   session[:username] = nil
@@ -190,4 +234,50 @@ post "/logout" do
   session[:success] = "You have been signed out."
 
   redirect "/game_list"
+end
+
+# View register page
+get "/register" do
+  if session[:logged_in]
+    session[:error] = "You're already logged in."
+
+    redirect "/game_list"
+  else
+    erb :register, layout: :layout
+  end
+end
+
+# Register
+post "/register" do
+  if session[:logged_in]
+    session[:error] = "You're already logged in."
+
+    redirect "/game_list"
+  elsif acc_exists?(params[:username])
+    session[:error] = "That account name already exists."
+    status 422
+
+    erb :register, layout: :layout
+  elsif !valid_username?(params[:username])
+    session[:error] = "Username must consist of only letters and numbers, "\
+                        "and must be between 4-10 characters."
+    status 422
+
+    erb :register, layout: :layout
+  elsif !valid_password?(params[:password])
+    session[:error] = "Password must be between 4-10 characters and cannot "\
+                        "contain spaces."
+    status 422
+
+    erb :register, layout: :layout
+  else
+    register_acc(params[:username], params[:password])
+
+    session[:success] = "Your account has been registered."
+    session[:logged_in] = true
+    session[:username] = params[:username]
+    session[:player_id] = @storage.find_player_id(params[:username])
+
+    redirect "/game_list"
+  end
 end

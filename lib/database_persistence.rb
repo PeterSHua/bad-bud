@@ -43,16 +43,16 @@ class DatabasePersistence
     players = find_players_for_game(id)
     filled_slots = players.count
 
-    Game.new(id: tuple["id"],
+    Game.new(id: tuple["id"].to_i,
              start_time: tuple["start_time"],
-             duration: tuple["duration"],
+             duration: tuple["duration"].to_i,
              group_name: tuple["group_name"],
-             group_id: tuple["group_id"],
+             group_id: tuple["group_id"].to_i,
              location_name: tuple["location_name"],
-             location_id: tuple["location_id"],
-             fee: tuple["fee"],
+             location_id: tuple["location_id"].to_i,
+             fee: tuple["fee"].to_i,
              filled_slots: filled_slots,
-             total_slots: tuple["total_slots"],
+             total_slots: tuple["total_slots"].to_i,
              players: players,
              notes: tuple["notes"])
   end
@@ -226,6 +226,15 @@ class DatabasePersistence
             game.location_id, game.fee, game.total_slots, game.notes)
   end
 
+  def rsvp_player(game_id, player_id)
+    sql = <<~SQL
+      INSERT INTO games_players (game_id, player_id)
+      VALUES ($1, $2)
+    SQL
+
+    query(sql, game_id, player_id)
+  end
+
   def rsvp_anon_player(game_id, player_name)
     sql = <<~SQL
       INSERT INTO players (name)
@@ -272,6 +281,7 @@ class DatabasePersistence
     SQL
 
     result = query(sql, username)
+    return nil if result.ntuples.zero?
 
     result.first["id"]
   end
@@ -281,11 +291,11 @@ class DatabasePersistence
   end
 
   def delete_all_data
+    query("DELETE FROM groups_players;")
+    query("DELETE FROM games_players;")
     query("DELETE FROM games;")
     query("DELETE FROM players;")
     query("DELETE FROM groups;")
-    query("DELETE FROM groups_players;")
-    query("DELETE FROM games_players;")
     query("DELETE FROM locations;")
   end
 
@@ -310,7 +320,7 @@ class DatabasePersistence
   end
 
   def find_players_for_game(game_id)
-    sql = "SELECT players.id, username, name, fee_paid
+    sql = "SELECT players.id, name, rating, games_played, about, username, fee_paid
              FROM players
                   INNER JOIN games_players
                   ON games_players.player_id = players.id

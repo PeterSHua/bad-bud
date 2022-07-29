@@ -24,6 +24,7 @@
 <table>
   <tr>
     <th>Name</th>
+    <th><a href="https://www.dropbox.com/s/vmk48yybqhd35dj/rr-rating-reformatted.pdf?dl=0">Rating</a></th>
     <th>Payment Confirmed?</th>
   </tr>
   <% @game.players.each do |player| %>
@@ -37,22 +38,31 @@
         </a>
       <% end %>
     <td>
+    <td><%= player.rating %></td>
     <td><%= player.fee_paid %></td>
   </tr>
   <% end %>
 </table>
 
-<form action="/games/<%= @game_id %>/players" method="post">
-  <dl>
-    <dt>
-      <label for="player_name">Sign up for this game:</label>
-    </dt>
-    <dd>
-      <input name="player_name" placeholder="Your name" type="text">
-    </dd>
-  </dl>
-  <button type="submit">Sign up</button>
-</form>
+<% unless @game.filled_slots >= @game.total_slots %>
+  <form action="/games/<%= @game_id %>/players" method="post">
+    <% unless session[:logged_in] %>
+      <dl>
+        <dt>
+          <label for="player_name">Sign up for this game:</label>
+        </dt>
+        <dd>
+          <input name="player_name" placeholder="Your name" type="text">
+        </dd>
+      </dl>
+    <% end %>
+    <button type="submit">Sign up</button>
+  </form>
+
+  <p>
+    <a href="/register">Register an account to manage your RSVP.</a>
+  </p>
+<% end %>
 
 <% content_for :header_links do %>
   <div>

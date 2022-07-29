@@ -51,7 +51,7 @@ class BadBudsTest < Minitest::Test
                       location_name: 'Badminton Vancouver',
                       location_id: 1,
                       fee: 12,
-                      total_slots: 18,
+                      total_slots: 6,
                       filled_slots: 2,
                       players: { name: 'Peter H', has_paid: true },
                       notes: 'Some game notes.')
@@ -83,7 +83,7 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Fri, Jul 22"
     assert_includes last_response.body, "Novice BM Vancouver"
     assert_includes last_response.body, "Location: Badminton Vancouver"
-    assert_includes last_response.body, "Attendees: 0 / 18"
+    assert_includes last_response.body, "Attendees: 0 / 6"
     assert_includes last_response.body, "Fee: $12"
   end
 
@@ -104,7 +104,7 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Fri, Jul 22"
     assert_includes last_response.body, "Novice BM Vancouver"
     assert_includes last_response.body, "Location: Badminton Vancouver"
-    assert_includes last_response.body, "Attendees: 0 / 18"
+    assert_includes last_response.body, "Attendees: 0 / 6"
     assert_includes last_response.body, "Fee: $12"
   end
 
@@ -123,7 +123,7 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Fri, Jul 22"
     assert_includes last_response.body, "Novice BM Vancouver"
     assert_includes last_response.body, "Location: Badminton Vancouver"
-    assert_includes last_response.body, "Attendees: 0 / 18"
+    assert_includes last_response.body, "Attendees: 0 / 6"
     assert_includes last_response.body, "Fee: $12"
     assert_includes last_response.body, "Some game notes."
   end
@@ -203,43 +203,96 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_register
-    skip
+    post "/register", { username: "groucho", password: "marx" }
+    get last_response["Location"]
+
+    assert_includes last_response.body, "Signed in as"
+
+    post "/logout"
+
+    assert_equal 302, last_response.status
+    assert_equal "You have been signed out.", session[:success]
+
+    get last_response["Location"]
+
+    assert_equal 200, last_response.status
+    refute session[:logged_in]
+    assert_includes last_response.body, "Sign In"
   end
 
   def test_register_already_logged_in
-    skip
+    post "/register", { username: "harpo", password: "marx" }, admin_session
+
+    assert_equal 302, last_response.status
+    assert_equal "You're already logged in.", session[:error]
   end
 
   def test_register_acc_exists
-    skip
+    post "/register", { username: "peter", password: "abc123" }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "That account name already exists."
   end
 
   def test_register_short_username
-    skip
+    post "/register", { username: "gro", password: "marx" }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body,
+                    "Username must consist of only letters and numbers, "\
+                    "and must be between 4-10 characters."
   end
 
   def test_register_long_username
-    skip
+    post "/register", { username: "groucho1234", password: "marx" }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body,
+                    "Username must consist of only letters and numbers, "\
+                    "and must be between 4-10 characters."
   end
 
   def test_register_invalid_chars_username
-    skip
+    post "/register", { username: "gr[]ucho", password: "marx" }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body,
+                    "Username must consist of only letters and numbers, "\
+                    "and must be between 4-10 characters."
   end
 
   def test_register_short_password
-    skip
+    post "/register", { username: "groucho", password: "mar" }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body,
+                    "Password must be between 4-10 characters and cannot "\
+                    "contain spaces."
   end
 
   def test_register_long_password
-    skip
+    post "/register", { username: "groucho", password: "marx1234567" }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body,
+                    "Password must be between 4-10 characters and cannot "\
+                    "contain spaces."
   end
 
   def test_register_invalid_chars_password
-    skip
+    post "/register", { username: "groucho", password: "m a r x" }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body,
+                    "Password must be between 4-10 characters and cannot "\
+                    "contain spaces."
   end
 
   def test_rsvp_anon_player
-    skip
+    post "/games/1/players", { player_name: "Groucho Marx" }
+
+    assert_equal 302, last_response.status
+    assert_equal "You've been signed up.", session[:success]
   end
 
   def test_rsvp_anon_player_short_name
