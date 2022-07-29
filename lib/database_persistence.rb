@@ -186,6 +186,33 @@ class DatabasePersistence
               about: tuple["about"])
   end
 
+  def find_group_players(id)
+    sql = <<~SQL
+      SELECT *
+        FROM groups
+             INNER JOIN groups_players
+             ON groups.id = groups_players.group_id
+             INNER JOIN players
+             ON groups_players.player_id = players.id
+       WHERE groups.id = $1
+       ORDER BY is_organizer DESC;
+    SQL
+
+    result = query(sql, id)
+
+    result.map do |player|
+      Player.new(id: player["id"].to_i,
+                 username: player["username"],
+                 password: player["password"],
+                 name: player["name"],
+                 rating: player["rating"].to_i,
+                 games_played: player["games_played"].to_i,
+                 about: player["about"],
+                 fee_paid: player["fee_paid"] == 't',
+                 is_organizer: player["is_organizer"] == 't')
+    end
+  end
+
   def add_player(player)
     sql = <<~SQL
       INSERT INTO players (username, password, name, rating, games_played, about)
@@ -279,6 +306,58 @@ class DatabasePersistence
     result = query(sql, game_id, player_id)
 
     !result.ntuples.zero?
+  end
+
+  def is_organizer?(group_id, player_id)
+    sql = <<~SQL
+      SELECT is_organizer FROM groups_players
+      WHERE group_id = $1 AND player_id = $2;
+    SQL
+
+    result = query(sql, group_id, player_id)
+    return false if result.ntuples.zero?
+
+    result.first["is_organizer"] == 't'
+  end
+
+  def confirm_paid(game_id, player_id)
+    sql = <<~SQL
+      UPDATE games_players
+         SET fee_paid = true
+       WHERE game_id = $1 AND player_id = $2;
+    SQL
+
+    query(sql, game_id, player_id)
+  end
+
+  def confirm_all_paid(game_id)
+    sql = <<~SQL
+      UPDATE games_players
+        SET fee_paid = true
+      WHERE game_id = $1
+    SQL
+
+    query(sql, game_id)
+  end
+
+  def unconfirm_paid(game_id, player_id)
+    sql = <<~SQL
+      UPDATE games_players
+         SET fee_paid = false
+       WHERE game_id = $1 AND player_id = $2;
+    SQL
+
+    query(sql, game_id, player_id)
+  end
+
+  def unconfirm_all_paid(game_id)
+    sql = <<~SQL
+      UPDATE games_players
+        SET fee_paid = false
+      WHERE game_id = $1
+    SQL
+
+    query(sql, game_id)
   end
 
   def find_password(username)

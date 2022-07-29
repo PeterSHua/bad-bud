@@ -26,7 +26,7 @@ class BadBudsTest < Minitest::Test
                           password: '$2a$12$W5ACHXiMPoYIHUEjTWtnUOnO18zfz65mQiqsIn/IVabLsJQ5ZelqS')
 
     player_2 = Player.new(id: 2,
-                          name: 'Jeffery Lamar Williams',
+                          name: 'Jeffery Williams',
                           rating: 3,
                           games_played: 50,
                           about: 'Info about jeffery.',
@@ -57,6 +57,7 @@ class BadBudsTest < Minitest::Test
                       notes: 'Some game notes.')
 
     @storage.add_player(player_1)
+    @storage.add_player(player_2)
     @storage.add_location(location_1)
     @storage.add_group(group_1)
     @storage.add_game(game_1)
@@ -71,12 +72,22 @@ class BadBudsTest < Minitest::Test
     last_request.env["rack.session"]
   end
 
-  def logged_in_session
+  def logged_in_as_symere
     {
       "rack.session" => {
                           logged_in: true,
                           username: "symere",
                           player_id: 1
+                        }
+    }
+  end
+
+  def logged_in_as_jeffery
+    {
+      "rack.session" => {
+                          logged_in: true,
+                          username: "jeffery",
+                          player_id: 2
                         }
     }
   end
@@ -226,7 +237,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_register_already_logged_in
-    post "/register", { username: "harpo", password: "marx" }, logged_in_session
+    post "/register", { username: "harpo", password: "marx" }, logged_in_as_symere
 
     assert_equal 302, last_response.status
     assert_equal "You're already logged in.", session[:error]
@@ -339,7 +350,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_rvsp_player
-    post "/games/1/players/add", {}, logged_in_session
+    post "/games/1/players/add", {}, logged_in_as_symere
 
     assert_equal 302, last_response.status
     assert_equal "You've been signed up.", session[:success]
@@ -350,7 +361,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_rsvp_player_already_rsvpd
-    post "/games/1/players/add", {}, logged_in_session
+    post "/games/1/players/add", {}, logged_in_as_symere
     post "/games/1/players/add", {}
 
     assert_equal 422, last_response.status
@@ -365,7 +376,7 @@ class BadBudsTest < Minitest::Test
     post "/games/1/players/add", { player_name: "Zeppo" }
     post "/games/1/players/add", { player_name: "Minnie" }
 
-    post "/games/1/players/add", {}, logged_in_session
+    post "/games/1/players/add", {}, logged_in_as_symere
 
     assert_equal 302, last_response.status
     assert_equal "Sorry, no empty slots remaining.", session[:error]
@@ -376,7 +387,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_un_rsvp_player
-    post "/games/1/players/add", {}, logged_in_session
+    post "/games/1/players/add", {}, logged_in_as_symere
     post "/games/1/players/remove"
 
     assert_equal 302, last_response.status
@@ -388,11 +399,43 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_confirm_payment
-    skip
+    post "/games/1/players/add", {}, logged_in_as_symere
+
+    get last_response["Location"]
+    assert_includes last_response.body, "❌"
+
+    post "/games/1/players/1/confirm_paid"
+
+    get last_response["Location"]
+    assert_includes last_response.body, "✅"
   end
 
   def test_un_confirm_payment
-    skip
+    post "/games/1/players/add", {}, logged_in_as_symere
+    post "/games/1/players/1/confirm_paid"
+    post "/games/1/players/1/unconfirm_paid"
+
+    get last_response["Location"]
+    assert_includes last_response.body, "❌"
+  end
+
+  def test_confirm_all_payment
+    post "/games/1/players/add", {}, logged_in_as_symere
+    post "/games/1/players/add", {}, logged_in_as_jeffery
+    post "/games/1/players/confirm_all"
+
+    get last_response["Location"]
+    refute_includes last_response.body, "❌"
+  end
+
+  def test_unconfirm_all_payment
+    post "/games/1/players/add", {}, logged_in_as_symere
+    post "/games/1/players/add", {}, logged_in_as_jeffery
+    post "/games/1/players/confirm_all"
+    post "/games/1/players/unconfirm_all"
+
+    get last_response["Location"]
+    refute_includes last_response.body, "✅"
   end
 
   def test_create_game

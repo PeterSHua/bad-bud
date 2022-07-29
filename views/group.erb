@@ -5,24 +5,43 @@
   <%= @group.about %>
 </p>
 
-<h2>Games</h2>
-<ul>
-  <% @group_games.each do |game| %>
-    <a href="/games/<%= game.id %>">
+<h2>Upcoming Games</h2>
+<p>
+  <ul>
+    <% @group_games.each do |game| %>
+      <a href="/games/<%= game.id %>">
+        <li>
+          <h2><%= DAYS_OF_WEEK[game.start_time.wday] %>, <%= MONTHS[game.start_time.month - 1] %> <%= game.start_time.day %></h2>
+          <h3><%= game.group_name %></h3>
+          <p>
+            Location: <%= game.location_name %>
+            <br>
+            Attendees: <%= game.filled_slots %> / <%= game.total_slots %>
+            <br>
+            Fee: $<%= game.fee %>
+          </p>
+      </li>
+      </a>
+    <% end %>
+  </ul>
+</p>
+
+<h2>Members</h2>
+<p>
+  <ol>
+    <% @group_players.each do |player| %>
       <li>
-        <h2><%= DAYS_OF_WEEK[game.start_time.wday] %>, <%= MONTHS[game.start_time.month - 1] %> <%= game.start_time.day %></h2>
-        <h3><%= game.group_name %></h3>
-        <p>
-          Location: <%= game.location_name %>
-          <br>
-          Attendees: <%= game.filled_slots %> / <%= game.total_slots %>
-          <br>
-          Fee: $<%= game.fee %>
-        </p>
-     </li>
-    </a>
-  <% end %>
-</ul>
+        <a href="/players/<%= player.id %>">
+          <%= player.name %>
+        </a>
+        
+        <% if player.is_organizer %>
+          👑
+        <% end %>
+      </li>
+    <% end %>
+  </ol>
+</p>
 
 <% content_for :header_links do %>
   <div>

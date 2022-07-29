@@ -27,6 +27,7 @@ CREATE TABLE groups_players(
     FOREIGN KEY (player_id)
     REFERENCES players (id)
     ON DELETE CASCADE,
+    is_organizer BOOLEAN NOT NULL DEFAULT false,
     UNIQUE (group_id, player_id)
 );
 

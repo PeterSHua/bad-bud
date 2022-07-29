@@ -21,8 +21,12 @@ configure(:development) do
 end
 
 helpers do
-  def already_signed_up?
-    @storage.already_signed_up?(@game_id, session[:player_id])
+  def already_signed_up?(game_id, player_id)
+    @storage.already_signed_up?(game_id, player_id)
+  end
+
+  def is_organizer?(game_id, player_id)
+    @storage.is_organizer?(game_id, player_id)
   end
 end
 
@@ -195,6 +199,44 @@ post "/games/:game_id/players/remove" do
   end
 end
 
+# Confirm player payment
+post "/games/:game_id/players/:player_id/confirm_paid" do
+  @game_id = params[:game_id]
+  @player_id = params[:player_id]
+
+  @storage.confirm_paid(@game_id, @player_id)
+
+  redirect "/games/#{@game_id}"
+end
+
+# Confirm all players' payment
+post "/games/:game_id/players/confirm_all" do
+  @game_id = params[:game_id]
+
+  @storage.confirm_all_paid(@game_id)
+
+  redirect "/games/#{@game_id}"
+end
+
+# Un-confirm player payment
+post "/games/:game_id/players/:player_id/unconfirm_paid" do
+  @game_id = params[:game_id]
+  @player_id = params[:player_id]
+
+  @storage.unconfirm_paid(@game_id, @player_id)
+
+  redirect "/games/#{@game_id}"
+end
+
+# Confirm all players' payment
+post "/games/:game_id/players/unconfirm_all" do
+  @game_id = params[:game_id]
+
+  @storage.unconfirm_all_paid(@game_id)
+
+  redirect "/games/#{@game_id}"
+end
+
 # View group listing
 get "/group_list" do
   @group_list = @storage.all_groups
@@ -207,6 +249,8 @@ get "/groups/:group_id" do
   @group_id = params[:group_id].to_i
   @group = load_group(@group_id)
   @group_games = @storage.find_group_games(@group_id)
+
+  @group_players = @storage.find_group_players(@group_id)
 
   erb :group, layout: :layout
 end

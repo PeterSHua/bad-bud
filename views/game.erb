@@ -21,6 +21,17 @@
   <%= @game.notes %>
 </p>
 
+<p>
+  <% if session[:logged_in] && is_organizer?(@game.group_id, session[:player_id]) %>
+      <form class="inline" method="post" action="/games/<%= @game.id %>/players/confirm_all">
+        <button type="submit">Confirm All</button>
+      </form>
+      <form class="inline" method="post" action="/games/<%= @game.id %>/players/unconfirm_all">
+        <button type="submit">Un-confirm All</button>
+      </form>
+  <% end %>
+</p>
+
 <table>
   <tr>
     <th>Name</th>
@@ -38,8 +49,26 @@
         </a>
       <% end %>
     <td>
+
     <td><%= player.rating %></td>
-    <td><%= player.fee_paid %></td>
+
+    <td>
+      <% if player.fee_paid %>
+        ✅
+        <% if session[:logged_in] && is_organizer?(@game.group_id, session[:player_id]) %>
+          <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/unconfirm_paid">
+            <button type="submit">Un-confirm</button>
+          </form>
+        <% end %>
+      <% else %>
+        ❌
+        <% if session[:logged_in] && is_organizer?(@game.group_id, session[:player_id]) %>
+          <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/confirm_paid">
+            <button type="submit">Confirm</button>
+          </form>
+        <% end %>
+      <% end %>
+    </td>
   </tr>
   <% end %>
 </table>
@@ -57,12 +86,12 @@
       </dl>
     <% end %>
 
-    <% if session[:logged_in] && !already_signed_up? %>
+    <% if session[:logged_in] && !already_signed_up?(@game_id, session[:player_id]) %>
       <button type="submit">Sign up</button>
     <% end %>
   </form>
 
-  <% if session[:logged_in] && already_signed_up? %>
+  <% if session[:logged_in] && already_signed_up?(@game_id, session[:player_id]) %>
     <form class="inline" method="post" action="/games/<%= @game.id %>/players/remove">
       <button type="submit">Remove me</button>
     </form>
