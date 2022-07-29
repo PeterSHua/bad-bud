@@ -45,7 +45,7 @@
 </table>
 
 <% unless @game.filled_slots >= @game.total_slots %>
-  <form action="/games/<%= @game_id %>/players" method="post">
+  <form action="/games/<%= @game_id %>/players/add" method="post">
     <% unless session[:logged_in] %>
       <dl>
         <dt>
@@ -61,6 +61,12 @@
       <button type="submit">Sign up</button>
     <% end %>
   </form>
+
+  <% if session[:logged_in] && already_signed_up? %>
+    <form class="inline" method="post" action="/games/<%= @game.id %>/players/remove">
+      <button type="submit">Remove me</button>
+    </form>
+  <% end %>
 
   <p>
     <% unless session[:logged_in] %>

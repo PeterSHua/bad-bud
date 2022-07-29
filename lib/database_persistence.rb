@@ -235,6 +235,16 @@ class DatabasePersistence
     query(sql, game_id, player_id)
   end
 
+  def un_rsvp_player(game_id, player_id)
+    sql = <<~SQL
+      DELETE FROM games_players
+       WHERE game_id = $1 AND
+             player_id = $2;
+    SQL
+
+    query(sql, game_id, player_id)
+  end
+
   def rsvp_anon_player(game_id, player_name)
     sql = <<~SQL
       INSERT INTO players (name)

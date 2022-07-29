@@ -152,7 +152,7 @@ get "/games/:id" do
 end
 
 # Signup player to game
-post "/games/:game_id/players" do
+post "/games/:game_id/players/add" do
   @game_id = params[:game_id].to_i
   @game = load_game(@game_id)
 
@@ -175,6 +175,23 @@ post "/games/:game_id/players" do
     end
   else
     signup_anon_player(@game_id, params[:player_name].strip)
+  end
+end
+
+# Remove player from game
+post "/games/:game_id/players/remove" do
+  @game_id = params[:game_id].to_i
+
+  if @storage.already_signed_up?(@game_id, session[:player_id])
+    @storage.un_rsvp_player(params[:game_id], session[:player_id])
+
+    session[:success] = "You have been removed from this game."
+    redirect "/games/#{@game_id}"
+  else
+    session[:error] = "You aren't signed up for this game!"
+
+    status 422
+    erb :game, layout: :layout
   end
 end
 
