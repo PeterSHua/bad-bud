@@ -56,11 +56,16 @@
         </dd>
       </dl>
     <% end %>
-    <button type="submit">Sign up</button>
+
+    <% if session[:logged_in] && !already_signed_up? %>
+      <button type="submit">Sign up</button>
+    <% end %>
   </form>
 
   <p>
-    <a href="/register">Register an account to manage your RSVP.</a>
+    <% unless session[:logged_in] %>
+      <a href="/register">Register an account to manage your RSVP.</a>
+    <% end %>
   </p>
 <% end %>
 

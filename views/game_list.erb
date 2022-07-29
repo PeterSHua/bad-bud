@@ -1,36 +1,38 @@
-<h2>Games</h2>
+<h2>Upcoming Games</h2>
 
-<ul id="game_list">
+<ul id="games">
   <% @game_list.each do |game| %>
     <a href="/games/<%= game.id %>">
       <li>
         <h2><%= DAYS_OF_WEEK[game.start_time.wday] %>, <%= MONTHS[game.start_time.month - 1] %> <%= game.start_time.day %></h2>
-        <h3><%= game.group_name %></h3>
         <p>
-          Location: <%= game.location_name %>
-          <br>
           Attendees: <%= game.filled_slots %> / <%= game.total_slots %>
-          <br>
-          Fee: $<%= game.fee %>
         </p>
+        <br>
+        <h3><%= game.group_name %></h3>
+        <%= game.location_name %>
      </li>
     </a>
   <% end %>
 </ul>
 
 <% content_for :header_links do %>
-  <div>
+  <ul>
     <% if session[:logged_in] %>
-      <em>Signed in as <a href="/players/<%= session[:player_id] %>"><%= session[:username] %></a></em>
-      <form class="inline" method="post" action="/logout">
-        <button type="submit">Sign Out</button>
-      </form>
+      <li>
+        <em>Signed in as <a href="/players/<%= session[:player_id] %>"><%= session[:username] %></a></em>
+        <form class="inline" method="post" action="/logout">
+          <button type="submit">Sign Out</button>
+        </form>
     <% else %>
-      <form method="get" action="/login">
-        <button type="submit">Sign In</button>
-      </form>
+        <form method="get" action="/login">
+          <button type="submit">Sign In</button>
+        </form>
+      </li>
     <% end %>
-  </div>
 
-  <a href="/group_list">Groups</a>
+    <li>
+      <a href="/group_list">Groups</a>
+    </li>
+  </ul>
 <% end %>

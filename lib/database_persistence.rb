@@ -260,6 +260,17 @@ class DatabasePersistence
     query(sql, player_id, game_id)
   end
 
+  def already_signed_up?(game_id, player_id)
+    sql = <<~SQL
+      SELECT 1 FROM games_players
+       WHERE game_id = $1 AND player_id = $2;
+    SQL
+
+    result = query(sql, game_id, player_id)
+
+    !result.ntuples.zero?
+  end
+
   def find_password(username)
     sql = <<~SQL
       SELECT password

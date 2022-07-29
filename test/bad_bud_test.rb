@@ -71,8 +71,14 @@ class BadBudsTest < Minitest::Test
     last_request.env["rack.session"]
   end
 
-  def admin_session
-    { "rack.session" => { logged_in: true } }
+  def logged_in_session
+    {
+      "rack.session" => {
+                          logged_in: true,
+                          username: "peter",
+                          player_id: 1
+                        }
+    }
   end
 
   def test_view_game_list
@@ -82,9 +88,8 @@ class BadBudsTest < Minitest::Test
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
     assert_includes last_response.body, "Fri, Jul 22"
     assert_includes last_response.body, "Novice BM Vancouver"
-    assert_includes last_response.body, "Location: Badminton Vancouver"
+    assert_includes last_response.body, "Badminton Vancouver"
     assert_includes last_response.body, "Attendees: 0 / 6"
-    assert_includes last_response.body, "Fee: $12"
   end
 
   def test_view_group_list
@@ -221,7 +226,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_register_already_logged_in
-    post "/register", { username: "harpo", password: "marx" }, admin_session
+    post "/register", { username: "harpo", password: "marx" }, logged_in_session
 
     assert_equal 302, last_response.status
     assert_equal "You're already logged in.", session[:error]
@@ -296,23 +301,60 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_rsvp_anon_player_short_name
-    skip
+    post "/games/1/players", { player_name: "" }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "Your name must be between 1 and 20 characters."
   end
 
   def test_rsvp_anon_player_long_name
-    skip
+    post "/games/1/players", { player_name: "Chico Harpo Groucho Gummo and Zeppo" }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "Your name must be between 1 and 20 characters."
   end
 
-  def test_rsvp_anon_player_invalid_chars_name
-    skip
+  def test_rsvp_anon_player_no_empty_slots
+    post "/games/1/players", { player_name: "Chico" }
+    post "/games/1/players", { player_name: "Harpo" }
+    post "/games/1/players", { player_name: "Groucho" }
+    post "/games/1/players", { player_name: "Gummo" }
+    post "/games/1/players", { player_name: "Zeppo" }
+    post "/games/1/players", { player_name: "Minnie" }
+
+    post "/games/1/players", { player_name: "Sam" }
+
+    assert_equal 302, last_response.status
+    assert_equal "Sorry, no empty slots remaining.", session[:error]
   end
 
   def test_rvsp_player
-    skip
+    post "/games/1/players", {}, logged_in_session
+
+    assert_equal 302, last_response.status
+    assert_equal "You've been signed up.", session[:success]
   end
 
   def test_rsvp_player_already_rsvpd
-    skip
+    post "/games/1/players", {}, logged_in_session
+    post "/games/1/players", {}
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "You're already signed up!"
+  end
+
+  def test_rsvp_player_no_empty_slots
+    post "/games/1/players", { player_name: "Chico" }
+    post "/games/1/players", { player_name: "Harpo" }
+    post "/games/1/players", { player_name: "Groucho" }
+    post "/games/1/players", { player_name: "Gummo" }
+    post "/games/1/players", { player_name: "Zeppo" }
+    post "/games/1/players", { player_name: "Minnie" }
+
+    post "/games/1/players", {}, logged_in_session
+
+    assert_equal 302, last_response.status
+    assert_equal "Sorry, no empty slots remaining.", session[:error]
   end
 
   def test_un_rsvp_player

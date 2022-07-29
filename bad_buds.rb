@@ -21,18 +21,13 @@ configure(:development) do
 end
 
 helpers do
-
+  def already_signed_up?
+    @storage.already_signed_up?(@game_id, session[:player_id])
+  end
 end
 
 def logged_in?
   session[:logged_in]
-end
-
-def prompt_login
-  return if logged_in?
-
-  session[:message] = "You must be signed in to do that."
-  redirect "/"
 end
 
 def valid_password?(password)
@@ -117,12 +112,14 @@ def signup_anon_player(game_id, player_name)
 
   if error
     session[:error] = error
+
+    status 422
     erb :game, layout: :layout
   else
     @storage.rsvp_anon_player(game_id, player_name)
 
     session[:success] = "You've been signed up."
-    redirect "/games/#{@game_id}"
+    redirect "/games/#{game_id}"
   end
 end
 
@@ -154,7 +151,7 @@ get "/games/:id" do
   erb :game, layout: :layout
 end
 
-# Add player to game
+# Signup player to game
 post "/games/:game_id/players" do
   @game_id = params[:game_id].to_i
   @game = load_game(@game_id)
@@ -162,11 +159,20 @@ post "/games/:game_id/players" do
   if @game.filled_slots >= @game.total_slots
     session[:error] = "Sorry, no empty slots remaining."
 
+    status 422
+    # Others must have filled up the slots. Force a refresh for the updated list.
     redirect "/games/#{@game_id}"
   end
 
   if session[:logged_in]
-    signup_player(@game_id, session[:player_id])
+    if @storage.already_signed_up?(@game_id, session[:player_id])
+      session[:error] = "You're already signed up!"
+
+      status 422
+      erb :game, layout: :layout
+    else
+      signup_player(@game_id, session[:player_id])
+    end
   else
     signup_anon_player(@game_id, params[:player_name].strip)
   end
