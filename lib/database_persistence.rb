@@ -57,6 +57,15 @@ class DatabasePersistence
              notes: tuple["notes"])
   end
 
+  def delete_game(id)
+    sql = <<~SQL
+      DELETE FROM games
+       WHERE id = $1;
+    SQL
+
+    query(sql, id)
+  end
+
   def find_group_games(group_id)
     sql = <<~SQL
     SELECT gm.id,
@@ -317,13 +326,31 @@ class DatabasePersistence
     !result.ntuples.zero?
   end
 
-  def is_organizer?(group_id, player_id)
+  def group_organizer?(group_id, player_id)
     sql = <<~SQL
-      SELECT is_organizer FROM groups_players
-      WHERE group_id = $1 AND player_id = $2;
+      SELECT is_organizer
+        FROM groups_players
+       WHERE group_id = $1 AND player_id = $2;
     SQL
 
     result = query(sql, group_id, player_id)
+    return false if result.ntuples.zero?
+
+    result.first["is_organizer"] == 't'
+  end
+
+  def game_organizer?(game_id, player_id)
+    sql = <<~SQL
+      SELECT is_organizer
+        FROM games
+             INNER JOIN groups_players
+             ON games.group_id = groups_players.group_id
+             INNER JOIN players
+             ON groups_players.player_id = players.id
+       WHERE games.id = $1 AND players.id = $2;
+    SQL
+
+    result = query(sql, game_id, player_id)
     return false if result.ntuples.zero?
 
     result.first["is_organizer"] == 't'

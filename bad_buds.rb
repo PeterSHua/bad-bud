@@ -25,13 +25,13 @@ helpers do
     @storage.already_signed_up?(game_id, player_id)
   end
 
-  def is_organizer?(game_id, player_id)
-    @storage.is_organizer?(game_id, player_id)
+  def game_organizer?(game_id, player_id)
+    @storage.game_organizer?(game_id, player_id)
   end
 end
 
 def have_permission?(game_id)
-  if session[:logged_in] && @storage.is_organizer?(game_id, session[:player_id])
+  if session[:logged_in] && @storage.game_organizer?(game_id, session[:player_id])
     return
   end
 
@@ -161,6 +161,18 @@ get "/games/:id" do
   erb :game, layout: :layout
 end
 
+# Delete game
+post "/games/:id/delete" do
+  @game_id = params[:id].to_i
+  have_permission?(@game_id)
+
+  load_game(@game_id)
+  @storage.delete_game(@game_id)
+
+  session[:success] = "Game has been deleted."
+  redirect "/game_list"
+end
+
 # Signup player to game
 post "/games/:game_id/players/add" do
   @game_id = params[:game_id].to_i
@@ -221,8 +233,8 @@ post "/games/:game_id/players/:player_id/remove" do
   else
     session[:error] = "Player isn't signed up for this game!"
 
-    status 422
-    erb :game, layout: :layout
+    # Force a redirect to re-render game page
+    redirect "/games/#{@game_id}"
   end
 end
 

@@ -449,7 +449,7 @@ class BadBudsTest < Minitest::Test
     refute_includes last_response.body, "✅"
   end
 
-  def organizer_remove_player_from_game
+  def test_organizer_remove_player_from_game
     post "/games/1/players/add", {}, logged_in_as_symere
     post "/games/1/players/add", {}, logged_in_as_jeffery
 
@@ -463,19 +463,36 @@ class BadBudsTest < Minitest::Test
     refute_includes last_response.body, "Symere Woods"
   end
 
-  def organizer_remove_player_not_signed_up_for_game
+  def test_organizer_remove_player_not_signed_up_for_game
     post "/games/1/players/1/remove", {}, logged_in_as_symere
 
-    assert_equal 422, last_response.status
-    assert_equal "Player isn't signed up for this game!", session[:error]
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Player isn't signed up for this game!"
   end
 
-  def test_create_game
+  def test_organizer_create_game
     skip
   end
 
-  def test_delete_game
-    skip
+  def test_organizer_delete_game
+    post "/games/1/delete", {}, logged_in_as_symere
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Game has been deleted."
+
+    refute_includes last_response.body, "Fri, Jul 22"
+    refute_includes last_response.body, "Novice BM Vancouver"
+    refute_includes last_response.body, "Badminton Vancouver"
+    refute_includes last_response.body, "0 / 6"
+  end
+
+  def test_organizer_delete_game_doesnt_exist
+    post "/games/8/delete", {}, logged_in_as_symere
+
+    get last_response["Location"]
+    assert_includes last_response.body, "You don't have permission to do that!"
   end
 
   def test_create_group
