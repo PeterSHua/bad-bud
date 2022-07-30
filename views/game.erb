@@ -37,6 +37,8 @@
     <th>Name</th>
     <th><a href="https://www.dropbox.com/s/vmk48yybqhd35dj/rr-rating-reformatted.pdf?dl=0">Rating</a></th>
     <th>Payment Confirmed?</th>
+    <th><!-- Confirm / Un-confirm col --></th>
+    <th><!-- Remove col --></th>
   </tr>
   <% @game.players.each do |player| %>
   <tr>
@@ -55,18 +57,31 @@
     <td>
       <% if player.fee_paid %>
         ✅
-        <% if session[:logged_in] && is_organizer?(@game.group_id, session[:player_id]) %>
-          <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/unconfirm_paid">
-            <button type="submit">Un-confirm</button>
-          </form>
-        <% end %>
       <% else %>
         ❌
-        <% if session[:logged_in] && is_organizer?(@game.group_id, session[:player_id]) %>
-          <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/confirm_paid">
-            <button type="submit">Confirm</button>
-          </form>
-        <% end %>
+      <% end %>
+    </td>
+
+    <td>
+      <% if session[:logged_in] && is_organizer?(@game.group_id, session[:player_id]) && player.fee_paid %>
+        <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/unconfirm_paid">
+          <button type="submit">Un-confirm</button>
+        </form>
+      <% end %>
+
+      <% if session[:logged_in] && is_organizer?(@game.group_id, session[:player_id]) && !player.fee_paid %>
+        <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/confirm_paid">
+          <button type="submit">Confirm</button>
+        </form>
+      <% end %>
+
+    </td>
+
+    <td>
+      <% if session[:logged_in] && is_organizer?(@game.group_id, session[:player_id]) %>
+        <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/remove">
+          <button type="submit">Remove</button>
+        </form>
       <% end %>
     </td>
   </tr>
@@ -105,19 +120,6 @@
 <% end %>
 
 <% content_for :header_links do %>
-  <div>
-    <% if session[:logged_in] %>
-      <em>Signed in as <%= session[:username] %>.</em>
-      <form class="inline" method="post" action="/logout">
-        <button type="submit">Sign Out</button>
-      </form>
-    <% else %>
-      <form method="get" action="/login">
-        <button type="submit">Sign In</button>
-      </form>
-    <% end %>
-  </div>
-
   <a href="/game_list">Games</a>
   <a href="/group_list">Groups</a>
 <% end %>

@@ -22,52 +22,6 @@ body > header h1 {
   color: #dd5f4f;
 }
 
-body > header .actions {
-  display: inline-block;
-  width: 60%;
-  text-align: right;
-}
-
-body > header .actions a {
-  -webkit-transition: color 200ms ease;
-  -moz-transition: color 200ms ease;
-  -o-transition: color 200ms ease;
-}
-
-body > header .actions a:hover {
-  color: #dd5f4f;
-}
-
-body > header .actions a.add:before {
-  display: inline-block;
-  width: 28px;
-  height: 28px;
-  margin: 0 7px 0 0;
-  vertical-align: -6px;
-  content: "";
-  background: transparent url("../images/icon_add.png") 0 0 no-repeat;
-  -webkit-transition: transform 200ms linear;
-  -moz-transition: transform 200ms linear;
-  -o-transition: transform 200ms linear;
-}
-
-body > header .actions a.add:hover:before {
-  -webkit-transform: rotate(90deg);
-  -moz-transform: rotate(90deg);
-  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
-}
-
-body > header .actions a.list:before {
-  display: inline-block;
-  width: 28px;
-  height: 28px;
-  margin: 0 7px 0 0;
-  vertical-align: -6px;
-  content: "";
-  background: transparent url("../images/icon_list.png") 0 0 no-repeat;
-}
-
-
 main {
   max-width: 1000px;
   padding: 0 0 40px 0;
@@ -77,7 +31,6 @@ main {
 main > form {
   margin-top: 1.5em;
 }
-
 
 form dt {
   padding: 0 0 25px 0;
@@ -128,6 +81,17 @@ form fieldset.actions a:hover {
   color: #b00b00;
 }
 
+.hero {
+  display: inline-block;
+  width: 70%;
+}
+
+.account-links {
+  display: inline-block;
+  width: 20%;
+  text-align: right;
+}
+
 .flash {
   max-width: 960px;
   padding: 10px 20px;
@@ -176,20 +140,6 @@ form fieldset.actions a:hover {
   content: "";
   border-radius: 100%;
   background: #dd5f4f;
-}
-
-#games li.complete:before {
-  width: 28px;
-  height: 28px;
-  margin: -15px 0 0 -7px;
-  border: 1px solid #666666;
-  border-radius: 4px;
-  background: #ffffff url("../images/icon_check.png") 50% 50% no-repeat;
-}
-
-#games li.complete h2 {
-  color: #bebebe;
-  text-decoration: line-through;
 }
 
 #games li.complete p {
@@ -282,11 +232,6 @@ form fieldset.actions a:hover {
 
 #players header ul a.edit:hover {
   color: #dd5f4f;
-}
-
-#players header ul a.edit:before {
-  border: 2px solid transparent;
-  background: transparent url("../images/icon_edit.png") 0 0 no-repeat;
 }
 
 #players header ul button {
@@ -383,35 +328,9 @@ form fieldset.actions a:hover {
   border-color: #dd5f4f;
 }
 
-#players > ul li .delete {
-  right: 20px;
-  width: 24px;
-  height: 27px;
-  margin: -12px 0 0 0;
-  opacity: 0.4;
-  background: transparent url("../images/icon_delete.png") 0 3px no-repeat;
-}
-
-#players > ul li .delete [type="submit"] {
-  width: 24px;
-  height: 24px;
-  color: transparent;
-  background-color: transparent;
-  cursor: pointer;
-  border: none;
-}
-
-#players > ul li .delete:hover {
-  opacity: 1;
-}
-
 #players > ul li.complete h3 {
   color: #bebebe;
   text-decoration: line-through;
-}
-
-#players > ul li.complete .check {
-  background: transparent url("../images/icon_check.png") 50% 50% no-repeat;
 }
 
 footer {

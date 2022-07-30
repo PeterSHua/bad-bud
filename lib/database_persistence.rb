@@ -232,6 +232,15 @@ class DatabasePersistence
     query(sql, group.name, group.about)
   end
 
+  def make_organizer(group_id, player_id)
+    sql = <<~SQL
+      INSERT INTO groups_players (group_id, player_id, is_organizer)
+      VALUES ($1, $2, true)
+    SQL
+
+    query(sql, group_id, player_id)
+  end
+
   def add_location(location)
     sql = <<~SQL
       INSERT INTO locations (name, address, phone_number, cost_per_court)

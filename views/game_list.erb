@@ -6,7 +6,7 @@
       <li>
         <h2><%= DAYS_OF_WEEK[game.start_time.wday] %>, <%= MONTHS[game.start_time.month - 1] %> <%= game.start_time.day %></h2>
         <p>
-          Attendees: <%= game.filled_slots %> / <%= game.total_slots %>
+          <%= game.filled_slots %> / <%= game.total_slots %>
         </p>
         <br>
         <h3><%= game.group_name %></h3>
@@ -18,19 +18,6 @@
 
 <% content_for :header_links do %>
   <ul>
-    <% if session[:logged_in] %>
-      <li>
-        <em>Signed in as <a href="/players/<%= session[:player_id] %>"><%= session[:username] %></a></em>
-        <form class="inline" method="post" action="/logout">
-          <button type="submit">Sign Out</button>
-        </form>
-    <% else %>
-        <form method="get" action="/login">
-          <button type="submit">Sign In</button>
-        </form>
-      </li>
-    <% end %>
-
     <li>
       <a href="/group_list">Groups</a>
     </li>

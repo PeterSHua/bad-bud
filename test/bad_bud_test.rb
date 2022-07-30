@@ -60,6 +60,8 @@ class BadBudsTest < Minitest::Test
     @storage.add_player(player_2)
     @storage.add_location(location_1)
     @storage.add_group(group_1)
+    @storage.make_organizer(1, 1)
+    @storage.make_organizer(1, 2)
     @storage.add_game(game_1)
   end
 
@@ -100,7 +102,7 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Fri, Jul 22"
     assert_includes last_response.body, "Novice BM Vancouver"
     assert_includes last_response.body, "Badminton Vancouver"
-    assert_includes last_response.body, "Attendees: 0 / 6"
+    assert_includes last_response.body, "0 / 6"
   end
 
   def test_view_group_list
@@ -386,7 +388,7 @@ class BadBudsTest < Minitest::Test
     refute_includes last_response.body, "Symere Woods"
   end
 
-  def test_un_rsvp_player
+  def test_unrsvp_player
     post "/games/1/players/add", {}, logged_in_as_symere
     post "/games/1/players/remove"
 
@@ -396,6 +398,15 @@ class BadBudsTest < Minitest::Test
     get last_response["Location"]
 
     refute_includes last_response.body, "Symere Woods"
+  end
+
+  def test_unrsvp_player_not_signed_up
+    post "/games/1/players/remove", {}, logged_in_as_symere
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "You aren't signed up for this game!"
   end
 
   def test_confirm_payment
@@ -436,6 +447,27 @@ class BadBudsTest < Minitest::Test
 
     get last_response["Location"]
     refute_includes last_response.body, "✅"
+  end
+
+  def organizer_remove_player_from_game
+    post "/games/1/players/add", {}, logged_in_as_symere
+    post "/games/1/players/add", {}, logged_in_as_jeffery
+
+    post "/games/1/players/1/remove"
+
+    assert_equal 302, last_response.status
+    assert_equal "Player removed from this game.", session[:success]
+
+    get last_response["Location"]
+
+    refute_includes last_response.body, "Symere Woods"
+  end
+
+  def organizer_remove_player_not_signed_up_for_game
+    post "/games/1/players/1/remove", {}, logged_in_as_symere
+
+    assert_equal 422, last_response.status
+    assert_equal "Player isn't signed up for this game!", session[:error]
   end
 
   def test_create_game

@@ -30,8 +30,14 @@ helpers do
   end
 end
 
-def logged_in?
-  session[:logged_in]
+def have_permission?(game_id)
+  if session[:logged_in] && @storage.is_organizer?(game_id, session[:player_id])
+    return
+  end
+
+  session[:error] = "You don't have permission to do that!"
+
+  redirect "/game_list"
 end
 
 def valid_password?(password)
@@ -182,7 +188,7 @@ post "/games/:game_id/players/add" do
   end
 end
 
-# Remove player from game
+# Remove self from game
 post "/games/:game_id/players/remove" do
   @game_id = params[:game_id].to_i
 
@@ -190,9 +196,30 @@ post "/games/:game_id/players/remove" do
     @storage.un_rsvp_player(params[:game_id], session[:player_id])
 
     session[:success] = "You have been removed from this game."
-    redirect "/games/#{@game_id}"
   else
     session[:error] = "You aren't signed up for this game!"
+
+    status 422
+    # Force a redirect to re-render the game view
+  end
+
+  redirect "/games/#{@game_id}"
+end
+
+# Remove player from game
+post "/games/:game_id/players/:player_id/remove" do
+  @game_id = params[:game_id].to_i
+  @player_id = params[:player_id].to_i
+
+  have_permission?(@game_id)
+
+  if @storage.already_signed_up?(@game_id, @player_id)
+    @storage.un_rsvp_player(@game_id, @player_id)
+
+    session[:success] = "Player removed from this game."
+    redirect "/games/#{@game_id}"
+  else
+    session[:error] = "Player isn't signed up for this game!"
 
     status 422
     erb :game, layout: :layout
@@ -212,6 +239,7 @@ end
 # Confirm all players' payment
 post "/games/:game_id/players/confirm_all" do
   @game_id = params[:game_id]
+  have_permission?(@game_id)
 
   @storage.confirm_all_paid(@game_id)
 
@@ -223,6 +251,8 @@ post "/games/:game_id/players/:player_id/unconfirm_paid" do
   @game_id = params[:game_id]
   @player_id = params[:player_id]
 
+  have_permission?(@game_id)
+
   @storage.unconfirm_paid(@game_id, @player_id)
 
   redirect "/games/#{@game_id}"
@@ -231,6 +261,8 @@ end
 # Confirm all players' payment
 post "/games/:game_id/players/unconfirm_all" do
   @game_id = params[:game_id]
+
+  have_permission?(@game_id)
 
   @storage.unconfirm_all_paid(@game_id)
 
