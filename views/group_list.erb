@@ -1,18 +1,42 @@
-<ul>
+<ul id="red-list">
   <% @group_list.each do |group| %>
     <a href="/groups/<%= group.id %>">
       <li>
         <h2>
           <%= group.name %>
         </h2>
-        <p>
+        <br>
+        <h3>
           <%= group.about %>
-        </p>
+        </h3>
       </li>
     </a>
   <% end %>
 </ul>
 
+<% content_for :login_links do %>
+  <% if session[:logged_in] %>
+    <em>Signed in as <%= session[:username] %></a></em>
+    <form class="inline" method="post" action="/logout">
+      <button type="submit">Sign Out</button>
+    </form>
+  <% else %>
+    <form method="get" action="/login">
+      <button type="submit">Sign In</button>
+    </form>
+  <% end %>
+<% end %>
+
 <% content_for :header_links do %>
-  <a href="/game_list">Games</a>
+  <ul>
+    <li>
+      <a href="/game_list">🏸 Games</a>
+    </li>
+
+    <% if session[:logged_in] %>
+      <li>
+        <a href="/players/<%= session[:player_id] %>">👤 Profile</a>
+      </li>
+    <% end %>
+  </ul>
 <% end %>

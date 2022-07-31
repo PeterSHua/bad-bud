@@ -1,22 +1,32 @@
 <h2>Account Login</h2>
-<form method="post" action="/login">
-  <div>
-    <label for="username">Username:</label>
-      <input name="username" type="text">
-  </div>
 
-  <div>
-    <label for="password">Password:</label>
-      <input name="password" type="password">
-  </div>
-
-  <button type="submit">Sign In</button>
-</form>
 <p>
-  Don't have an account? <a href="/register">Register an account</a>
+  <form method="post" action="/login">
+    <div>
+      <label for="username">Username:</label>
+        <input name="username" type="text">
+    </div>
+
+    <div>
+      <label for="password">Password:</label>
+        <input name="password" type="password">
+    </div>
+
+    <button type="submit">Sign In</button>
+  </form>
+</p>
+
+<p>
+  Don't have an account? <a class="orange-link" href="/register">Register an account.</a>
 </p>
 
 <% content_for :header_links do %>
-  <a href="/game_list">Games</a>
-  <a href="/group_list">Groups</a>
+  <ul>
+    <li>
+      <a href="/game_list">🏸 Games</a>
+    </li>
+    <li>
+      <a href="/group_list">👥 Groups</a>
+    </li>
+  </ul>
 <% end %>

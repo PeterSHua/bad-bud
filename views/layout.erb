@@ -14,22 +14,13 @@
         <h1>Badminton Buddies</h1>
       </div>
 
-      <div class="account-links">
-        <% if session[:logged_in] %>
-          <em>Signed in as <a href="/players/<%= session[:player_id] %>"><%= session[:username] %></a></em>
-          <form class="inline" method="post" action="/logout">
-            <button type="submit">Sign Out</button>
-          </form>
-        <% else %>
-          <form method="get" action="/login">
-            <button type="submit">Sign In</button>
-          </form>
-        <% end %>
+      <div id="login-links">
+        <%== yield_content :login_links %>
       </div>
 
-      <div id="header-links">
+      <nav>
         <%== yield_content :header_links %>
-      </div>
+      </nav>
 
       <% if session[:error] %>
         <div class="flash error">
@@ -39,7 +30,7 @@
 
       <% if session[:success] %>
         <div class="flash success">
-          <p><%= session.delete(:success) %></p>
+          <%= session.delete(:success) %>
         </div>
       <% end %>
     </header>
@@ -49,7 +40,7 @@
     </main>
 
     <footer>
-      Made by <a href="https://github.com/PeterSHua">Peter Hua</a>
+      Made by <a class="orange-link" href="https://github.com/PeterSHua">Peter Hua</a>
     </footer>
 
   </body>

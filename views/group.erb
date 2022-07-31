@@ -6,44 +6,50 @@
 </p>
 
 <h2>Upcoming Games</h2>
-<p>
-  <ul>
-    <% @group_games.each do |game| %>
-      <a href="/games/<%= game.id %>">
-        <li>
-          <h2><%= DAYS_OF_WEEK[game.start_time.wday] %>, <%= MONTHS[game.start_time.month - 1] %> <%= game.start_time.day %></h2>
-          <h3><%= game.group_name %></h3>
-          <p>
-            Location: <%= game.location_name %>
-            <br>
-            Attendees: <%= game.filled_slots %> / <%= game.total_slots %>
-            <br>
-            Fee: $<%= game.fee %>
-          </p>
-      </li>
-      </a>
-    <% end %>
-  </ul>
-</p>
+<ul id="red-list">
+  <% @group_games.each do |game| %>
+    <a href="/games/<%= game.id %>">
+      <li>
+        <h2><%= DAYS_OF_WEEK[game.start_time.wday] %>, <%= MONTHS[game.start_time.month - 1] %> <%= game.start_time.day %></h2>
+        <p>
+          <%= game.filled_slots %> / <%= game.total_slots %>
+        </p>
+        <br>
+        <%= game.location_name %>
+    </li>
+    </a>
+  <% end %>
+</ul>
 
 <h2>Members</h2>
-<p>
-  <ol>
-    <% @group_players.each do |player| %>
-      <li>
-        <a href="/players/<%= player.id %>">
-          <%= player.name %>
-        </a>
+<ol>
+  <% @group_players.each do |player| %>
+    <li>
+      <a class="orange-link" href="/players/<%= player.id %>">
+        <%= player.name %>
+      </a>
 
-        <% if player.is_organizer %>
-          👑
-        <% end %>
-      </li>
-    <% end %>
-  </ol>
-</p>
+      <% if player.is_organizer %>
+        👑
+      <% end %>
+    </li>
+  <% end %>
+</ol>
+
+<% content_for :login_links do %>
+  <% if session[:logged_in] %>
+    <em>Signed in as <%= session[:username] %></a></em>
+    <form class="inline" method="post" action="/logout">
+      <button type="submit">Sign Out</button>
+    </form>
+  <% else %>
+    <form method="get" action="/login">
+      <button type="submit">Sign In</button>
+    </form>
+  <% end %>
+<% end %>
 
 <% content_for :header_links do %>
-  <a href="/game_list">All Games</a>
-  <a href="/group_list">Groups</a>
+  <a href="/game_list">🏸 All Games</a>
+  <a href="/group_list">👥 Groups</a>
 <% end %>

@@ -1,21 +1,26 @@
 <h2>Account Registration</h2>
-<form method="post" action="/register">
-  <div>
-    <label for="username">Username:</label>
-      <input name="username" type="text" class="inline">
-      Must consist of only letters and numbers, and must be between 4-10 characters.
-  </div>
 
-  <div>
-    <label for="password">Password:</label>
-      <input name="password" type="password" class="inline">
-      Cannot contain spaces and must be between 4-10 characters.
-  </div>
+<p>
+  <form method="post" action="/register">
+    <div>
+      <label for="username">Username:</label>
+        <input name="username" type="text" class="inline">
+        Must consist of only letters and numbers, and must be between 4-10 characters.
+    </div>
 
-  <button type="submit">Register</button>
-</form>
+    <br>
+
+    <div>
+      <label for="password">Password:</label>
+        <input name="password" type="password" class="inline">
+        Cannot contain spaces and must be between 4-10 characters.
+    </div>
+
+    <button type="submit">Register</button>
+  </form>
+</p>
 
 <% content_for :header_links do %>
-  <a href="/game_list">Games</a>
-  <a href="/group_list">Groups</a>
+  <a href="/game_list">🏸 Games</a>
+  <a href="/group_list">👥 Groups</a>
 <% end %>

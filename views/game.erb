@@ -5,8 +5,14 @@
 <% end %>
 
 <h2>
-  <%= DAYS_OF_WEEK[@game.start_time.wday] %>, <%= MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %>
+  🕔 <%= DAYS_OF_WEEK[@game.start_time.wday] %>, <%= MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %>
 </h2>
+
+<h2>
+  🌎 <%= @game.location_name %>
+</h2>
+
+<br>
 
 <h3>
   <a href="/groups/<%= @game.group_id %>">
@@ -15,7 +21,6 @@
 </h3>
 
 <p>
-  Location: <%= @game.location_name %>
   <br>
   Attendees: <%= @game.filled_slots %> / <%= @game.total_slots %>
   <br>
@@ -28,7 +33,7 @@
 </p>
 
 <p>
-  <% if session[:logged_in] && game_organizer?(@game.group_id, session[:player_id]) %>
+  <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) %>
       <form class="inline" method="post" action="/games/<%= @game.id %>/players/confirm_all">
         <button type="submit">Confirm All</button>
       </form>
@@ -41,26 +46,27 @@
 <table>
   <tr>
     <th>Name</th>
-    <th><a href="https://www.dropbox.com/s/vmk48yybqhd35dj/rr-rating-reformatted.pdf?dl=0">Rating</a></th>
-    <th>Payment Confirmed?</th>
+    <th><a class="orange-link" href="https://www.dropbox.com/s/vmk48yybqhd35dj/rr-rating-reformatted.pdf?dl=0">Rating</a></th>
+    <th>Paid?</th>
     <th><!-- Confirm / Un-confirm col --></th>
     <th><!-- Remove col --></th>
   </tr>
+
   <% @game.players.each do |player| %>
   <tr>
-    <td>
+    <td align="center">
       <% unless player.username.nil? %>
-        <a href="/players/<%= player.id %>">
+        <a class="orange-link" href="/players/<%= player.id %>">
       <% end %>
           <%= player.name %>
       <% unless player.username.nil? %>
         </a>
       <% end %>
-    <td>
+    </td>
 
-    <td><%= player.rating %></td>
+    <td align="center"><%= player.rating %></td>
 
-    <td>
+    <td align="center">
       <% if player.fee_paid %>
         ✅
       <% else %>
@@ -69,22 +75,21 @@
     </td>
 
     <td>
-      <% if session[:logged_in] && game_organizer?(@game.group_id, session[:player_id]) && player.fee_paid %>
+      <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) && player.fee_paid %>
         <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/unconfirm_paid">
           <button type="submit">Un-confirm</button>
         </form>
       <% end %>
 
-      <% if session[:logged_in] && game_organizer?(@game.group_id, session[:player_id]) && !player.fee_paid %>
+      <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) && !player.fee_paid %>
         <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/confirm_paid">
           <button type="submit">Confirm</button>
         </form>
       <% end %>
-
     </td>
 
     <td>
-      <% if session[:logged_in] && game_organizer?(@game.group_id, session[:player_id]) %>
+      <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) %>
         <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/remove">
           <button type="submit">Remove</button>
         </form>
@@ -93,6 +98,8 @@
   </tr>
   <% end %>
 </table>
+
+<br>
 
 <% unless @game.filled_slots >= @game.total_slots %>
   <form action="/games/<%= @game_id %>/players/add" method="post">
@@ -120,12 +127,38 @@
 
   <p>
     <% unless session[:logged_in] %>
-      <a href="/register">Register an account to manage your RSVP.</a>
+      <a class="orange-link" href="/register">Register an account to manage your RSVP.</a>
     <% end %>
   </p>
 <% end %>
 
+<% content_for :login_links do %>
+  <% if session[:logged_in] %>
+    <em>Signed in as <%= session[:username] %></a></em>
+    <form class="inline" method="post" action="/logout">
+      <button type="submit">Sign Out</button>
+    </form>
+  <% else %>
+    <form method="get" action="/login">
+      <button type="submit">Sign In</button>
+    </form>
+  <% end %>
+<% end %>
+
 <% content_for :header_links do %>
-  <a href="/game_list">Games</a>
-  <a href="/group_list">Groups</a>
+  <ul>
+    <li>
+      <a href="/game_list">🏸 Games</a>
+    </li>
+
+    <li>
+      <a href="/group_list">👥 Groups</a>
+    </li>
+
+    <% if session[:logged_in] %>
+      <li>
+        <a href="/players/<%= session[:player_id] %>">👤 Profile</a>
+      </li>
+    <% end %>
+  </ul>
 <% end %>

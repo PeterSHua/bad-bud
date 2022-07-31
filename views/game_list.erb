@@ -1,12 +1,12 @@
 <h2>Upcoming Games</h2>
 
-<ul id="games">
+<ul id="red-list">
   <% @game_list.each do |game| %>
     <a href="/games/<%= game.id %>">
       <li>
         <h2><%= DAYS_OF_WEEK[game.start_time.wday] %>, <%= MONTHS[game.start_time.month - 1] %> <%= game.start_time.day %></h2>
         <p>
-          <%= game.filled_slots %> / <%= game.total_slots %>
+          👤<%= game.filled_slots %> / <%= game.total_slots %>
         </p>
         <br>
         <h3><%= game.group_name %></h3>
@@ -16,10 +16,29 @@
   <% end %>
 </ul>
 
+<% content_for :login_links do %>
+  <% if session[:logged_in] %>
+    <em>Signed in as <%= session[:username] %></a></em>
+    <form class="inline" method="post" action="/logout">
+      <button type="submit">Sign Out</button>
+    </form>
+  <% else %>
+    <form method="get" action="/login">
+      <button type="submit">Sign In</button>
+    </form>
+  <% end %>
+<% end %>
+
 <% content_for :header_links do %>
   <ul>
     <li>
-      <a href="/group_list">Groups</a>
+      <a href="/group_list">👥 Groups</a>
     </li>
+
+    <% if session[:logged_in] %>
+      <li>
+        <a href="/players/<%= session[:player_id] %>">👤 Profile</a>
+      </li>
+    <% end %>
   </ul>
 <% end %>

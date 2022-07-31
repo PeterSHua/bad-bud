@@ -409,19 +409,21 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "You aren't signed up for this game!"
   end
 
-  def test_confirm_payment
+  def test_organizer_confirm_payment
     post "/games/1/players/add", {}, logged_in_as_symere
 
     get last_response["Location"]
     assert_includes last_response.body, "❌"
+    assert_includes last_response.body, "<button type=\"submit\">Confirm</button>"
 
     post "/games/1/players/1/confirm_paid"
 
     get last_response["Location"]
     assert_includes last_response.body, "✅"
+    assert_includes last_response.body, "<button type=\"submit\">Un-confirm</button>"
   end
 
-  def test_un_confirm_payment
+  def test_organizer_un_confirm_payment
     post "/games/1/players/add", {}, logged_in_as_symere
     post "/games/1/players/1/confirm_paid"
     post "/games/1/players/1/unconfirm_paid"
@@ -430,16 +432,17 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "❌"
   end
 
-  def test_confirm_all_payment
+  def test_organizer_confirm_all_payment
     post "/games/1/players/add", {}, logged_in_as_symere
     post "/games/1/players/add", {}, logged_in_as_jeffery
     post "/games/1/players/confirm_all"
 
     get last_response["Location"]
     refute_includes last_response.body, "❌"
+    assert_includes last_response.body, "<button type=\"submit\">Confirm All</button>"
   end
 
-  def test_unconfirm_all_payment
+  def test_organizer_unconfirm_all_payment
     post "/games/1/players/add", {}, logged_in_as_symere
     post "/games/1/players/add", {}, logged_in_as_jeffery
     post "/games/1/players/confirm_all"
@@ -447,6 +450,7 @@ class BadBudsTest < Minitest::Test
 
     get last_response["Location"]
     refute_includes last_response.body, "✅"
+    assert_includes last_response.body, "<button type=\"submit\">Un-confirm All</button>"
   end
 
   def test_organizer_remove_player_from_game

@@ -3,6 +3,32 @@ a {
   text-decoration: none;
 }
 
+button {
+  background-color: rgb(22, 102, 146);
+  cursor: pointer;
+  color: rgb(232, 230, 227);
+  border-radius: 1000px;
+  padding: 0.875rem 1rem 0.9375rem 1rem;
+  font-size: 0.8125rem;
+  border-color: rgb(66, 71, 74);
+  letter-spacing: 0.125rem;
+  display: inline-block;
+  border-style: solid;
+  border-width: 0;
+  font-family: "AvenirNext", "myriad-pro", "myriad pro", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
+  font-weight: bold;
+  line-height: normal;
+  position: relative;
+  text-align: center;
+  text-decoration: none;
+  transition: background-color 300ms ease-out;
+  margin: 10px 0 10px 0;
+}
+
+p {
+  margin: 0 0 35px 0;
+}
+
 body {
   font: normal 20px "PT Sans", Helvetica, Arial, sans-serif;
   color: #3f3f3f;
@@ -11,7 +37,7 @@ body {
 
 body > header {
   max-width: 1000px;
-  padding: 35px 0 35px 0;
+  padding: 0px 0 35px 0;
   margin: 0 auto;
 }
 
@@ -26,10 +52,6 @@ main {
   max-width: 1000px;
   padding: 0 0 40px 0;
   margin: 0 auto;
-}
-
-main > form {
-  margin-top: 1.5em;
 }
 
 form dt {
@@ -65,6 +87,16 @@ form input[type="submit"] {
   -o-transition: background-color 200ms ease;
 }
 
+form input[name="username"] {
+  width: 100%;
+  height: 48px;
+}
+
+form input[name="password"] {
+  width: 100%;
+  height: 48px;
+}
+
 form input[type="submit"]:hover {
   background-color: #d13b28;
   cursor: pointer;
@@ -81,12 +113,21 @@ form fieldset.actions a:hover {
   color: #b00b00;
 }
 
+nav li {
+  box-sizing: border-box;
+  display: inline-block;
+}
+
 .hero {
   display: inline-block;
   width: 70%;
 }
 
-.account-links {
+.orange-link {
+  color: #f25858;
+}
+
+#login-links {
   display: inline-block;
   width: 20%;
   text-align: right;
@@ -121,7 +162,7 @@ form fieldset.actions a:hover {
   background: transparent url("../images/arrow_new_list.png") 85% 0 no-repeat;
 }
 
-#games li {
+#red-list li {
   position: relative;
   padding: 18px 25px 18px 57px;
   margin: 0 0 10px 0;
@@ -129,7 +170,7 @@ form fieldset.actions a:hover {
   background: #f6f6f6;
 }
 
-#games li:before {
+#red-list li:before {
   position: absolute;
   top: 50%;
   left: 23px;
@@ -142,24 +183,24 @@ form fieldset.actions a:hover {
   background: #dd5f4f;
 }
 
-#games li.complete p {
+#red-list li.complete p {
   color: #bebebe;
 }
 
-#games a {
+#red-list a {
   display: block;
   color: inherit;
   overflow: hidden;
 }
 
-#games h2 {
-  width: 95%;
+#red-list h2 {
+  
   float: left;
 }
 
-#games p {
+#red-list p {
   float: right;
-  width: 20%;
+
   font-size: 1em;
   text-align: right;
   color: #666666;
@@ -209,78 +250,6 @@ form fieldset.actions a:hover {
   #players header ul li {
     margin: 0 40px 0 0;
   }
-}
-
-#players header ul a {
-  display: block;
-}
-
-#players header ul a:before {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  margin: 0 7px 0 0;
-  vertical-align: -6px;
-  content: "";
-}
-
-#players header ul a.edit {
-  -webkit-transition: background-color 200ms ease;
-  -moz-transition: background-color 200ms ease;
-  -o-transition: background-color 200ms ease;
-}
-
-#players header ul a.edit:hover {
-  color: #dd5f4f;
-}
-
-#players header ul button {
-  display: inline-block;
-  padding: 0;
-  border: none;
-  background-color: transparent;
-  color: #3f3f3f;
-  font: normal 20px "PT Sans", Helvetica, Arial, sans-serif;
-  cursor: pointer;
-  -webkit-transition: color 200ms ease;
-  -moz-transition: color 200ms ease;
-  -o-transition: color 200ms ease;
-}
-
-#players header ul button:before {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-  margin: 0 7px 0 0;
-  vertical-align: -6px;
-  content: "";
-}
-
-#players header ul button.check:hover {
-  color: #00B059;
-}
-
-#players header ul button.check:before {
-  border: 2px solid #3f3f3f;
-  background: transparent url("../images/icon_check.png") 50% 50% no-repeat;
-}
-
-#players header ul button.delete:hover {
-  color: #b00b00;
-}
-
-#players header ul button.delete:before {
-  border: 2px solid transparent;
-  background: transparent url("../images/icon_delete.png") 0 0 no-repeat;
-}
-
-#players.complete header h2 {
-  color: #bebebe;
-  text-decoration: line-through;
-}
-
-#players.complete header .check {
-  display: none;
 }
 
 #players > ul {
@@ -334,7 +303,6 @@ form fieldset.actions a:hover {
 }
 
 footer {
-  margin-top: 40px;
   border-top: 2px solid #efefef;
   text-align: center;
   padding-top: 30px;
