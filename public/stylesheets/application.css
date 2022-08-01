@@ -122,17 +122,6 @@ html {
   font-size: 16px;
 }
 
-@media screen and (min-width: 320px) {
-  html {
-    font-size: calc(16px + 6 * ((100vw - 320px) / 680));
-  }
-}
-@media screen and (min-width: 1000px) {
-  html {
-    font-size: 22px;
-  }
-}
-
 .hero {
   display: inline-block;
   width: 70%;
@@ -233,13 +222,7 @@ html {
   vertical-align: middle;
 }
 
-@media screen and (max-width: 650px) {
-  #players header h2 {
-    display: block;
-    width: auto;
-    padding: 0 0 15px 0;
-  }
-}
+
 
 #players header ul {
   display: inline-block;
@@ -248,23 +231,9 @@ html {
   vertical-align: middle;
 }
 
-@media screen and (max-width: 650px) {
-  #players header ul {
-    display: block;
-    width: auto;
-    text-align: left;
-  }
-}
-
 #players header ul li {
   display: inline-block;
   margin: 0 0 0 40px;
-}
-
-@media screen and (max-width: 650px) {
-  #players header ul li {
-    margin: 0 40px 0 0;
-  }
 }
 
 #players > ul {
@@ -322,4 +291,32 @@ footer {
   text-align: center;
   padding-top: 30px;
   padding-bottom: 20px
+}
+
+@media screen and (min-width: 320px) {
+  html {
+    font-size: 48px;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  #players header h2 {
+    display: block;
+    width: auto;
+    padding: 0 0 15px 0;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  #players header ul li {
+    margin: 0 40px 0 0;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  #players header ul {
+    display: block;
+    width: auto;
+    text-align: left;
+  }
 }
