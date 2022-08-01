@@ -1,9 +1,3 @@
-<% if game_organizer?(@game.id, session[:player_id]) %>
-  <form class="inline" method="post" action="/games/<%= @game.id %>/delete">
-      <button type="submit">Delete game</button>
-    </form>
-<% end %>
-
 <h2>
   🕔 <%= DAYS_OF_WEEK[@game.start_time.wday] %>, <%= MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %>
 </h2>
@@ -11,6 +5,12 @@
 <h2>
   🌎 <%= @game.location_name %>
 </h2>
+
+<% if game_organizer?(@game.id, session[:player_id]) %>
+  <form class="inline" method="post" action="/games/<%= @game.id %>/delete">
+      <button type="submit">Delete game</button>
+    </form>
+<% end %>
 
 <br>
 
@@ -45,15 +45,23 @@
 
 <table>
   <tr>
+    <th><!-- Remove col --></th>
     <th>Name</th>
     <th><a class="orange-link" href="https://www.dropbox.com/s/vmk48yybqhd35dj/rr-rating-reformatted.pdf?dl=0">Rating</a></th>
     <th>Paid?</th>
     <th><!-- Confirm / Un-confirm col --></th>
-    <th><!-- Remove col --></th>
   </tr>
 
   <% @game.players.each do |player| %>
   <tr>
+    <td>
+      <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) %>
+        <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/remove">
+          <button type="submit">⛔</button>
+        </form>
+      <% end %>
+    </td>
+
     <td align="center">
       <% unless player.username.nil? %>
         <a class="orange-link" href="/players/<%= player.id %>">
@@ -70,28 +78,19 @@
       <% if player.fee_paid %>
         ✅
       <% else %>
-        ❌
       <% end %>
     </td>
 
     <td>
       <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) && player.fee_paid %>
         <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/unconfirm_paid">
-          <button type="submit">Un-confirm</button>
+          <button type="submit">❌</button>
         </form>
       <% end %>
 
       <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) && !player.fee_paid %>
         <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/confirm_paid">
-          <button type="submit">Confirm</button>
-        </form>
-      <% end %>
-    </td>
-
-    <td>
-      <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) %>
-        <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/remove">
-          <button type="submit">Remove</button>
+          <button type="submit">✔</button>
         </form>
       <% end %>
     </td>
@@ -134,7 +133,7 @@
 
 <% content_for :login_links do %>
   <% if session[:logged_in] %>
-    <em>Signed in as <%= session[:username] %></a></em>
+    <em>👋<%= session[:username] %></a></em>
     <form class="inline" method="post" action="/logout">
       <button type="submit">Sign Out</button>
     </form>

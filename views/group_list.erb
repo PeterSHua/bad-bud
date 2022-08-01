@@ -16,7 +16,7 @@
 
 <% content_for :login_links do %>
   <% if session[:logged_in] %>
-    <em>Signed in as <%= session[:username] %></a></em>
+    <em>👋<%= session[:username] %></a></em>
     <form class="inline" method="post" action="/logout">
       <button type="submit">Sign Out</button>
     </form>
