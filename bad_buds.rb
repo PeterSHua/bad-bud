@@ -28,6 +28,10 @@ helpers do
   def game_organizer?(game_id, player_id)
     @storage.game_organizer?(game_id, player_id)
   end
+
+  def group_organizer?(group_id, player_id)
+    @storage.group_organizer?(group_id, player_id)
+  end
 end
 
 def have_permission?(game_id)
@@ -297,6 +301,11 @@ get "/groups/:group_id" do
   @group_players = @storage.find_group_players(@group_id)
 
   erb :group, layout: :layout
+end
+
+# View group schedule
+get "/groups/:group_id/schedule" do
+  
 end
 
 # View location detail

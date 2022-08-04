@@ -422,26 +422,23 @@ class DatabasePersistence
     result.first["id"]
   end
 
-  def create_schema
-    system("psql -d bad_buds_test < schema.sql")
+  def seed_data
+    system("psql -d bad_buds_test < data.sql")
   end
 
-  def delete_all_data
+  def delete_data
     query("DELETE FROM groups_players;")
+    query("ALTER SEQUENCE groups_players_id_seq RESTART WITH 1;")
     query("DELETE FROM games_players;")
+    query("ALTER SEQUENCE games_players_id_seq RESTART WITH 1;")
     query("DELETE FROM games;")
+    query("ALTER SEQUENCE games_id_seq RESTART WITH 1;")
     query("DELETE FROM players;")
+    query("ALTER SEQUENCE players_id_seq RESTART WITH 1;")
     query("DELETE FROM groups;")
+    query("ALTER SEQUENCE groups_id_seq RESTART WITH 1;")
     query("DELETE FROM locations;")
-  end
-
-  def delete_all_schema
-    query("DROP TABLE IF EXISTS games_players ")
-    query("DROP TABLE IF EXISTS groups_players")
-    query("DROP TABLE IF EXISTS games")
-    query("DROP TABLE IF EXISTS groups")
-    query("DROP TABLE IF EXISTS locations")
-    query("DROP TABLE IF EXISTS players")
+    query("ALTER SEQUENCE locations_id_seq RESTART WITH 1;")
   end
 
   def disconnect

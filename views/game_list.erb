@@ -6,7 +6,7 @@
       <li>
         <h2><%= DAYS_OF_WEEK[game.start_time.wday] %>, <%= MONTHS[game.start_time.month - 1] %> <%= game.start_time.day %></h2>
         <p>
-          👤<%= game.filled_slots %> / <%= game.total_slots %>
+          &#128100;<%= game.filled_slots %> / <%= game.total_slots %>
         </p>
         <br>
         <h3><%= game.group_name %></h3>
@@ -18,7 +18,7 @@
 
 <% content_for :login_links do %>
   <% if session[:logged_in] %>
-    <em>👋<%= session[:username] %></a></em>
+    <em>&#128075;<%= session[:username] %></a></em>
     <form class="inline" method="post" action="/logout">
       <button type="submit">Sign Out</button>
     </form>
@@ -32,12 +32,12 @@
 <% content_for :header_links do %>
   <ul>
     <li>
-      <a href="/group_list">👥 Groups</a>
+      <a class="orange-link" href="/group_list">&#128101; Groups</a>
     </li>
 
     <% if session[:logged_in] %>
       <li>
-        <a href="/players/<%= session[:player_id] %>">👤 Profile</a>
+        <a class="orange-link" href="/players/<%= session[:player_id] %>">&#128100; Profile</a>
       </li>
     <% end %>
   </ul>

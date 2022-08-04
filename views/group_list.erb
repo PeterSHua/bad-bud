@@ -6,9 +6,7 @@
           <%= group.name %>
         </h2>
         <br>
-        <h3>
           <%= group.about %>
-        </h3>
       </li>
     </a>
   <% end %>
@@ -16,7 +14,7 @@
 
 <% content_for :login_links do %>
   <% if session[:logged_in] %>
-    <em>👋<%= session[:username] %></a></em>
+    <em>&#128075;<%= session[:username] %></a></em>
     <form class="inline" method="post" action="/logout">
       <button type="submit">Sign Out</button>
     </form>
@@ -30,12 +28,12 @@
 <% content_for :header_links do %>
   <ul>
     <li>
-      <a href="/game_list">🏸 Games</a>
+      <a class="orange-link" href="/game_list">&#127992; Games</a>
     </li>
 
     <% if session[:logged_in] %>
       <li>
-        <a href="/players/<%= session[:player_id] %>">👤 Profile</a>
+        <a class="orange-link" href="/players/<%= session[:player_id] %>">&#128100; Profile</a>
       </li>
     <% end %>
   </ul>

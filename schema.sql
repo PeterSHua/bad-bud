@@ -1,4 +1,4 @@
-CREATE TABLE players(
+CREATE TABLE IF NOT EXISTS players(
     PRIMARY KEY (id),
     id           serial,
     username     varchar(10) UNIQUE,
@@ -9,14 +9,14 @@ CREATE TABLE players(
     about        varchar(300)
 );
 
-CREATE TABLE groups(
+CREATE TABLE IF NOT EXISTS groups(
     PRIMARY KEY (id),
     id    serial,
     name  varchar(20) UNIQUE NOT NULL,
     about varchar(300)
 );
 
-CREATE TABLE groups_players(
+CREATE TABLE IF NOT EXISTS groups_players(
     PRIMARY KEY (id),
     id       serial,
     group_id integer NOT NULL,
@@ -31,7 +31,7 @@ CREATE TABLE groups_players(
     UNIQUE (group_id, player_id)
 );
 
-CREATE TABLE locations(
+CREATE TABLE IF NOT EXISTS locations(
     PRIMARY KEY (id),
     id             serial,
     name           varchar(20) UNIQUE NOT NULL,
@@ -40,7 +40,7 @@ CREATE TABLE locations(
     cost_per_court numeric
 );
 
-CREATE TABLE games(
+CREATE TABLE IF NOT EXISTS games(
     PRIMARY KEY (id),
     id          serial,
     group_id    integer NOT NULL,
@@ -52,10 +52,11 @@ CREATE TABLE games(
     ON DELETE CASCADE,
     fee         integer CHECK(fee <= 1000) NOT NULL,
     total_slots integer CHECK(total_slots <= 1000) NOT NULL,
-    notes       varchar(300)
+    notes       varchar(300),
+    template    boolean NOT NULL
 );
 
-CREATE TABLE games_players(
+CREATE TABLE IF NOT EXISTS games_players(
     PRIMARY KEY (id),
     id serial,
     game_id integer NOT NULL,
