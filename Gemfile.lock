@@ -38,11 +38,11 @@ DEPENDENCIES
   pg
   puma
   rack-test
-  sinatra
+  sinatra (~> 1.4.7)
   sinatra-contrib
 
 RUBY VERSION
-   ruby 3.1.2p20
+   ruby 2.7.4p191
 
 BUNDLED WITH
    2.3.18
