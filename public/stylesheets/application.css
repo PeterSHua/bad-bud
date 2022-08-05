@@ -1,3 +1,7 @@
+html {
+  font-size: 1rem;
+}
+
 a {
   color: inherit;
   text-decoration: none;
@@ -25,12 +29,16 @@ button {
   margin: 10px 0 10px 0;
 }
 
+nav {
+  font-size: 1.2rem;
+}
+
 p {
   margin: 0 0 35px 0;
 }
 
 body {
-  font: normal 20px "PT Sans", Helvetica, Arial, sans-serif;
+  font: normal 1rem "PT Sans", Helvetica, Arial, sans-serif;
   color: #3f3f3f;
   background: #ffffff;
 }
@@ -43,15 +51,27 @@ body > header {
 
 body > header h1 {
   display: inline-block;
-  width: 38%;
-  font-size: 30px;
+  font-size: 1.4rem;
   color: #dd5f4f;
 }
 
 main {
+  font-size: 1.1rem;
   max-width: 1000px;
   padding: 0 0 40px 0;
   margin: 0 auto;
+}
+
+select {
+  font-size: 0.6rem;
+}
+
+textarea {
+  font-size: 1.1rem;
+}
+
+table {
+  width: 100%;
 }
 
 form dt {
@@ -64,9 +84,19 @@ form dd {
 
 form input[type="text"] {
   width: 100%;
-  height: 58px;
+
   padding: 15px 20px;
-  font: normal 20px "PT Sans", Helvetica, Arial, sans-serif;
+  font: normal 1rem "PT Sans", Helvetica, Arial, sans-serif;
+  border: 1px solid #a4a4a4;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+form input[type="password"] {
+  width: 100%;
+
+  padding: 15px 20px;
+  font: normal 1rem "PT Sans", Helvetica, Arial, sans-serif;
   border: 1px solid #a4a4a4;
   border-radius: 8px;
   box-sizing: border-box;
@@ -88,13 +118,11 @@ form input[type="submit"] {
 }
 
 form input[name="username"] {
-  width: 100%;
-  height: 48px;
+  width: 50%;
 }
 
 form input[name="password"] {
-  width: 100%;
-  height: 48px;
+  width: 50%;
 }
 
 form input[type="submit"]:hover {
@@ -124,7 +152,7 @@ ul {
 
 .hero {
   display: inline-block;
-  width: 70%;
+  width: 65%;
 }
 
 .orange-link {
@@ -133,7 +161,6 @@ ul {
 
 #login-links {
   display: inline-block;
-  width: 20%;
   text-align: right;
 }
 
@@ -146,7 +173,7 @@ ul {
 }
 
 .flash p {
-  font-size: 14px;
+  font-size: 1rempx;
   font-weight: bold;
 }
 
@@ -222,13 +249,6 @@ ul {
   vertical-align: middle;
 }
 
-@media screen and (max-width: 650px) {
-  #players header h2 {
-    display: block;
-    width: auto;
-    padding: 0 0 15px 0;
-  }
-}
 
 #players header ul {
   display: inline-block;
@@ -237,23 +257,9 @@ ul {
   vertical-align: middle;
 }
 
-@media screen and (max-width: 650px) {
-  #players header ul {
-    display: block;
-    width: auto;
-    text-align: left;
-  }
-}
-
 #players header ul li {
   display: inline-block;
   margin: 0 0 0 40px;
-}
-
-@media screen and (max-width: 650px) {
-  #players header ul li {
-    margin: 0 40px 0 0;
-  }
 }
 
 #players > ul {
@@ -311,4 +317,26 @@ footer {
   text-align: center;
   padding-top: 30px;
   padding-bottom: 20px
+}
+
+@media screen and (min-width: 320px) {
+  html {
+    font-size: 48px;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  #players header h2 {
+    display: block;
+    width: auto;
+    padding: 0 0 15px 0;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  #players header ul {
+    display: block;
+    width: auto;
+    text-align: left;
+  }
 }

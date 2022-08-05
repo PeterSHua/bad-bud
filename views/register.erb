@@ -5,6 +5,7 @@
     <div>
       <label for="username">Username:</label>
         <input name="username" type="text" class="inline">
+        <br>
         Must consist of only letters and numbers, and must be between 4-10 characters.
     </div>
 
@@ -13,6 +14,7 @@
     <div>
       <label for="password">Password:</label>
         <input name="password" type="password" class="inline">
+        <br>
         Cannot contain spaces and must be between 4-10 characters.
     </div>
 
@@ -21,6 +23,6 @@
 </p>
 
 <% content_for :header_links do %>
-  <a href="/game_list">🏸 Games</a>
-  <a href="/group_list">👥 Groups</a>
+  <a class="orange-link" href="/game_list">&#127992; Games</a>
+  <a class="orange-link" href="/group_list">&#128101; Groups</a>
 <% end %>

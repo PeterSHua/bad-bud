@@ -15,81 +15,34 @@ class BadBudsTest < Minitest::Test
 
   def setup
     @storage = DatabasePersistence.new
-    @storage.delete_all_schema
-    @storage.create_schema
-    player_1 = Player.new(id: 1,
-                          name: 'Symere Woods',
-                          rating: 3,
-                          games_played: 30,
-                          about: 'Info about symere.',
-                          username: 'symere',
-                          password: '$2a$12$W5ACHXiMPoYIHUEjTWtnUOnO18zfz65mQiqsIn/IVabLsJQ5ZelqS')
-
-    player_2 = Player.new(id: 2,
-                          name: 'Jeffery Williams',
-                          rating: 3,
-                          games_played: 50,
-                          about: 'Info about jeffery.',
-                          username: 'jeffery',
-                          password: '$2a$12$W5ACHXiMPoYIHUEjTWtnUOnO18zfz65mQiqsIn/IVabLsJQ5ZelqS')
-
-    group_1 = Group.new(id: 1,
-                        name: 'Novice BM Vancouver',
-                        about: 'Beginner/intermediate games every week')
-
-    location_1 = Location.new(id: 1,
-                              name: 'Badminton Vancouver',
-                              address: '13100 Mitchell Rd SUITE 110, Richmond, BC V6V 1M8',
-                              phone_number: '(604) 325-5128',
-                              cost_per_court: 40)
-
-    game_1 = Game.new(id: 1,
-                      start_time: '2022-07-22 17:00:00',
-                      duration: 2,
-                      group_name: 'Novice BM Vancouver',
-                      group_id: 1,
-                      location_name: 'Badminton Vancouver',
-                      location_id: 1,
-                      fee: 12,
-                      total_slots: 6,
-                      filled_slots: 2,
-                      players: { name: 'Symere Woods', has_paid: true },
-                      notes: 'Some game notes.')
-
-    @storage.add_player(player_1)
-    @storage.add_player(player_2)
-    @storage.add_location(location_1)
-    @storage.add_group(group_1)
-    @storage.make_organizer(1, 1)
-    @storage.make_organizer(1, 2)
-    @storage.add_game(game_1)
+    @storage.delete_data
+    @storage.seed_data
   end
 
   def teardown
-    @storage.delete_all_data
-    @storage.delete_all_schema
+    @storage.delete_data
   end
 
   def session
     last_request.env["rack.session"]
   end
 
-  def logged_in_as_symere
+  def logged_in_as_david
     {
       "rack.session" => {
                           logged_in: true,
-                          username: "symere",
-                          player_id: 1
+                          username: "david",
+                          player_id: 2
                         }
     }
   end
 
-  def logged_in_as_jeffery
+  def logged_in_as_peter
     {
       "rack.session" => {
                           logged_in: true,
-                          username: "jeffery",
-                          player_id: 2
+                          username: "peter",
+                          player_id: 1
                         }
     }
   end
@@ -99,10 +52,10 @@ class BadBudsTest < Minitest::Test
 
     assert_equal 200, last_response.status
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
-    assert_includes last_response.body, "Fri, Jul 22"
+    assert_includes last_response.body, "Mon, Jul 25"
     assert_includes last_response.body, "Novice BM Vancouver"
     assert_includes last_response.body, "Badminton Vancouver"
-    assert_includes last_response.body, "0 / 6"
+    assert_includes last_response.body, "3 / 18"
   end
 
   def test_view_group_list
@@ -119,15 +72,13 @@ class BadBudsTest < Minitest::Test
 
     assert_equal 200, last_response.status
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
-    assert_includes last_response.body, "Fri, Jul 22"
+    assert_includes last_response.body, "Mon, Jul 25"
     assert_includes last_response.body, "Novice BM Vancouver"
-    assert_includes last_response.body, "Location: Badminton Vancouver"
-    assert_includes last_response.body, "Attendees: 0 / 6"
-    assert_includes last_response.body, "Fee: $12"
+    assert_includes last_response.body, "3 / 18"
   end
 
   def test_view_invalid_group
-    get "/groups/2"
+    get "/groups/9"
 
     assert_equal 302, last_response.status
     assert_equal "The specified group was not found.", session[:error]
@@ -138,34 +89,33 @@ class BadBudsTest < Minitest::Test
 
     assert_equal 200, last_response.status
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
-    assert_includes last_response.body, "Fri, Jul 22"
+    assert_includes last_response.body, "Mon, Jul 25"
     assert_includes last_response.body, "Novice BM Vancouver"
-    assert_includes last_response.body, "Location: Badminton Vancouver"
-    assert_includes last_response.body, "Attendees: 0 / 6"
+    assert_includes last_response.body, "Badminton Vancouver"
+    assert_includes last_response.body, "Attendees: 3 / 18"
     assert_includes last_response.body, "Fee: $12"
-    assert_includes last_response.body, "Some game notes."
+    assert_includes last_response.body, "E-transfer the fee to David"
   end
 
   def test_view_invalid_game
-    get "/games/2"
+    get "/games/9"
 
     assert_equal 302, last_response.status
     assert_equal "The specified game was not found.", session[:error]
   end
 
   def test_view_player
-    get "/players/1"
+    get "/players/2"
 
     assert_equal 200, last_response.status
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
-    assert_includes last_response.body, "Symere Woods"
+    assert_includes last_response.body, "David C"
     assert_includes last_response.body, "Rating:</a> 3"
-    assert_includes last_response.body, "Games played: 30"
-    assert_includes last_response.body, "Info about symere."
+    assert_includes last_response.body, "Founder of Novice BM Vancouver"
   end
 
   def test_view_invalid_player
-    get "/players/3"
+    get "/players/9"
 
     assert_equal 302, last_response.status
     assert_equal "The specified player was not found.", session[:error]
@@ -178,16 +128,16 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Username"
     assert_includes last_response.body, "Password"
 
-    post "/login", { username: "symere", password: "abc123" }
+    post "/login", { username: "david", password: "abc123" }
 
     assert_equal 302, last_response.status
     assert_equal "Welcome!", session[:success]
-    assert_equal "symere", session[:username]
-    assert_equal "1", session[:player_id]
+    assert_equal "david", session[:username]
+    assert_equal "2", session[:player_id]
     assert session[:logged_in]
 
     get last_response["Location"]
-    assert_includes last_response.body, "Signed in as <a href=\"/players/1\">symere"
+    assert_includes last_response.body, "&#128075;david"
   end
 
   def test_login_fail
@@ -199,7 +149,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_logout
-    post "/login", { username: "symere", password: "abc123" }
+    post "/login", { username: "david", password: "abc123" }
     get last_response["Location"]
 
     assert_includes last_response.body, "Sign Out"
@@ -213,7 +163,7 @@ class BadBudsTest < Minitest::Test
 
     assert_equal 200, last_response.status
     refute_equal "Welcome!", session[:success]
-    refute_equal "symere", session[:username]
+    refute_equal "david", session[:username]
     refute_equal "1", session[:player_id]
     refute session[:logged_in]
 
@@ -224,7 +174,7 @@ class BadBudsTest < Minitest::Test
     post "/register", { username: "groucho", password: "marx" }
     get last_response["Location"]
 
-    assert_includes last_response.body, "Signed in as"
+    assert_includes last_response.body, "&#128075;groucho"
 
     post "/logout"
 
@@ -239,14 +189,14 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_register_already_logged_in
-    post "/register", { username: "harpo", password: "marx" }, logged_in_as_symere
+    post "/register", { username: "harpo", password: "marx" }, logged_in_as_david
 
     assert_equal 302, last_response.status
     assert_equal "You're already logged in.", session[:error]
   end
 
   def test_register_acc_exists
-    post "/register", { username: "symere", password: "abc123" }
+    post "/register", { username: "david", password: "abc123" }
 
     assert_equal 422, last_response.status
     assert_includes last_response.body, "That account name already exists."
@@ -334,14 +284,14 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_rsvp_anon_player_no_empty_slots
-    post "/games/1/players/add", { player_name: "Chico" }
-    post "/games/1/players/add", { player_name: "Harpo" }
-    post "/games/1/players/add", { player_name: "Groucho" }
-    post "/games/1/players/add", { player_name: "Gummo" }
-    post "/games/1/players/add", { player_name: "Zeppo" }
-    post "/games/1/players/add", { player_name: "Minnie" }
+    post "/games/2/players/add", { player_name: "Chico" }
+    post "/games/2/players/add", { player_name: "Harpo" }
+    post "/games/2/players/add", { player_name: "Groucho" }
+    post "/games/2/players/add", { player_name: "Gummo" }
+    post "/games/2/players/add", { player_name: "Zeppo" }
+    post "/games/2/players/add", { player_name: "Minnie" }
 
-    post "/games/1/players/add", { player_name: "Sam" }
+    post "/games/2/players/add", { player_name: "Sam" }
 
     assert_equal 302, last_response.status
     assert_equal "Sorry, no empty slots remaining.", session[:error]
@@ -352,18 +302,18 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_rvsp_player
-    post "/games/1/players/add", {}, logged_in_as_symere
+    post "/games/1/players/add", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
     assert_equal "You've been signed up.", session[:success]
 
     get last_response["Location"]
 
-    assert_includes last_response.body, "Symere Woods"
+    assert_includes last_response.body, "David C"
   end
 
   def test_rsvp_player_already_rsvpd
-    post "/games/1/players/add", {}, logged_in_as_symere
+    post "/games/1/players/add", {}, logged_in_as_david
     post "/games/1/players/add", {}
 
     assert_equal 422, last_response.status
@@ -371,25 +321,24 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_rsvp_player_no_empty_slots
-    post "/games/1/players/add", { player_name: "Chico" }
-    post "/games/1/players/add", { player_name: "Harpo" }
-    post "/games/1/players/add", { player_name: "Groucho" }
-    post "/games/1/players/add", { player_name: "Gummo" }
-    post "/games/1/players/add", { player_name: "Zeppo" }
-    post "/games/1/players/add", { player_name: "Minnie" }
+    post "/games/2/players/add", { player_name: "Chico" }
+    post "/games/2/players/add", { player_name: "Harpo" }
+    post "/games/2/players/add", { player_name: "Groucho" }
+    post "/games/2/players/add", { player_name: "Gummo" }
+    post "/games/2/players/add", { player_name: "Zeppo" }
 
-    post "/games/1/players/add", {}, logged_in_as_symere
+    post "/games/2/players/add", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
     assert_equal "Sorry, no empty slots remaining.", session[:error]
 
     get last_response["Location"]
 
-    refute_includes last_response.body, "Symere Woods"
+    refute_includes last_response.body, "David C"
   end
 
   def test_unrsvp_player
-    post "/games/1/players/add", {}, logged_in_as_symere
+    post "/games/1/players/add", {}, logged_in_as_david
     post "/games/1/players/remove"
 
     assert_equal 302, last_response.status
@@ -397,11 +346,11 @@ class BadBudsTest < Minitest::Test
 
     get last_response["Location"]
 
-    refute_includes last_response.body, "Symere Woods"
+    refute_includes last_response.body, "David C"
   end
 
   def test_unrsvp_player_not_signed_up
-    post "/games/1/players/remove", {}, logged_in_as_symere
+    post "/games/4/players/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
 
@@ -410,65 +359,56 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_organizer_confirm_payment
-    post "/games/1/players/add", {}, logged_in_as_symere
+    post "/games/1/players/4/remove", {}, logged_in_as_david
+    post "/games/1/players/5/remove", {}, logged_in_as_david
 
     get last_response["Location"]
-    assert_includes last_response.body, "❌"
-    assert_includes last_response.body, "<button type=\"submit\">Confirm</button>"
+    assert_includes last_response.body, "&#10060;"
 
     post "/games/1/players/1/confirm_paid"
 
     get last_response["Location"]
-    assert_includes last_response.body, "✅"
-    assert_includes last_response.body, "<button type=\"submit\">Un-confirm</button>"
+    assert_includes last_response.body, "&#9989;"
   end
 
   def test_organizer_un_confirm_payment
-    post "/games/1/players/add", {}, logged_in_as_symere
-    post "/games/1/players/1/confirm_paid"
+    post "/games/1/players/4/remove", {}, logged_in_as_david
+    post "/games/1/players/5/remove", {}, logged_in_as_david
+
     post "/games/1/players/1/unconfirm_paid"
 
     get last_response["Location"]
-    assert_includes last_response.body, "❌"
+    refute_includes last_response.body, "&#9989;"
   end
 
   def test_organizer_confirm_all_payment
-    post "/games/1/players/add", {}, logged_in_as_symere
-    post "/games/1/players/add", {}, logged_in_as_jeffery
     post "/games/1/players/confirm_all"
 
     get last_response["Location"]
-    refute_includes last_response.body, "❌"
-    assert_includes last_response.body, "<button type=\"submit\">Confirm All</button>"
+    refute_includes last_response.body, "&#10060;"
   end
 
   def test_organizer_unconfirm_all_payment
-    post "/games/1/players/add", {}, logged_in_as_symere
-    post "/games/1/players/add", {}, logged_in_as_jeffery
     post "/games/1/players/confirm_all"
     post "/games/1/players/unconfirm_all"
 
     get last_response["Location"]
-    refute_includes last_response.body, "✅"
-    assert_includes last_response.body, "<button type=\"submit\">Un-confirm All</button>"
+    refute_includes last_response.body, "&#9989;"
   end
 
   def test_organizer_remove_player_from_game
-    post "/games/1/players/add", {}, logged_in_as_symere
-    post "/games/1/players/add", {}, logged_in_as_jeffery
-
-    post "/games/1/players/1/remove"
+    post "/games/1/players/4/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
     assert_equal "Player removed from this game.", session[:success]
 
     get last_response["Location"]
 
-    refute_includes last_response.body, "Symere Woods"
+    refute_includes last_response.body, "Rustam"
   end
 
   def test_organizer_remove_player_not_signed_up_for_game
-    post "/games/1/players/1/remove", {}, logged_in_as_symere
+    post "/games/1/players/2/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
 
@@ -481,19 +421,16 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_organizer_delete_game
-    post "/games/1/delete", {}, logged_in_as_symere
+    post "/games/1/delete", {}, logged_in_as_david
 
     get last_response["Location"]
     assert_includes last_response.body, "Game has been deleted."
 
-    refute_includes last_response.body, "Fri, Jul 22"
-    refute_includes last_response.body, "Novice BM Vancouver"
-    refute_includes last_response.body, "Badminton Vancouver"
-    refute_includes last_response.body, "0 / 6"
+    refute_includes last_response.body, "Mon, Jul 25"
   end
 
   def test_organizer_delete_game_doesnt_exist
-    post "/games/8/delete", {}, logged_in_as_symere
+    post "/games/8/delete", {}, logged_in_as_david
 
     get last_response["Location"]
     assert_includes last_response.body, "You don't have permission to do that!"

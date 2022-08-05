@@ -2,17 +2,17 @@
 
 <p>
   <a class="orange-link" href="https://www.dropbox.com/s/vmk48yybqhd35dj/rr-rating-reformatted.pdf?dl=0">Rating:</a> <%= @player.rating%>
-  <br>
-  Games played: <%= @player.games_played %>
 </p>
 
 <p>
+  <img src="/images/<%= @player.username %>.jpg">
+  <br>
   <%= @player.about %>
 </p>
 
 <% content_for :login_links do %>
   <% if session[:logged_in] %>
-    <em>Signed in as <%= session[:username] %></a></em>
+    <em>&#128075;<%= session[:username] %></a></em>
     <form class="inline" method="post" action="/logout">
       <button type="submit">Sign Out</button>
     </form>
@@ -26,11 +26,11 @@
 <% content_for :header_links do %>
   <ul>
     <li>
-      <a href="/game_list">🏸 Games</a>
+      <a class="orange-link" href="/game_list">&#127992; Games</a>
     </li>
 
     <li>
-      <a href="/group_list">👥 Groups</a>
+      <a class="orange-link" href="/group_list">&#128101; Groups</a>
     </li>
   </ul>
 <% end %>

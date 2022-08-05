@@ -3,6 +3,10 @@
 </h2>
 <p>
   <%= @group.about %>
+  <br>
+  <% if session[:logged_in] && group_organizer?(@group.id, session[:player_id]) %>
+    <a class="orange-link" href="/groups/<%= @group.id %>/schedule">📅 Schedule</a>
+  <% end %>
 </p>
 
 <% if session[:logged_in] %>
@@ -21,7 +25,7 @@
           👤 <%= game.filled_slots %> / <%= game.total_slots %>
         </p>
         <br>
-        <%= game.location_name %>
+        <%= game.location %>
     </li>
     </a>
   <% end %>
@@ -36,7 +40,7 @@
       </a>
 
       <% if player.is_organizer %>
-        👑
+        &#128081;
       <% end %>
     </li>
   <% end %>
@@ -44,7 +48,7 @@
 
 <% content_for :login_links do %>
   <% if session[:logged_in] %>
-    <em>Signed in as <%= session[:username] %></a></em>
+    <em>&#128075;<%= session[:username] %></a></em>
     <form class="inline" method="post" action="/logout">
       <button type="submit">Sign Out</button>
     </form>
@@ -56,6 +60,6 @@
 <% end %>
 
 <% content_for :header_links do %>
-  <a href="/game_list">🏸 All Games</a>
-  <a href="/group_list">👥 Groups</a>
+  <a class="orange-link" href="/game_list">&#127992; All Games</a>
+  <a class="orange-link" href="/group_list">&#128101; Groups</a>
 <% end %>

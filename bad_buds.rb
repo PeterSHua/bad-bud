@@ -7,7 +7,6 @@ require_relative "lib/database_persistence"
 require_relative "lib/game.rb"
 require_relative "lib/group.rb"
 require_relative "lib/player.rb"
-require_relative "lib/location.rb"
 
 configure do
   enable :sessions
@@ -28,9 +27,13 @@ helpers do
   def game_organizer?(game_id, player_id)
     @storage.game_organizer?(game_id, player_id)
   end
+
+  def group_organizer?(group_id, player_id)
+    @storage.group_organizer?(group_id, player_id)
+  end
 end
 
-def have_permission?(game_id)
+def game_have_permission?(game_id)
   if session[:logged_in] && @storage.game_organizer?(game_id, session[:player_id])
     return
   end
@@ -38,6 +41,16 @@ def have_permission?(game_id)
   session[:error] = "You don't have permission to do that!"
 
   redirect "/game_list"
+end
+
+def group_have_permission?(group_id)
+  if session[:logged_in] && @storage.group_organizer?(group_id, session[:player_id])
+    return
+  end
+
+  session[:error] = "You don't have permission to do that!"
+
+  redirect "/group_list"
 end
 
 def valid_password?(password)
@@ -57,14 +70,6 @@ def load_game(id)
   return game if game
 
   session[:error] = "The specified game was not found."
-  redirect "/game_list"
-end
-
-def load_location(id)
-  location = @storage.find_location(id)
-  return location if location
-
-  session[:error] = "The specified location was not found."
   redirect "/game_list"
 end
 
@@ -164,7 +169,7 @@ end
 # Delete game
 post "/games/:id/delete" do
   @game_id = params[:id].to_i
-  have_permission?(@game_id)
+  game_have_permission?(@game_id)
 
   load_game(@game_id)
   @storage.delete_game(@game_id)
@@ -223,7 +228,7 @@ post "/games/:game_id/players/:player_id/remove" do
   @game_id = params[:game_id].to_i
   @player_id = params[:player_id].to_i
 
-  have_permission?(@game_id)
+  game_have_permission?(@game_id)
 
   if @storage.already_signed_up?(@game_id, @player_id)
     @storage.un_rsvp_player(@game_id, @player_id)
@@ -251,7 +256,7 @@ end
 # Confirm all players' payment
 post "/games/:game_id/players/confirm_all" do
   @game_id = params[:game_id]
-  have_permission?(@game_id)
+  game_have_permission?(@game_id)
 
   @storage.confirm_all_paid(@game_id)
 
@@ -263,7 +268,7 @@ post "/games/:game_id/players/:player_id/unconfirm_paid" do
   @game_id = params[:game_id]
   @player_id = params[:player_id]
 
-  have_permission?(@game_id)
+  game_have_permission?(@game_id)
 
   @storage.unconfirm_paid(@game_id, @player_id)
 
@@ -274,7 +279,7 @@ end
 post "/games/:game_id/players/unconfirm_all" do
   @game_id = params[:game_id]
 
-  have_permission?(@game_id)
+  game_have_permission?(@game_id)
 
   @storage.unconfirm_all_paid(@game_id)
 
@@ -299,12 +304,46 @@ get "/groups/:group_id" do
   erb :group, layout: :layout
 end
 
-# View location detail
-get "/locations/:id" do
-  @location_id = params[:id].to_i
-  @location = load_location(@location_id)
+# View group schedule
+get "/groups/:group_id/schedule" do
+  @group_id = params[:group_id].to_i
+  @group = load_group(@group_id)
 
-  erb :location, layout: :layout
+  group_have_permission?(@group_id)
+
+  erb :group_schedule, layout: :layout
+end
+
+def valid_notes?(notes)
+  notes.nil? || notes.length <= 1000
+end
+
+# Edit group game schedule notes
+post "/groups/:group_id/schedule/edit" do
+  @group_id = params[:group_id].to_i
+  @group = load_group(@group_id)
+
+  group_have_permission?(@group_id)
+
+  if !valid_notes?(params[:notes])
+    session[:error] = "Note must be less than or equal to 1000 characters."
+    status 422
+    erb :group_schedule, layout: :layout
+  else
+    @storage.edit_group_schedule_game_notes(@group_id, params[:notes])
+
+    session[:success] = "Group notes updated."
+
+    redirect "/groups/#{@group_id}/schedule"
+  end
+end
+
+# View group sunday schedule
+get "/groups/:group_id/schedule/sunday" do
+  @group_id = params[:group_id].to_i
+  @group = load_group(@group_id)
+
+  erb :group_schedule_sunday, layout: :layout
 end
 
 # View player detail

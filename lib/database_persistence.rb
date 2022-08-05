@@ -17,10 +17,9 @@ class DatabasePersistence
     SELECT gm.id,
            gm.start_time,
            gm.duration,
+           gm.location,
            gp.id AS group_id,
            gp.name AS group_name,
-           l.name AS location_name,
-           l.id AS location_id,
            gm.fee,
            gm.total_slots,
            gm.notes
@@ -29,8 +28,6 @@ class DatabasePersistence
            ON gm.id = g_p.game_id
            INNER JOIN groups AS gp
            ON gm.group_id = gp.id
-           INNER JOIN locations as l
-           ON gm.location_id = l.id
      WHERE gm.id = $1
      ORDER BY start_time ASC;
     SQL
@@ -48,8 +45,7 @@ class DatabasePersistence
              duration: tuple["duration"].to_i,
              group_name: tuple["group_name"],
              group_id: tuple["group_id"].to_i,
-             location_name: tuple["location_name"],
-             location_id: tuple["location_id"].to_i,
+             location: tuple["location"],
              fee: tuple["fee"].to_i,
              filled_slots: filled_slots,
              total_slots: tuple["total_slots"].to_i,
@@ -71,9 +67,8 @@ class DatabasePersistence
     SELECT gm.id,
            gm.start_time,
            gm.duration,
+           gm.location,
            gp.id AS group_id,
-           l.name AS location_name,
-           l.id AS location_id,
            gm.fee,
            count(g_p.player_id) AS filled_slots,
            total_slots
@@ -82,10 +77,8 @@ class DatabasePersistence
            ON gm.id = g_p.game_id
            INNER JOIN groups AS gp
            ON gm.group_id = gp.id
-           INNER JOIN locations as l
-           ON gm.location_id = l.id
      WHERE gp.id = $1
-     GROUP BY gm.id, gp.id, l.id
+     GROUP BY gm.id, gp.id
      ORDER BY start_time ASC;
     SQL
 
@@ -97,8 +90,7 @@ class DatabasePersistence
                duration: tuple["duration"],
                group_name: tuple["group_name"],
                group_id: tuple["group_id"],
-               location_name: tuple["location_name"],
-               location_id: tuple["location_id"],
+               location: tuple["location"],
                fee: tuple["fee"],
                filled_slots: tuple["filled_slots"],
                total_slots: tuple["total_slots"])
@@ -110,10 +102,9 @@ class DatabasePersistence
       SELECT gm.id,
              gm.start_time,
              gm.duration,
+             gm.location,
              gp.name AS group_name,
              gp.id AS group_id,
-             l.name AS location_name,
-             l.id AS location_id,
              gm.fee,
              count(g_p.player_id) AS filled_slots,
              total_slots
@@ -122,9 +113,7 @@ class DatabasePersistence
              ON gm.id = g_p.game_id
              INNER JOIN groups AS gp
              ON gm.group_id = gp.id
-             INNER JOIN locations as l
-             ON gm.location_id = l.id
-       GROUP BY gm.id, gp.id, l.id
+       GROUP BY gm.id, gp.id
        ORDER BY start_time ASC;
     SQL
 
@@ -136,8 +125,7 @@ class DatabasePersistence
                duration: tuple["duration"],
                group_name: tuple["group_name"],
                group_id: tuple["group_id"],
-               location_name: tuple["location_name"],
-               location_id: tuple["location_id"],
+               location: tuple["location"],
                fee: tuple["fee"],
                filled_slots: tuple["filled_slots"],
                total_slots: tuple["total_slots"])
@@ -155,7 +143,8 @@ class DatabasePersistence
     result.map do |tuple|
       Group.new(id: tuple["id"],
                 name: tuple["name"],
-                about: tuple["about"])
+                about: tuple["about"],
+                schedule_game_notes: tuple["schedule_game_notes"])
     end
   end
 
@@ -172,9 +161,9 @@ class DatabasePersistence
     return nil if result.ntuples.zero?
 
     Player.new(id: tuple["id"],
+               username: tuple["username"],
                name: tuple["name"],
                rating: tuple["rating"],
-               games_played: tuple["games_played"],
                about: tuple["about"])
   end
 
@@ -192,7 +181,18 @@ class DatabasePersistence
 
     Group.new(id: tuple["id"],
               name: tuple["name"],
-              about: tuple["about"])
+              about: tuple["about"],
+              schedule_game_notes: tuple["schedule_game_notes"])
+  end
+
+  def edit_group_schedule_game_notes(group_id, notes)
+    sql = <<~SQL
+      UPDATE groups
+         SET schedule_game_notes = $1
+       WHERE id = $2;
+    SQL
+
+    query(sql, notes, group_id)
   end
 
   def find_group_players(id)
@@ -215,7 +215,6 @@ class DatabasePersistence
                  password: player["password"],
                  name: player["name"],
                  rating: player["rating"].to_i,
-                 games_played: player["games_played"].to_i,
                  about: player["about"],
                  fee_paid: player["fee_paid"] == 't',
                  is_organizer: player["is_organizer"] == 't')
@@ -224,12 +223,12 @@ class DatabasePersistence
 
   def add_player(player)
     sql = <<~SQL
-      INSERT INTO players (username, password, name, rating, games_played, about)
-      VALUES ($1, $2, $3, $4, $5, $6);
+      INSERT INTO players (username, password, name, rating, about)
+      VALUES ($1, $2, $3, $4, $5);
     SQL
 
     query(sql, player.username, player.password, player.name, player.rating,
-          player.games_played, player.about)
+          player.about)
   end
 
   def add_group(group)
@@ -250,25 +249,15 @@ class DatabasePersistence
     query(sql, group_id, player_id)
   end
 
-  def add_location(location)
-    sql = <<~SQL
-      INSERT INTO locations (name, address, phone_number, cost_per_court)
-      VALUES ($1, $2, $3, $4);
-    SQL
-
-    query(sql, location.name, location.address, location.phone_number,
-          location.cost_per_court)
-  end
-
   def add_game(game)
     sql = <<~SQL
-      INSERT INTO games (group_id, start_time, duration, location_id, fee,
+      INSERT INTO games (group_id, start_time, duration, location, fee,
                          total_slots, notes)
       VALUES ($1, $2, $3, $4, $5, $6, $7);
       SQL
 
       query(sql, game.group_id, game.start_time, game.duration,
-            game.location_id, game.fee, game.total_slots, game.notes)
+            game.location, game.fee, game.total_slots, game.notes)
   end
 
   def rsvp_player(game_id, player_id)
@@ -422,26 +411,21 @@ class DatabasePersistence
     result.first["id"]
   end
 
-  def create_schema
-    system("psql -d bad_buds_test < schema.sql")
+  def seed_data
+    system("psql -d bad_buds_test < data.sql")
   end
 
-  def delete_all_data
+  def delete_data
     query("DELETE FROM groups_players;")
+    query("ALTER SEQUENCE groups_players_id_seq RESTART WITH 1;")
     query("DELETE FROM games_players;")
+    query("ALTER SEQUENCE games_players_id_seq RESTART WITH 1;")
     query("DELETE FROM games;")
+    query("ALTER SEQUENCE games_id_seq RESTART WITH 1;")
     query("DELETE FROM players;")
+    query("ALTER SEQUENCE players_id_seq RESTART WITH 1;")
     query("DELETE FROM groups;")
-    query("DELETE FROM locations;")
-  end
-
-  def delete_all_schema
-    query("DROP TABLE IF EXISTS games_players ")
-    query("DROP TABLE IF EXISTS groups_players")
-    query("DROP TABLE IF EXISTS games")
-    query("DROP TABLE IF EXISTS groups")
-    query("DROP TABLE IF EXISTS locations")
-    query("DROP TABLE IF EXISTS players")
+    query("ALTER SEQUENCE groups_id_seq RESTART WITH 1;")
   end
 
   def disconnect
@@ -456,7 +440,7 @@ class DatabasePersistence
   end
 
   def find_players_for_game(game_id)
-    sql = "SELECT players.id, name, rating, games_played, about, username, fee_paid
+    sql = "SELECT players.id, name, rating, about, username, fee_paid
              FROM players
                   INNER JOIN games_players
                   ON games_players.player_id = players.id
@@ -474,7 +458,6 @@ class DatabasePersistence
       Player.new(id: tuple["id"],
                  name: tuple["name"],
                  rating: tuple["rating"],
-                 games_played: tuple["games_played"],
                  about: tuple["about"],
                  username: tuple["username"],
                  fee_paid: fee_paid)

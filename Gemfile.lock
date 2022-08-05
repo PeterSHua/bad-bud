@@ -38,7 +38,7 @@ DEPENDENCIES
   pg
   puma
   rack-test
-  sinatra (~> 1.4.7)
+  sinatra
   sinatra-contrib
 
 RUBY VERSION
