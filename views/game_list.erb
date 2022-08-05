@@ -1,3 +1,9 @@
+<% if session[:logged_in] %>
+  <form class="inline" method="post" action="/games/create">
+    <button type="submit">Create Game</button>
+  </form>
+<% end %>
+
 <h2>Upcoming Games</h2>
 
 <ul id="red-list">

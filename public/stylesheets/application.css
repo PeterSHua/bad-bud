@@ -37,7 +37,7 @@ body {
 
 body > header {
   max-width: 1000px;
-  padding: 0px 0 35px 0;
+  padding: 0px 0 10px 0;
   margin: 0 auto;
 }
 
@@ -118,6 +118,10 @@ nav li {
   display: inline-block;
 }
 
+ul {
+  margin: 0 0 35px 0
+}
+
 .hero {
   display: inline-block;
   width: 70%;
@@ -194,7 +198,7 @@ nav li {
 }
 
 #red-list h2 {
-  
+
   float: left;
 }
 

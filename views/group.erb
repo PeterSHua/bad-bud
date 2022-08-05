@@ -5,6 +5,12 @@
   <%= @group.about %>
 </p>
 
+<% if session[:logged_in] %>
+  <form class="inline" method="post" action="/groups/<%= @group.id %>/schedule">
+    <button type="submit">Weekly Schedule</button>
+  </form>
+<% end %>
+
 <h2>Upcoming Games</h2>
 <ul id="red-list">
   <% @group_games.each do |game| %>
@@ -12,7 +18,7 @@
       <li>
         <h2><%= DAYS_OF_WEEK[game.start_time.wday] %>, <%= MONTHS[game.start_time.month - 1] %> <%= game.start_time.day %></h2>
         <p>
-          <%= game.filled_slots %> / <%= game.total_slots %>
+          👤 <%= game.filled_slots %> / <%= game.total_slots %>
         </p>
         <br>
         <%= game.location_name %>
