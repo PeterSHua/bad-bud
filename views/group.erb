@@ -3,8 +3,8 @@
 </h2>
 <p>
   <%= @group.about %>
-
-  <% if session[:logged_in] && game_organizer?(@group.id, session[:player_id]) %>
+  <br>
+  <% if session[:logged_in] && group_organizer?(@group.id, session[:player_id]) %>
     <a class="orange-link" href="/groups/<%= @group.id %>/schedule">📅 Schedule</a>
   <% end %>
 </p>
@@ -19,7 +19,7 @@
           <%= game.filled_slots %> / <%= game.total_slots %>
         </p>
         <br>
-        <%= game.location_name %>
+        <%= game.location %>
     </li>
     </a>
   <% end %>
@@ -34,7 +34,7 @@
       </a>
 
       <% if player.is_organizer %>
-        👑
+        &#128081;
       <% end %>
     </li>
   <% end %>

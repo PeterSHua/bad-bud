@@ -111,7 +111,6 @@ class BadBudsTest < Minitest::Test
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
     assert_includes last_response.body, "David C"
     assert_includes last_response.body, "Rating:</a> 3"
-    assert_includes last_response.body, "Games played: 50"
     assert_includes last_response.body, "Founder of Novice BM Vancouver"
   end
 

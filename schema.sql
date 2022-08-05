@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS players(
     password     varchar(100),
     name         varchar(20) NOT NULL,
     rating       integer CHECK(rating BETWEEN 1 AND 6) DEFAULT 1,
-    games_played integer DEFAULT 0,
     about        varchar(300)
 );
 
@@ -13,7 +12,8 @@ CREATE TABLE IF NOT EXISTS groups(
     PRIMARY KEY (id),
     id    serial,
     name  varchar(20) UNIQUE NOT NULL,
-    about varchar(300)
+    about varchar(300),
+    schedule_game_notes varchar(1000)
 );
 
 CREATE TABLE IF NOT EXISTS groups_players(
@@ -31,25 +31,13 @@ CREATE TABLE IF NOT EXISTS groups_players(
     UNIQUE (group_id, player_id)
 );
 
-CREATE TABLE IF NOT EXISTS locations(
-    PRIMARY KEY (id),
-    id             serial,
-    name           varchar(20) UNIQUE NOT NULL,
-    address        varchar(300),
-    phone_number   varchar(20),
-    cost_per_court numeric
-);
-
 CREATE TABLE IF NOT EXISTS games(
     PRIMARY KEY (id),
     id          serial,
     group_id    integer NOT NULL,
     start_time  timestamp NOT NULL,
     duration    integer CHECK(duration <= 24) NOT NULL,
-    location_id integer NOT NULL,
-    FOREIGN KEY (location_id)
-    REFERENCES locations (id)
-    ON DELETE CASCADE,
+    "location"  varchar(300),
     fee         integer CHECK(fee <= 1000) NOT NULL,
     total_slots integer CHECK(total_slots <= 1000) NOT NULL,
     notes       varchar(300),

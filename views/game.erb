@@ -1,9 +1,13 @@
 <h2>
-  &#128340; <%= DAYS_OF_WEEK[@game.start_time.wday] %>, <%= MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %>
+  &#128198; <%= DAYS_OF_WEEK[@game.start_time.wday] %>, <%= MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %>
 </h2>
 
 <h2>
-  &#127758; <%= @game.location_name %>
+  &#128340; <%= @game.start_time.strftime("%l:%M%p") %> - <%= (@game.start_time + @game.duration * 60 * 60).strftime("%l:%M%p") %>
+</h2>
+
+<h2>
+  &#127758; <%= @game.location %>
 </h2>
 
 <% if game_organizer?(@game.id, session[:player_id]) %>

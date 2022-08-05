@@ -1,0 +1,46 @@
+<h2>
+  <%= @group.name %>
+</h2>
+
+<form action="/groups/<%= @group_id %>/schedule/edit" method="post">
+  <div>
+    <label for="notes">Game Notes:</label>
+    <textarea name="notes" id="notes" rows="8" cols="33"><%= params[:notes] || @group.schedule_game_notes %></textarea>
+  </div>
+
+  <button type="submit" value="Save">Save</button>
+</form>
+
+<div>
+  <ul id="red-list">
+    <a href="/groups/<%= @group_id %>/schedule/sunday">
+      <li>
+        Sunday
+      </li>
+    </a>
+
+    <a href="/groups/<%= @group_id %>/schedule/monday">
+      <li>
+        Monday
+      </li>
+    </a>
+  </ul>
+</div>
+
+<% content_for :login_links do %>
+  <% if session[:logged_in] %>
+    <em>&#128075;<%= session[:username] %></a></em>
+    <form class="inline" method="post" action="/logout">
+      <button type="submit">Sign Out</button>
+    </form>
+  <% else %>
+    <form method="get" action="/login">
+      <button type="submit">Sign In</button>
+    </form>
+  <% end %>
+<% end %>
+
+<% content_for :header_links do %>
+  <a class="orange-link" href="/game_list">&#127992; Games</a>
+  <a class="orange-link" href="/group_list">&#128101; Groups</a>
+<% end %>

@@ -62,6 +62,14 @@ main {
   margin: 0 auto;
 }
 
+select {
+  font-size: 0.6rem;
+}
+
+textarea {
+  font-size: 1.1rem;
+}
+
 table {
   width: 100%;
 }
@@ -161,7 +169,7 @@ nav li {
 }
 
 .flash p {
-  font-size: 14px;
+  font-size: 1rempx;
   font-weight: bold;
 }
 
@@ -236,7 +244,6 @@ nav li {
   width: 50%;
   vertical-align: middle;
 }
-
 
 
 #players header ul {
