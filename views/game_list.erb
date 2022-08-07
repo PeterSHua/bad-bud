@@ -21,30 +21,3 @@
     </a>
   <% end %>
 </ul>
-
-<% content_for :login_links do %>
-  <% if session[:logged_in] %>
-    <em>&#128075;<%= session[:username] %></a></em>
-    <form class="inline" method="post" action="/logout">
-      <button type="submit">Sign Out</button>
-    </form>
-  <% else %>
-    <form method="get" action="/login">
-      <button type="submit">Sign In</button>
-    </form>
-  <% end %>
-<% end %>
-
-<% content_for :header_links do %>
-  <ul>
-    <li>
-      <a class="orange-link" href="/group_list">&#128101; Groups</a>
-    </li>
-
-    <% if session[:logged_in] %>
-      <li>
-        <a class="orange-link" href="/players/<%= session[:player_id] %>">&#128100; Profile</a>
-      </li>
-    <% end %>
-  </ul>
-<% end %>

@@ -2,7 +2,6 @@ ENV["RACK_ENV"] = "test"
 
 require "minitest/autorun"
 require "rack/test"
-require "pry-byebug"
 
 require_relative "../bad_buds"
 
