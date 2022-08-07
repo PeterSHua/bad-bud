@@ -43,4 +43,9 @@
 <% content_for :header_links do %>
   <a class="orange-link" href="/game_list">&#127992; Games</a>
   <a class="orange-link" href="/group_list">&#128101; Groups</a>
+  <% if session[:logged_in] %>
+    <li>
+      <a class="orange-link" href="/players/<%= session[:player_id] %>">&#128100; Profile</a>
+    </li>
+  <% end %>
 <% end %>

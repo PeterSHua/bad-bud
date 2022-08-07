@@ -430,7 +430,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_organizer_delete_game_doesnt_exist
-    post "/games/8/delete", {}, logged_in_as_david
+    post "/games/20/delete", {}, logged_in_as_david
 
     get last_response["Location"]
     assert_includes last_response.body, "You don't have permission to do that!"

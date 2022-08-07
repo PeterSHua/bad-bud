@@ -342,6 +342,7 @@ end
 get "/groups/:group_id/schedule/sunday" do
   @group_id = params[:group_id].to_i
   @group = load_group(@group_id)
+  @group_players = @storage.find_group_players(@group_id)
 
   erb :group_schedule_sunday, layout: :layout
 end

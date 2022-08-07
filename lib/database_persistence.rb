@@ -79,6 +79,7 @@ class DatabasePersistence
            ON gm.group_id = gp.id
      WHERE gp.id = $1
      GROUP BY gm.id, gp.id
+    HAVING gm.template = FALSE
      ORDER BY start_time ASC;
     SQL
 
@@ -114,6 +115,7 @@ class DatabasePersistence
              INNER JOIN groups AS gp
              ON gm.group_id = gp.id
        GROUP BY gm.id, gp.id
+      HAVING gm.template = FALSE
        ORDER BY start_time ASC;
     SQL
 
@@ -463,4 +465,5 @@ class DatabasePersistence
                  fee_paid: fee_paid)
     end
   end
+
 end

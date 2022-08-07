@@ -9,12 +9,6 @@
   <% end %>
 </p>
 
-<% if session[:logged_in] %>
-  <form class="inline" method="post" action="/groups/<%= @group.id %>/schedule">
-    <button type="submit">Weekly Schedule</button>
-  </form>
-<% end %>
-
 <h2>Upcoming Games</h2>
 <ul id="red-list">
   <% @group_games.each do |game| %>
@@ -62,4 +56,9 @@
 <% content_for :header_links do %>
   <a class="orange-link" href="/game_list">&#127992; All Games</a>
   <a class="orange-link" href="/group_list">&#128101; Groups</a>
+  <% if session[:logged_in] %>
+    <li>
+      <a class="orange-link" href="/players/<%= session[:player_id] %>">&#128100; Profile</a>
+    </li>
+  <% end %>
 <% end %>

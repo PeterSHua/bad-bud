@@ -34,7 +34,11 @@ INSERT INTO games
 VALUES (default, 1, '2022-07-25 20:00:00', 2, 'Badminton Vancouver', 12, 18, 'E-transfer the fee to David at dcsparta@hotmail.com (your signup is not confirmed until payment is received and will be cancelled after a couple hours). Refundable until 24h before the game. Include the date(s) you''re paying for in the notes, thanks.', false),
        (default, 1, '2022-07-27 18:00:00', 2, 'Badminton Vancouver', 13, 6, 'E-transfer the fee to David at x@hotmail.com (your signup is not confirmed until payment is received and will be cancelled after a couple hours). Refundable until 24h before the game. Include the date(s) you''re paying for in the notes, thanks.', false),
        (default, 2, '2022-07-30 18:00:00', 4, 'Clear One 3', 13, 6, 'Cancel by 1pm Thursday or $12 will be charged for late cancellation. Thanks! Cost = $14/person for 2 hours with feather birdies included. Etransfer Jeannie Yip at x@gmail.com for payment.', false),
-       (default, 3, '2022-07-29 17:00:00', 2, 'Stage 18', 13, 12, 'No show or late withdrawal (within 48 hrs) without substitute player is committed to pay your share of game fee.', false);
+       (default, 3, '2022-07-29 17:00:00', 2, 'Stage 18', 13, 12, 'No show or late withdrawal (within 48 hrs) without substitute player is committed to pay your share of game fee.', false),
+       (default, 1, '2022-07-03 14:00:00', 2, 'Badminton Vancouver', 12, 18, '', true),
+       (default, 1, '2022-07-03 16:00:00', 2, 'Badminton Vancouver', 12, 18, '', true),
+       (default, 1, '2022-07-07 18:00:00', 2, 'Badminton Vancouver', 12, 12, '', true),
+       (default, 1, '2022-07-09 10:00:00', 2, 'Badminton Vancouver', 12, 18, '', true);
 
 INSERT INTO games_players
 VALUES (default, 1, 1, true),
