@@ -22,7 +22,8 @@ class DatabasePersistence
            gp.name AS group_name,
            gm.fee,
            gm.total_slots,
-           gm.notes
+           gm.notes,
+           template
       FROM games AS gm
            LEFT JOIN games_players AS g_p
            ON gm.id = g_p.game_id
@@ -50,7 +51,8 @@ class DatabasePersistence
              filled_slots: filled_slots,
              total_slots: tuple["total_slots"].to_i,
              players: players,
-             notes: tuple["notes"])
+             notes: tuple["notes"],
+             template: (tuple["template"] == "t"))
   end
 
   def delete_game(id)
@@ -86,15 +88,15 @@ class DatabasePersistence
     result = query(sql, group_id)
 
     result.map do |tuple|
-      Game.new(id: tuple["id"],
+      Game.new(id: tuple["id"].to_i,
                start_time: tuple["start_time"],
-               duration: tuple["duration"],
+               duration: tuple["duration"].to_i,
                group_name: tuple["group_name"],
-               group_id: tuple["group_id"],
+               group_id: tuple["group_id"].to_i,
                location: tuple["location"],
-               fee: tuple["fee"],
-               filled_slots: tuple["filled_slots"],
-               total_slots: tuple["total_slots"])
+               fee: tuple["fee"].to_i,
+               filled_slots: tuple["filled_slots"].to_i,
+               total_slots: tuple["total_slots"].to_i)
     end
   end
 
@@ -122,15 +124,44 @@ class DatabasePersistence
     result = query(sql)
 
     result.map do |tuple|
-      Game.new(id: tuple["id"],
+      Game.new(id: tuple["id"].to_i,
                start_time: tuple["start_time"],
-               duration: tuple["duration"],
+               duration: tuple["duration"].to_i,
                group_name: tuple["group_name"],
-               group_id: tuple["group_id"],
+               group_id: tuple["group_id"].to_i,
                location: tuple["location"],
-               fee: tuple["fee"],
-               filled_slots: tuple["filled_slots"],
-               total_slots: tuple["total_slots"])
+               fee: tuple["fee"].to_i,
+               filled_slots: tuple["filled_slots"].to_i,
+               total_slots: tuple["total_slots"].to_i)
+    end
+  end
+
+  def find_group_template_games_for_day(group_id, day_of_week)
+    sql = <<~SQL
+      SELECT games.*,
+             count(games_players.player_id) AS filled_slots
+        FROM games
+             LEFT JOIN games_players
+             ON games.id = games_players.game_id
+       WHERE group_id = $1 AND
+             template = TRUE AND
+             extract(DOW FROM start_time) = $2
+       GROUP BY games.id;
+    SQL
+
+    result = query(sql, group_id, day_of_week)
+
+    result.map do |tuple|
+      Game.new(id: tuple["id"].to_i,
+               start_time: tuple["start_time"],
+               duration: tuple["duration"].to_i,
+               group_name: tuple["group_name"],
+               group_id: tuple["group_id"].to_i,
+               location: tuple["location"],
+               fee: tuple["fee"].to_i,
+               filled_slots: tuple["filled_slots"].to_i,
+               total_slots: tuple["total_slots"].to_i,
+               template: tuple["template"] == "t")
     end
   end
 

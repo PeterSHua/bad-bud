@@ -4,13 +4,12 @@ MONTHS = %w(Jan Feb Mar Apr May Jun Jul Aug Sept Oct Nov Dec)
 DAYS_OF_WEEK = %w(Sun Mon Tues Wed Thurs Fri Sat)
 
 class Game
-  attr_reader :id, :start_time, :duration, :group_name, :group_id,
-              :location, :fee, :filled_slots,
-              :total_slots, :players, :notes
+  attr_reader :id, :start_time, :duration, :group_name, :group_id, :location,
+              :fee, :filled_slots, :total_slots, :players, :notes, :template
 
   def initialize(id:, start_time:, duration:, group_name:, group_id:,
                  location:, fee:, filled_slots:, total_slots:, players: {},
-                 notes: "")
+                 notes: "", template: false)
 
     self.id = id;
     self.start_time = Time.parse(start_time)
@@ -23,11 +22,11 @@ class Game
     self.total_slots = total_slots
     self.players = players
     self.notes = notes
+    self.template = template
   end
 
   private
 
-  attr_writer :id, :start_time, :duration, :group_name, :group_id,
-              :location, :fee, :filled_slots,
-              :total_slots, :players, :notes
+  attr_writer :id, :start_time, :duration, :group_name, :group_id, :location,
+              :fee, :filled_slots, :total_slots, :players, :notes, :template
 end

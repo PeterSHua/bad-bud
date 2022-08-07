@@ -31,6 +31,14 @@ helpers do
   def group_organizer?(group_id, player_id)
     @storage.group_organizer?(group_id, player_id)
   end
+
+  def day_of_week_to_name(day_of_week)
+    DAYS_OF_WEEK[day_of_week]
+  end
+
+  def display_time(game)
+    "#{game.start_time.strftime("%l:%M%p")} - #{(game.start_time + game.duration * 60 * 60).strftime("%l:%M%p")}"
+  end
 end
 
 def game_have_permission?(game_id)
@@ -338,13 +346,15 @@ post "/groups/:group_id/schedule/edit" do
   end
 end
 
-# View group sunday schedule
-get "/groups/:group_id/schedule/sunday" do
+# View group schedule for a day of the week
+get "/groups/:group_id/schedule/:day_of_week" do
   @group_id = params[:group_id].to_i
   @group = load_group(@group_id)
-  @group_players = @storage.find_group_players(@group_id)
+  @day_of_week = params[:day_of_week].to_i
 
-  erb :group_schedule_sunday, layout: :layout
+  @games = @storage.find_group_template_games_for_day(@group_id, @day_of_week)
+
+  erb :group_schedule_day_of_week, layout: :layout
 end
 
 # View player detail

@@ -1,25 +1,23 @@
-<% if session[:logged_in] %>
-  <form class="inline" method="post" action="/games/create">
-    <button type="submit">Create Game</button>
-  </form>
-<% end %>
+<a class="orange-link" href="/groups/<%= @group.id %>/schedule">&#128197; Back to Week View</a>
 
-<h2>Upcoming Games</h2>
+<h2>
+  &#128198; <%= day_of_week_to_name(@day_of_week) %>
+</h2>
 
 <ul id="red-list">
-  <% @game_list.each do |game| %>
+  <% @games.each do |game| %>
     <a href="/games/<%= game.id %>">
       <li>
         <h2><%= DAYS_OF_WEEK[game.start_time.wday] %>, <%= MONTHS[game.start_time.month - 1] %> <%= game.start_time.day %></h2>
         <p>
-          &#128100;<%= game.filled_slots %> / <%= game.total_slots %>
+          &#128100; <%= game.filled_slots %> / <%= game.total_slots %>
         </p>
         <br>
-        <h3><%= game.group_name %></h3>
         <%= game.location %>
         <br>
         <%= display_time(game) %>
-     </li>
+    </li>
     </a>
   <% end %>
 </ul>
+

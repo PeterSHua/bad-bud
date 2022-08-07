@@ -1,9 +1,20 @@
 <h2>
-  &#128198; <%= DAYS_OF_WEEK[@game.start_time.wday] %>, <%= MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %>
+  <a class="orange-link" href="/groups/<%= @game.group_id %>">
+    <%= @game.group_name %>
+  </a>
 </h2>
 
 <h2>
-  &#128340; <%= @game.start_time.strftime("%l:%M%p") %> - <%= (@game.start_time + @game.duration * 60 * 60).strftime("%l:%M%p") %>
+  &#128198; <%= DAYS_OF_WEEK[@game.start_time.wday] %>
+  <% if @game.template %>
+    Weekly Game Template
+  <% else %>
+    <%= MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %>
+  <% end %>
+</h2>
+
+<h2>
+  &#128340; <%= display_time(@game) %>
 </h2>
 
 <h2>
@@ -15,14 +26,6 @@
       <button type="submit">Delete game</button>
     </form>
 <% end %>
-
-<br>
-
-<h3>
-  <a class="orange-link" href="/groups/<%= @game.group_id %>">
-    <%= @game.group_name %>
-  </a>
-</h3>
 
 <p>
   <br>

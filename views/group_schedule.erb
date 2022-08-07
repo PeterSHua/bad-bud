@@ -13,16 +13,12 @@
 
 <div>
   <ul id="red-list">
-    <a href="/groups/<%= @group_id %>/schedule/sunday">
-      <li>
-        Sunday
-      </li>
-    </a>
-
-    <a href="/groups/<%= @group_id %>/schedule/monday">
-      <li>
-        Monday
-      </li>
-    </a>
+    <% 7.times do |day_of_week_num| %>
+      <a href="/groups/<%= @group_id %>/schedule/<%= day_of_week_num %>">
+        <li>
+          <%= day_of_week_to_name(day_of_week_num) %>
+        </li>
+      </a>
+    <% end %>
   </ul>
 </div>
