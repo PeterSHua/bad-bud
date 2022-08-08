@@ -27,9 +27,9 @@
 
 <p>
   <br>
-  Attendees: <%= @game.filled_slots %> / <%= @game.total_slots %>
+    Attendees: <%= @game.filled_slots %> / <%= @game.total_slots %>
   <br>
-  Fee: $<%= @game.fee %>
+    Fee: $<%= @game.fee %>
   <br>
 </p>
 
@@ -61,8 +61,10 @@
     <th><!-- Remove col --></th>
     <th>Name</th>
     <th><a class="orange-link" href="https://www.dropbox.com/s/vmk48yybqhd35dj/rr-rating-reformatted.pdf?dl=0">Rating</a></th>
-    <th>Paid?</th>
-    <th><!-- Confirm / Un-confirm col --></th>
+    <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) && !@game.template %>
+      <th>Paid?</th>
+      <th><!-- Confirm / Un-confirm col --></th>
+    <% end %>
   </tr>
 
   <% @game.players.each do |player| %>
@@ -87,26 +89,28 @@
 
     <td align="center"><%= player.rating %></td>
 
-    <td align="center">
-      <% if player.fee_paid %>
-        &#9989;
-      <% else %>
-      <% end %>
-    </td>
+    <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) && !@game.template %>
+      <td align="center">
+        <% if player.fee_paid %>
+          &#9989;
+        <% else %>
+        <% end %>
+      </td>
 
-    <td>
-      <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) && player.fee_paid %>
-        <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/unconfirm_paid">
-          <button type="submit">&#10060;</button>
-        </form>
-      <% end %>
+      <td>
+        <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) && player.fee_paid %>
+          <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/unconfirm_paid">
+            <button type="submit">&#10060;</button>
+          </form>
+        <% end %>
 
-      <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) && !player.fee_paid %>
-        <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/confirm_paid">
-          <button type="submit">&#10004;</button>
-        </form>
-      <% end %>
-    </td>
+        <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) && !player.fee_paid %>
+          <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= player.id %>/confirm_paid">
+            <button type="submit">&#10004;</button>
+          </form>
+        <% end %>
+      </td>
+    <% end %>
   </tr>
   <% end %>
 </table>
@@ -134,7 +138,9 @@
       </dl>
     <% end %>
 
-    <% if !already_signed_up?(@game_id, session[:player_id]) %>
+    <% if game_organizer?(@game.id, session[:player_id]) %>
+      <button type="submit">Sign up</button>
+    <% elsif !already_signed_up?(@game_id, session[:player_id]) %>
       <button type="submit">Sign me up</button>
     <% end %>
   </form>

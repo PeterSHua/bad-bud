@@ -20,6 +20,7 @@ configure(:development) do
 end
 
 helpers do
+  # Fix - remove
   def already_signed_up?(game_id, player_id)
     @storage.already_signed_up?(game_id, player_id)
   end
@@ -126,7 +127,7 @@ end
 def signup_player(game_id, player_id)
   @storage.rsvp_player(game_id, player_id)
 
-  session[:success] = "You've been signed up."
+  session[:success] = "Player added to this game."
   redirect "/games/#{@game_id}"
 end
 
@@ -141,7 +142,7 @@ def signup_anon_player(game_id, player_name)
   else
     @storage.rsvp_anon_player(game_id, player_name)
 
-    session[:success] = "You've been signed up."
+    session[:success] = "Player has been signed up."
     redirect "/games/#{game_id}"
   end
 end
@@ -200,7 +201,7 @@ post "/games/:game_id/players/add" do
     redirect "/games/#{@game_id}"
   end
 
-  if session[:logged_in]
+  if session[:logged_in] && game_have_permission?(@game_id)
     if @storage.already_signed_up?(@game_id, session[:player_id])
       session[:error] = "You're already signed up!"
 
@@ -373,12 +374,67 @@ get "/groups/:group_id/schedule/:day_of_week/add" do
   erb :group_schedule_day_of_week_add_game
 end
 
+# View edit game page
+get "/games/:id/edit" do
+  @game_id = params[:id].to_i
+  @game = load_game(@game_id)
+  @group_id = @game.group_id
+  @group = load_group(@group_id)
+  @day_of_week = @game.start_time.wday
+
+  erb :edit_game
+end
+
+post "/games/:id/edit" do
+  @game_id = params[:id].to_i
+  @game = @storage.find_game(@game_id)
+  @group_id = @game.group_id
+  group_have_permission?(@group_id)
+
+  @group = load_group(@group_id)
+  @start_time = "#{params[:hour]}#{params[:am_pm]}"
+  @day_of_week = @game.start_time.wday
+  @group_players = @storage.find_group_players(@group_id)
+  @duration = params[:duration].to_i
+  @location = params[:location]
+  @fee = params[:fee].to_i
+  @total_slots = params[:total_slots].to_i
+
+  if !valid_location?
+    handle_invalid_location
+    erb :edit_game
+  elsif !valid_slots?
+    handle_invalid_slots
+    erb :edit_game
+  elsif !valid_fee?
+    handle_invalid_fee
+    erb :edit_game
+  else
+    @start_time = "#{params[:hour]}#{params[:am_pm]}"
+    @location = params[:location]
+    @total_slots = params[:total_slots].to_i
+    @fee = params[:fee].to_i
+
+    game = Game.new(id: @game_id,
+                    group_id: @group_id,
+                    group_name:@group.name,
+                    start_time: @start_time,
+                    duration: @duration,
+                    location: @location,
+                    fee: @fee,
+                    total_slots: @total_slots)
+
+    @storage.edit_game(game)
+    redirect "/games/#{@game_id}"
+  end
+end
+
 def valid_location?
   (1..300).cover?(params[:location].length)
 end
 
 def handle_invalid_location
-  session[:error] = "Location character length must be <= 1000."
+  session[:error] = "Location cannot be empty and total length cannot exceed 1000 characters."
   status 422
 end
 
@@ -401,7 +457,17 @@ def handle_invalid_fee
 end
 
 def add_group_schedule_day_of_week_game
-  game = Game.new(start_time: "#{params[:hour]}#{params[:am_pm]}",
+  date = case @day_of_week
+         when 0 then "2022-07-03"
+         when 1 then "2022-07-04"
+         when 2 then "2022-07-05"
+         when 3 then "2022-07-06"
+         when 4 then "2022-07-07"
+         when 5 then "2022-07-08"
+         when 6 then "2022-07-09"
+         end
+
+  game = Game.new(start_time: "#{date} #{params[:hour]}#{params[:am_pm]}",
                   duration: params[:duration].to_i,
                   group_name: @group.name,
                   group_id: @group.id.to_i,

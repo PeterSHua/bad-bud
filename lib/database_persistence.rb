@@ -55,6 +55,19 @@ class DatabasePersistence
              template: (tuple["template"] == "t"))
   end
 
+  def edit_game(game)
+    sql = <<~SQL
+      UPDATE games
+         SET start_time = $2,
+             location = $3,
+             total_slots = $4,
+             fee = $5
+       WHERE id = $1;
+    SQL
+
+    query(sql, game.id, game.start_time, game.location, game.total_slots, game.fee)
+  end
+
   def delete_game(id)
     sql = <<~SQL
       DELETE FROM games

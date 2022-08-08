@@ -259,7 +259,7 @@ class BadBudsTest < Minitest::Test
     post "/games/1/players/add", { player_name: "Groucho Marx" }
 
     assert_equal 302, last_response.status
-    assert_equal "You've been signed up.", session[:success]
+    assert_equal "Player has been signed up.", session[:success]
 
     get last_response["Location"]
 
@@ -301,22 +301,18 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_rvsp_player
-    post "/games/1/players/add", {}, logged_in_as_david
+    post "/games/1/players/add", { player_name: "joe" }, logged_in_as_david
 
     assert_equal 302, last_response.status
-    assert_equal "You've been signed up.", session[:success]
+    assert_equal "Player has been signed up.", session[:success]
 
     get last_response["Location"]
 
-    assert_includes last_response.body, "David C"
+    assert_includes last_response.body, "joe"
   end
 
-  def test_rsvp_player_already_rsvpd
-    post "/games/1/players/add", {}, logged_in_as_david
-    post "/games/1/players/add", {}
+  def test_rsvp_registered_player_already_rsvpd
 
-    assert_equal 422, last_response.status
-    assert_includes last_response.body, "You're already signed up!"
   end
 
   def test_rsvp_player_no_empty_slots
@@ -337,15 +333,14 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_unrsvp_player
-    post "/games/1/players/add", {}, logged_in_as_david
-    post "/games/1/players/remove"
+    post "/games/1/players/4/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
-    assert_equal "You have been removed from this game.", session[:success]
+    assert_equal "Player removed from this game.", session[:success]
 
     get last_response["Location"]
 
-    refute_includes last_response.body, "David C"
+    refute_includes last_response.body, "Rustam"
   end
 
   def test_unrsvp_player_no_permission
