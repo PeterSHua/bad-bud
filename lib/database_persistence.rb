@@ -285,12 +285,12 @@ class DatabasePersistence
   def add_game(game)
     sql = <<~SQL
       INSERT INTO games (group_id, start_time, duration, location, fee,
-                         total_slots, notes)
-      VALUES ($1, $2, $3, $4, $5, $6, $7);
-      SQL
+                         total_slots, notes, template)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+    SQL
 
-      query(sql, game.group_id, game.start_time, game.duration,
-            game.location, game.fee, game.total_slots, game.notes)
+    query(sql, game.group_id, game.start_time, game.duration,
+          game.location, game.fee, game.total_slots, game.notes, game.template)
   end
 
   def rsvp_player(game_id, player_id)

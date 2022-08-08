@@ -170,6 +170,7 @@ end
 get "/games/:id" do
   @game_id = params[:id].to_i
   @game = load_game(@game_id)
+  @day_of_week = @game.start_time.wday
 
   erb :game, layout: :layout
 end
@@ -315,9 +316,9 @@ end
 # View group schedule
 get "/groups/:group_id/schedule" do
   @group_id = params[:group_id].to_i
-  @group = load_group(@group_id)
-
   group_have_permission?(@group_id)
+
+  @group = load_group(@group_id)
 
   erb :group_schedule, layout: :layout
 end
@@ -329,9 +330,10 @@ end
 # Edit group game schedule notes
 post "/groups/:group_id/schedule/edit" do
   @group_id = params[:group_id].to_i
+  group_have_permission?(@group_id)
+
   @group = load_group(@group_id)
 
-  group_have_permission?(@group_id)
 
   if !valid_notes?(params[:notes])
     session[:error] = "Note must be less than or equal to 1000 characters."
@@ -349,12 +351,91 @@ end
 # View group schedule for a day of the week
 get "/groups/:group_id/schedule/:day_of_week" do
   @group_id = params[:group_id].to_i
+  group_have_permission?(@group_id)
+
   @group = load_group(@group_id)
   @day_of_week = params[:day_of_week].to_i
 
   @games = @storage.find_group_template_games_for_day(@group_id, @day_of_week)
 
   erb :group_schedule_day_of_week, layout: :layout
+end
+
+# View add game to group schedule for a day of the week page
+get "/groups/:group_id/schedule/:day_of_week/add" do
+  @group_id = params[:group_id].to_i
+  group_have_permission?(@group_id)
+
+  @group = load_group(@group_id)
+  @day_of_week = params[:day_of_week].to_i
+  @group_players = @storage.find_group_players(@group_id)
+
+  erb :group_schedule_day_of_week_add_game
+end
+
+def valid_location?
+  (1..300).cover?(params[:location].length)
+end
+
+def handle_invalid_location
+  session[:error] = "Location character length must be <= 1000."
+  status 422
+end
+
+def valid_slots?
+  params[:total_slots].to_i.between?(1, 1000)
+end
+
+def handle_invalid_slots
+  session[:error] = "Slots must be between 1 and 1000."
+  status 422
+end
+
+def valid_fee?
+  params[:fee].to_i.between?(0, 1000)
+end
+
+def handle_invalid_fee
+  session[:error] = "Fee must be between 0 and 1000."
+  status 422
+end
+
+def add_group_schedule_day_of_week_game
+  game = Game.new(start_time: "#{params[:hour]}#{params[:am_pm]}",
+                  duration: params[:duration].to_i,
+                  group_name: @group.name,
+                  group_id: @group.id.to_i,
+                  location: params[:location],
+                  fee: params[:fee].to_i,
+                  total_slots: params[:total_slots].to_i,
+                  template: true)
+
+  @storage.add_game(game)
+end
+
+# Add game to group schedule for a day of the week page
+post "/groups/:group_id/schedule/:day_of_week/add" do
+  @group_id = params[:group_id].to_i
+  group_have_permission?(@group_id)
+
+  @group = load_group(@group_id)
+  @day_of_week = params[:day_of_week].to_i
+  @group_players = @storage.find_group_players(@group_id)
+
+  if !valid_location?
+    handle_invalid_location
+    erb :group_schedule_day_of_week_add_game
+  elsif !valid_slots?
+    handle_invalid_slots
+    erb :group_schedule_day_of_week_add_game
+  elsif !valid_fee?
+    handle_invalid_fee
+    erb :group_schedule_day_of_week_add_game
+  else
+    add_group_schedule_day_of_week_game
+
+    redirect "/groups/#{@group_id}/schedule/#{@day_of_week}"
+  end
 end
 
 # View player detail

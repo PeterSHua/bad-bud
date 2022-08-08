@@ -1,14 +1,14 @@
 require "time"
 
 MONTHS = %w(Jan Feb Mar Apr May Jun Jul Aug Sept Oct Nov Dec)
-DAYS_OF_WEEK = %w(Sun Mon Tues Wed Thurs Fri Sat)
+DAYS_OF_WEEK = %w(Sunday Monday Tuesday Wednesday Thursday Friday Saturday)
 
 class Game
   attr_reader :id, :start_time, :duration, :group_name, :group_id, :location,
               :fee, :filled_slots, :total_slots, :players, :notes, :template
 
-  def initialize(id:, start_time:, duration:, group_name:, group_id:,
-                 location:, fee:, filled_slots:, total_slots:, players: {},
+  def initialize(id: nil, start_time:, duration:, group_name:, group_id:,
+                 location:, fee:, filled_slots: 0, total_slots:, players: {},
                  notes: "", template: false)
 
     self.id = id;

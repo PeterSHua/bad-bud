@@ -51,7 +51,7 @@ class BadBudsTest < Minitest::Test
 
     assert_equal 200, last_response.status
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
-    assert_includes last_response.body, "Mon, Jul 25"
+    assert_includes last_response.body, "Monday, Jul 25"
     assert_includes last_response.body, "Novice BM Vancouver"
     assert_includes last_response.body, "Badminton Vancouver"
     assert_includes last_response.body, "3 / 18"
@@ -71,7 +71,7 @@ class BadBudsTest < Minitest::Test
 
     assert_equal 200, last_response.status
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
-    assert_includes last_response.body, "Mon, Jul 25"
+    assert_includes last_response.body, "Monday, Jul 25"
     assert_includes last_response.body, "Novice BM Vancouver"
     assert_includes last_response.body, "3 / 18"
   end
@@ -88,7 +88,7 @@ class BadBudsTest < Minitest::Test
 
     assert_equal 200, last_response.status
     assert_equal "text/html;charset=utf-8", last_response["Content-Type"]
-    assert_includes last_response.body, "Mon, Jul 25"
+    assert_includes last_response.body, "Jul 25"
     assert_includes last_response.body, "Novice BM Vancouver"
     assert_includes last_response.body, "Badminton Vancouver"
     assert_includes last_response.body, "Attendees: 3 / 18"
@@ -348,6 +348,10 @@ class BadBudsTest < Minitest::Test
     refute_includes last_response.body, "David C"
   end
 
+  def test_unrsvp_player_no_permission
+
+  end
+
   def test_unrsvp_player_not_signed_up
     post "/games/4/players/remove", {}, logged_in_as_david
 
@@ -357,7 +361,7 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "You aren't signed up for this game!"
   end
 
-  def test_organizer_confirm_payment
+  def test_confirm_payment
     post "/games/1/players/4/remove", {}, logged_in_as_david
     post "/games/1/players/5/remove", {}, logged_in_as_david
 
@@ -370,7 +374,11 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "&#9989;"
   end
 
-  def test_organizer_un_confirm_payment
+  def test_confirm_payment_no_permission
+
+  end
+
+  def test_un_confirm_payment
     post "/games/1/players/4/remove", {}, logged_in_as_david
     post "/games/1/players/5/remove", {}, logged_in_as_david
 
@@ -380,14 +388,22 @@ class BadBudsTest < Minitest::Test
     refute_includes last_response.body, "&#9989;"
   end
 
-  def test_organizer_confirm_all_payment
+  def test_un_confirm_payment_no_permission
+
+  end
+
+  def test_confirm_all_payment
     post "/games/1/players/confirm_all"
 
     get last_response["Location"]
     refute_includes last_response.body, "&#10060;"
   end
 
-  def test_organizer_unconfirm_all_payment
+  def test_confirm_all_payment_no_permission
+
+  end
+
+  def test_unconfirm_all_payment
     post "/games/1/players/confirm_all"
     post "/games/1/players/unconfirm_all"
 
@@ -395,7 +411,11 @@ class BadBudsTest < Minitest::Test
     refute_includes last_response.body, "&#9989;"
   end
 
-  def test_organizer_remove_player_from_game
+  def test_unconfirm_all_payment_no_permission
+
+  end
+
+  def test_remove_player_from_game
     post "/games/1/players/4/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
@@ -406,7 +426,11 @@ class BadBudsTest < Minitest::Test
     refute_includes last_response.body, "Rustam"
   end
 
-  def test_organizer_remove_player_not_signed_up_for_game
+  def test_remove_player_from_game_no_permission
+
+  end
+
+  def test_remove_player_not_signed_up_for_game
     post "/games/1/players/2/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
@@ -415,20 +439,24 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Player isn't signed up for this game!"
   end
 
-  def test_organizer_create_game
+  def test_create_game
     skip
   end
 
-  def test_organizer_delete_game
+  def test_delete_game
     post "/games/1/delete", {}, logged_in_as_david
 
     get last_response["Location"]
     assert_includes last_response.body, "Game has been deleted."
 
-    refute_includes last_response.body, "Mon, Jul 25"
+    refute_includes last_response.body, "Monday, Jul 25"
   end
 
-  def test_organizer_delete_game_doesnt_exist
+  def test_delete_game_no_permission
+
+  end
+
+  def test_delete_game_doesnt_exist
     post "/games/20/delete", {}, logged_in_as_david
 
     get last_response["Location"]
@@ -436,6 +464,10 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_create_group
+    skip
+  end
+
+  def test_create_group_no_permission
     skip
   end
 
@@ -456,6 +488,86 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_delete_group
+    skip
+  end
+
+  def test_delete_group_no_permission
+    skip
+  end
+
+  def test_view_add_game_to_group_schedule_for_day_of_week
+    skip
+  end
+
+  def test_view_add_game_to_group_schedule_for_day_of_week_no_permission
+    skip
+  end
+
+  def test_add_game_to_group_schedule_for_day_of_week
+    skip
+  end
+
+  def test_add_game_to_group_schedule_for_day_of_week_no_permission
+    skip
+  end
+
+  def test_view_schedule
+    skip
+  end
+
+  def test_view_schedule_no_permission
+    skip
+  end
+
+  def test_edit_group_schedule_notes
+    skip
+  end
+
+  def test_edit_group_schedule_notes_no_permission
+    skip
+  end
+
+  def test_edit_group_schedule_notes_too_long
+    skip
+  end
+
+  def test_view_group_schedule_day_games
+    skip
+  end
+
+  def test_view_group_schedule_day_games_no_permission
+    skip
+  end
+
+  def test_view_add_game_to_group_schedule_for_day_of_week
+    skip
+  end
+
+  def test_view_add_game_to_group_schedule_for_day_of_week_no_permission
+    skip
+  end
+
+  def test_add_game_to_group_schedule_for_day_of_week
+    skip
+  end
+
+  def test_add_game_to_group_schedule_for_day_of_week_location_too_short
+    skip
+  end
+
+  def test_add_game_to_group_schedule_for_day_of_week_location_too_long
+    skip
+  end
+
+  def test_add_game_to_group_schedule_for_day_of_week_slots_too_small
+    skip
+  end
+
+  def test_add_game_to_group_schedule_for_day_of_week_slots_too_large
+    skip
+  end
+
+  def test_add_game_to_group_schedule_for_day_of_week_fee_too_large
     skip
   end
  end

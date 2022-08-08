@@ -1,3 +1,7 @@
+<% if @game.template %>
+  <a class="orange-link" href="/groups/<%= @game.group_id %>/schedule/<%= @day_of_week %>">&#128197; Back to <%= day_of_week_to_name(@game.start_time.wday) %> View</a>
+<% end %>
+
 <h2>
   <a class="orange-link" href="/groups/<%= @game.group_id %>">
     <%= @game.group_name %>
@@ -5,7 +9,7 @@
 </h2>
 
 <h2>
-  &#128198; <%= DAYS_OF_WEEK[@game.start_time.wday] %>
+  &#128198; <%= DAYS_OF_WEEK[@game.start_time.wday] %>,
   <% if @game.template %>
     Weekly Game Template
   <% else %>
@@ -21,12 +25,6 @@
   &#127758; <%= @game.location %>
 </h2>
 
-<% if game_organizer?(@game.id, session[:player_id]) %>
-  <form class="inline" method="post" action="/games/<%= @game.id %>/delete">
-      <button type="submit">Delete game</button>
-    </form>
-<% end %>
-
 <p>
   <br>
   Attendees: <%= @game.filled_slots %> / <%= @game.total_slots %>
@@ -39,16 +37,24 @@
   <%= @game.notes %>
 </p>
 
-<p>
-  <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) %>
-      <form class="inline" method="post" action="/games/<%= @game.id %>/players/confirm_all">
-        <button type="submit">Confirm All</button>
-      </form>
-      <form class="inline" method="post" action="/games/<%= @game.id %>/players/unconfirm_all">
-        <button type="submit">Un-confirm All</button>
-      </form>
-  <% end %>
-</p>
+<% if game_organizer?(@game.id, session[:player_id]) %>
+  <a class="orange-link" href="/games/<%= @game.id %>/edit">&#128221; Edit Game</a>
+<% end %>
+
+<% if game_organizer?(@game.id, session[:player_id]) %>
+  <form class="inline" method="post" action="/games/<%= @game.id %>/delete">
+      <button type="submit">Delete game</button>
+    </form>
+<% end %>
+
+<% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) && !@game.template %>
+    <form class="inline" method="post" action="/games/<%= @game.id %>/players/confirm_all">
+      <button type="submit">Confirm All</button>
+    </form>
+    <form class="inline" method="post" action="/games/<%= @game.id %>/players/unconfirm_all">
+      <button type="submit">Un-confirm All</button>
+    </form>
+<% end %>
 
 <table>
   <tr>
@@ -109,19 +115,27 @@
 
 <% unless @game.filled_slots >= @game.total_slots %>
   <form action="/games/<%= @game_id %>/players/add" method="post">
-    <% unless session[:logged_in] %>
+    <% if !session[:logged_in] || game_organizer?(@game.id, session[:player_id]) %>
       <dl>
         <dt>
-          <label for="player_name">Sign up for this game:</label>
+          <% if game_organizer?(@game.id, session[:player_id]) %>
+            <label for="player_name">Sign up unregistered player for this game:</label>
+          <% else %>
+            <label for="player_name">Sign up for this game:</label>
+          <% end %>
         </dt>
         <dd>
-          <input name="player_name" placeholder="Your name" type="text">
+          <% if game_organizer?(@game.id, session[:player_id]) %>
+            <input name="player_name" placeholder="Player name" type="text">
+          <% else %>
+            <input name="player_name" placeholder="Your name" type="text">
+          <% end %>
         </dd>
       </dl>
     <% end %>
 
-    <% if session[:logged_in] && !already_signed_up?(@game_id, session[:player_id]) %>
-      <button type="submit">Sign up</button>
+    <% if !already_signed_up?(@game_id, session[:player_id]) %>
+      <button type="submit">Sign me up</button>
     <% end %>
   </form>
 
