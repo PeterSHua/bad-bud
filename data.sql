@@ -40,12 +40,17 @@ VALUES (default, 1, '2022-07-25 20:00:00', 2, 'Badminton Vancouver', 12, 18, 'E-
        (default, 1, '2022-07-07 18:00:00', 2, 'Badminton Vancouver', 12, 12, '', true),
        (default, 1, '2022-07-09 10:00:00', 2, 'Badminton Vancouver', 12, 18, '', true);
 
-INSERT INTO games_players
-VALUES (default, 1, 1, true),
-       (default, 1, 4, false),
-       (default, 1, 5, true),
-       (default, 2, 1, true),
-       (default, 4, 1, true),
-       (default, 4, 5, true),
-       (default, 4, 7, true),
-       (default, 3, 6, true);
+INSERT INTO games_players(game_id, player_id, fee_paid)
+VALUES (1, 1, true),
+       (1, 4, false),
+       (1, 5, true),
+       (2, 1, true),
+       (4, 1, true),
+       (4, 5, true),
+       (4, 7, true),
+       (3, 6, true),
+       (5, 1, true),
+       (5, 2, false),
+       (5, 3, true),
+       (5, 4, true),
+       (5, 5, true);

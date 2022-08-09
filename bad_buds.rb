@@ -392,7 +392,32 @@ get "/groups/:group_id/schedule/:day_of_week/add" do
   erb :group_schedule_day_of_week_add_game
 end
 
+def normalize_day(day)
+  day += DAYS_OF_WEEK.size
+end
+
+def calc_start_time(scheduled_game)
+  days_til_game_day_from_publish_day = scheduled_game.start_time.wday - @publish_day
+
+  if days_til_game_day_from_publish_day <= 0
+    days_til_game_day_from_publish_day = normalize_day(days_til_game_day_from_publish_day)
+  end
+
+  days_til_publish_day = @publish_day - Time.now.wday
+
+  if days_til_publish_day <= 0
+    normalize_day(days_til_publish_day)
+  end
+
+  game_day = Time.new +
+             (days_til_publish_day + days_til_game_day_from_publish_day) * DAY_TO_SEC
+
+  "#{game_day.year}-#{game_day.mon}-#{game_day.day} #{scheduled_game.start_time.hour}"
+end
+
+# Publish weekly schedule games
 post "/groups/:group_id/schedule/publish" do
+  binding.pry
   @group_id = params[:group_id].to_i
   check_group_permission(@group_id)
 
@@ -402,22 +427,7 @@ post "/groups/:group_id/schedule/publish" do
   scheduled_games = @storage.find_scheduled_games(@group_id)
 
   games_to_add = scheduled_games.map do |scheduled_game|
-    days_til_game_day_from_publish_day = scheduled_game.start_time.wday - @publish_day
-
-    if days_til_game_day_from_publish_day.negative?
-      days_til_game_day_from_publish_day += DAYS_OF_WEEK.size
-    end
-
-    days_til_publish_day = @publish_day - Time.now.wday
-
-    if days_til_publish_day.negative?
-      days_til_publish_day += DAYS_OF_WEEK.size
-    end
-
-    game_day = Time.new +
-               (days_til_publish_day + days_til_game_day_from_publish_day) * DAY_TO_SEC
-
-    start_time = "#{game_day.year}-#{game_day.mon}-#{game_day.day} #{scheduled_game.start_time.hour}"
+    start_time = calc_start_time(scheduled_game)
 
     Game.new(start_time: start_time,
              duration: scheduled_game.duration,
@@ -425,13 +435,20 @@ post "/groups/:group_id/schedule/publish" do
              group_id: scheduled_game.group_id,
              location: scheduled_game.location,
              fee: scheduled_game.fee,
+             filled_slots: scheduled_game.filled_slots,
              total_slots: scheduled_game.total_slots,
+             players: scheduled_game.players,
              notes: @group.schedule_game_notes,
              template: false)
   end
 
   games_to_add.each do |game|
     @storage.add_game(game)
+    game_id = @storage.last_game_id
+
+    game.players.each do |player|
+      @storage.rsvp_player(game_id, player.id)
+    end
   end
 
   redirect "/game_list"

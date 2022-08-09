@@ -138,6 +138,9 @@ class DatabasePersistence
     return [] if result.ntuples.zero?
 
     result.map do |tuple|
+      players = find_players_for_game(tuple["id"].to_i)
+      filled_slots = players.count
+
       Game.new(id: tuple["id"].to_i,
                start_time: tuple["start_time"],
                duration: tuple["duration"].to_i,
@@ -145,7 +148,10 @@ class DatabasePersistence
                group_id: tuple["group_id"].to_i,
                location: tuple["location"],
                fee: tuple["fee"].to_i,
+               filled_slots: filled_slots,
                total_slots: tuple["total_slots"].to_i,
+               players: players,
+               notes: tuple["notes"],
                template: false)
     end
   end
@@ -341,6 +347,15 @@ class DatabasePersistence
 
     query(sql, game.group_id, game.start_time, game.duration,
           game.location, game.fee, game.total_slots, game.notes, game.template)
+  end
+
+  def last_game_id
+    sql = <<~SQL
+      SELECT last_value
+        FROM games_id_seq;
+    SQL
+
+    query(sql).first["last_value"].to_i
   end
 
   def rsvp_player(game_id, player_id)
