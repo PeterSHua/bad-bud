@@ -312,7 +312,11 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_rsvp_registered_player_already_rsvpd
+    post "/games/3/players/add", {}, logged_in_as_peter
+    post "/games/3/players/add", {}, logged_in_as_peter
 
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "You're already signed up!"
   end
 
   def test_rsvp_player_no_empty_slots
@@ -344,7 +348,12 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_unrsvp_player_no_permission
+    post "/games/1/players/4/remove"
 
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "You don't have permission to do that!"
   end
 
   def test_unrsvp_player_not_signed_up
@@ -370,7 +379,17 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_confirm_payment_no_permission
+    post "/games/1/players/4/remove", {}, logged_in_as_david
+    post "/games/1/players/5/remove", {}, logged_in_as_david
 
+    post "/logout"
+    get last_response["Location"]
+
+    post "/games/1/players/1/confirm_paid"
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "You don't have permission to do that!"
   end
 
   def test_un_confirm_payment
@@ -384,18 +403,32 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_un_confirm_payment_no_permission
+    post "/games/1/players/4/remove", {}, logged_in_as_david
+    post "/games/1/players/5/remove", {}, logged_in_as_david
 
+    post "/logout"
+    get last_response["Location"]
+
+    post "/games/1/players/1/unconfirm_paid"
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "You don't have permission to do that!"
   end
 
   def test_confirm_all_payment
-    post "/games/1/players/confirm_all"
+    post "/games/1/players/confirm_all", {}, logged_in_as_david
 
     get last_response["Location"]
-    refute_includes last_response.body, "&#10060;"
+    refute_includes last_response.body, "&#10004;"
   end
 
   def test_confirm_all_payment_no_permission
+    post "/games/1/players/confirm_all"
 
+    get last_response["Location"]
+    assert_includes last_response.body, "You don't have permission to do that!"
   end
 
   def test_unconfirm_all_payment

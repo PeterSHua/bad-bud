@@ -8,6 +8,8 @@ require_relative "lib/game.rb"
 require_relative "lib/group.rb"
 require_relative "lib/player.rb"
 
+require "pry-byebug"
+
 configure do
   enable :sessions
   set :session_secret, "secret" # fix
@@ -61,9 +63,11 @@ end
 
 def check_group_permission(group_id)
   if group_have_permission?(group_id)
-    session[:error] = "You don't have permission to do that!"
-    redirect "/group_list"
+    return
   end
+
+  session[:error] = "You don't have permission to do that!"
+  redirect "/group_list"
 end
 
 def group_have_permission?(group_id)
@@ -270,6 +274,7 @@ end
 # Confirm player payment
 post "/games/:game_id/players/:player_id/confirm_paid" do
   @game_id = params[:game_id]
+  check_game_permission(@game_id)
   @player_id = params[:player_id]
 
   @storage.confirm_paid(@game_id, @player_id)
