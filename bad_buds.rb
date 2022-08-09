@@ -374,6 +374,51 @@ get "/groups/:group_id/schedule/:day_of_week/add" do
   erb :group_schedule_day_of_week_add_game
 end
 
+post "/groups/:group_id/schedule/publish" do
+  @group_id = params[:group_id].to_i
+  group_have_permission?(@group_id)
+
+  @group = load_group(@group_id)
+  @publish_day = params[:publish_day].to_i
+
+  scheduled_games = @storage.find_scheduled_games(@group_id)
+
+  games_to_add = scheduled_games.map do |scheduled_game|
+    days_til_game_day_from_publish_day = scheduled_game.start_time.wday - @publish_day
+
+    if days_til_game_day_from_publish_day.negative?
+      days_til_game_day_from_publish_day += DAYS_OF_WEEK.size
+    end
+
+    days_til_publish_day = @publish_day - Time.now.wday
+
+    if days_til_publish_day.negative?
+      days_til_publish_day += DAYS_OF_WEEK.size
+    end
+
+    game_day = Time.new +
+               (days_til_publish_day + days_til_game_day_from_publish_day) * DAY_TO_SEC
+
+    start_time = "#{game_day.year}-#{game_day.mon}-#{game_day.day} #{scheduled_game.start_time.hour}"
+
+    Game.new(start_time: start_time,
+             duration: scheduled_game.duration,
+             group_name: scheduled_game.group_name,
+             group_id: scheduled_game.group_id,
+             location: scheduled_game.location,
+             fee: scheduled_game.fee,
+             total_slots: scheduled_game.total_slots,
+             notes: @group.schedule_game_notes,
+             template: false)
+  end
+
+  games_to_add.each do |game|
+    @storage.add_game(game)
+  end
+
+  redirect "/game_list"
+end
+
 # View edit game page
 get "/games/:id/edit" do
   @game_id = params[:id].to_i

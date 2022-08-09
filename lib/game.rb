@@ -2,6 +2,7 @@ require "time"
 
 MONTHS = %w(Jan Feb Mar Apr May Jun Jul Aug Sept Oct Nov Dec)
 DAYS_OF_WEEK = %w(Sunday Monday Tuesday Wednesday Thursday Friday Saturday)
+DAY_TO_SEC = 86400
 
 class Game
   attr_reader :id, :start_time, :duration, :group_name, :group_id, :location,

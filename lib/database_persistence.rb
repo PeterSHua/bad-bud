@@ -113,6 +113,43 @@ class DatabasePersistence
     end
   end
 
+  def find_scheduled_games(group_id)
+    sql = <<~SQL
+      SELECT gm.id,
+             gm.start_time,
+             gm.duration,
+             gm.location,
+             gp.name AS group_name,
+             gp.id AS group_id,
+             gm.fee,
+             total_slots
+        FROM games as gm
+             LEFT JOIN games_players AS g_p
+             ON gm.id = g_p.game_id
+             INNER JOIN groups AS gp
+             ON gm.group_id = gp.id
+      GROUP BY gm.id, gp.id
+     HAVING gm.template = TRUE AND gp.id = $1
+      ORDER BY start_time ASC;
+    SQL
+
+    result = query(sql, group_id)
+
+    return [] if result.ntuples.zero?
+
+    result.map do |tuple|
+      Game.new(id: tuple["id"].to_i,
+               start_time: tuple["start_time"],
+               duration: tuple["duration"].to_i,
+               group_name: tuple["group_name"],
+               group_id: tuple["group_id"].to_i,
+               location: tuple["location"],
+               fee: tuple["fee"].to_i,
+               total_slots: tuple["total_slots"].to_i,
+               template: false)
+    end
+  end
+
   def all_games
     sql = <<~SQL
       SELECT gm.id,
