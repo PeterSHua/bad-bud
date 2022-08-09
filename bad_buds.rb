@@ -44,22 +44,34 @@ end
 
 def game_have_permission?(game_id)
   if session[:logged_in] && @storage.game_organizer?(game_id, session[:player_id])
+    true
+  else
+    false
+  end
+end
+
+def check_game_permission(game_id)
+  if game_have_permission?(game_id)
     return
   end
 
   session[:error] = "You don't have permission to do that!"
-
   redirect "/game_list"
+end
+
+def check_group_permission(group_id)
+  if group_have_permission?(group_id)
+    session[:error] = "You don't have permission to do that!"
+    redirect "/group_list"
+  end
 end
 
 def group_have_permission?(group_id)
   if session[:logged_in] && @storage.group_organizer?(group_id, session[:player_id])
-    return
+    true
+  else
+    false
   end
-
-  session[:error] = "You don't have permission to do that!"
-
-  redirect "/group_list"
 end
 
 def valid_password?(password)
@@ -179,7 +191,7 @@ end
 # Delete game
 post "/games/:id/delete" do
   @game_id = params[:id].to_i
-  game_have_permission?(@game_id)
+  check_game_permission(@game_id)
 
   load_game(@game_id)
   @storage.delete_game(@game_id)
@@ -202,6 +214,8 @@ post "/games/:game_id/players/add" do
   end
 
   if session[:logged_in] && game_have_permission?(@game_id)
+    signup_anon_player(@game_id, params[:player_name].strip)
+  elsif session[:logged_in]
     if @storage.already_signed_up?(@game_id, session[:player_id])
       session[:error] = "You're already signed up!"
 
@@ -238,7 +252,7 @@ post "/games/:game_id/players/:player_id/remove" do
   @game_id = params[:game_id].to_i
   @player_id = params[:player_id].to_i
 
-  game_have_permission?(@game_id)
+  check_game_permission(@game_id)
 
   if @storage.already_signed_up?(@game_id, @player_id)
     @storage.un_rsvp_player(@game_id, @player_id)
@@ -266,7 +280,7 @@ end
 # Confirm all players' payment
 post "/games/:game_id/players/confirm_all" do
   @game_id = params[:game_id]
-  game_have_permission?(@game_id)
+  check_game_permission(@game_id)
 
   @storage.confirm_all_paid(@game_id)
 
@@ -278,7 +292,7 @@ post "/games/:game_id/players/:player_id/unconfirm_paid" do
   @game_id = params[:game_id]
   @player_id = params[:player_id]
 
-  game_have_permission?(@game_id)
+  check_game_permission(@game_id)
 
   @storage.unconfirm_paid(@game_id, @player_id)
 
@@ -289,7 +303,7 @@ end
 post "/games/:game_id/players/unconfirm_all" do
   @game_id = params[:game_id]
 
-  game_have_permission?(@game_id)
+  check_game_permission(@game_id)
 
   @storage.unconfirm_all_paid(@game_id)
 
@@ -317,7 +331,7 @@ end
 # View group schedule
 get "/groups/:group_id/schedule" do
   @group_id = params[:group_id].to_i
-  group_have_permission?(@group_id)
+  check_group_permission(@group_id)
 
   @group = load_group(@group_id)
 
@@ -331,10 +345,9 @@ end
 # Edit group game schedule notes
 post "/groups/:group_id/schedule/edit" do
   @group_id = params[:group_id].to_i
-  group_have_permission?(@group_id)
+  check_group_permission(@group_id)
 
   @group = load_group(@group_id)
-
 
   if !valid_notes?(params[:notes])
     session[:error] = "Note must be less than or equal to 1000 characters."
@@ -352,7 +365,7 @@ end
 # View group schedule for a day of the week
 get "/groups/:group_id/schedule/:day_of_week" do
   @group_id = params[:group_id].to_i
-  group_have_permission?(@group_id)
+  check_group_permission(@group_id)
 
   @group = load_group(@group_id)
   @day_of_week = params[:day_of_week].to_i
@@ -365,7 +378,7 @@ end
 # View add game to group schedule for a day of the week page
 get "/groups/:group_id/schedule/:day_of_week/add" do
   @group_id = params[:group_id].to_i
-  group_have_permission?(@group_id)
+  check_group_permission(@group_id)
 
   @group = load_group(@group_id)
   @day_of_week = params[:day_of_week].to_i
@@ -376,7 +389,7 @@ end
 
 post "/groups/:group_id/schedule/publish" do
   @group_id = params[:group_id].to_i
-  group_have_permission?(@group_id)
+  check_group_permission(@group_id)
 
   @group = load_group(@group_id)
   @publish_day = params[:publish_day].to_i
@@ -434,7 +447,7 @@ post "/games/:id/edit" do
   @game_id = params[:id].to_i
   @game = @storage.find_game(@game_id)
   @group_id = @game.group_id
-  group_have_permission?(@group_id)
+  check_group_permission(@group_id)
 
   @group = load_group(@group_id)
   @start_time = "#{params[:hour]}#{params[:am_pm]}"
@@ -527,7 +540,7 @@ end
 # Add game to group schedule for a day of the week page
 post "/groups/:group_id/schedule/:day_of_week/add" do
   @group_id = params[:group_id].to_i
-  group_have_permission?(@group_id)
+  check_group_permission(@group_id)
 
   @group = load_group(@group_id)
   @day_of_week = params[:day_of_week].to_i

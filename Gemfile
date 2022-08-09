@@ -1,13 +1,15 @@
 source "https://rubygems.org"
 
-ruby "2.7.4"
-gem "sinatra", "~>1.4.7"
+ruby "3.1.2"
+gem "sinatra"
 gem "sinatra-contrib"
 gem "erubis"
 gem "pg"
 gem "rack-test"
 gem "minitest"
 gem "bcrypt"
+gem "solargraph"
+gem "pry-byebug"
 
 group :production do
   gem "puma"
