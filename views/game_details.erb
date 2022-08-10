@@ -1,50 +1,31 @@
 <label for="hour_select">Start time:</label>
 
 <select name="hour" id="hour_select">
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-    <option value="7">7</option>
-    <option value="8">8</option>
-    <option value="9">9</option>
-    <option value="10">10</option>
-    <option value="11">11</option>
-    <option value="12">12</option>
+  <% (1..HOUR_HAND_MAX).each do |hour| %>
+    <option value="<%= hour %>" <%= select_hour(hour) %>><%= hour %></option>
+  <% end %>
 </select>
 
 <select name="am_pm" id="am_pm_select">
-  <option value="am">AM</option>
-  <option value="pm">PM</option>
+  <option value="am" <%= select_am %>>AM</option>
+  <option value="pm" <%= select_pm %>>PM</option>
 </select>
 
 <label for="duration_select">Duration (hours):</label>
 <select name="duration" id="duration_select">
-  <option value="1">1</option>
-  <option value="2">2</option>
-  <option value="3">3</option>
-  <option value="4">4</option>
-  <option value="5">5</option>
-  <option value="6">6</option>
-  <option value="7">7</option>
-  <option value="8">8</option>
-  <option value="9">9</option>
-  <option value="10">10</option>
-  <option value="11">11</option>
-  <option value="12">12</option>
+  <% (1..MAX_DURATION_HOURS).each do |duration| %>
+    <option value="<%= duration %>" <%= select_duration(duration) %>><%= duration %></option>
+  <% end %>
 </select>
 
 <br>
 
 <label for="location">Location:</label>
-<input name="location" placeholder="Location name and address" type="text" value="<%= params[:location] %>">
+<input name="location" placeholder="Location name and address" type="text" value="<%= params[:location] || @game&.location %>">
 
 <label for="total_slots">Slots:</label>
-<input name="total_slots" placeholder="Number of total slots" type="text" value="<%= params[:total_slots] %>">
+<input name="total_slots" placeholder="Number of total slots" type="text" value="<%= params[:total_slots] || @game&.total_slots %>">
 
 <label for="fee">Fee:</label>
-<input name="fee" placeholder="Cost per player in whole dollars" type="text" value="<%= params[:fee] %>">
+<input name="fee" placeholder="Cost per player in whole dollars" type="text" value="<%= params[:fee] || @game&.fee %>">
 
-<button type="submit">Create Game</button>

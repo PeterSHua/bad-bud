@@ -1,14 +1,19 @@
+# Move to time module
+
 require "time"
 
 MONTHS = %w(Jan Feb Mar Apr May Jun Jul Aug Sept Oct Nov Dec)
 DAYS_OF_WEEK = %w(Sunday Monday Tuesday Wednesday Thursday Friday Saturday)
 DAY_TO_SEC = 86400
+HOUR_HAND_MAX = 12
+MAX_DURATION_HOURS = 12
+HOURS_IN_DAY = 24
 
 class Game
   attr_reader :id, :start_time, :duration, :group_name, :group_id, :location,
               :fee, :filled_slots, :total_slots, :players, :notes, :template
 
-  def initialize(id: nil, start_time:, duration:, group_name:, group_id:,
+  def initialize(id: nil, start_time:, duration:, group_name: "", group_id:,
                  location:, fee:, filled_slots: 0, total_slots:, players: {},
                  notes: "", template: false)
 

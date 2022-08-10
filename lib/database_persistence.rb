@@ -27,7 +27,7 @@ class DatabasePersistence
       FROM games AS gm
            LEFT JOIN games_players AS g_p
            ON gm.id = g_p.game_id
-           INNER JOIN groups AS gp
+           LEFT JOIN groups AS gp
            ON gm.group_id = gp.id
      WHERE gm.id = $1
      ORDER BY start_time ASC;
@@ -55,17 +55,35 @@ class DatabasePersistence
              template: (tuple["template"] == "t"))
   end
 
+  def create_game(game)
+    sql = <<~SQL
+      INSERT INTO games (group_id,
+                         start_time,
+                         duration,
+                         location,
+                         fee,
+                         total_slots,
+                         notes,
+                         template)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+    SQL
+
+    query(sql, game.group_id, game.start_time, game.duration, game.location,
+          game.fee, game.total_slots, game.notes, game.template)
+  end
+
   def edit_game(game)
     sql = <<~SQL
       UPDATE games
          SET start_time = $2,
-             location = $3,
-             total_slots = $4,
-             fee = $5
+             duration = $3,
+             location = $4,
+             total_slots = $5,
+             fee = $6
        WHERE id = $1;
     SQL
 
-    query(sql, game.id, game.start_time, game.location, game.total_slots, game.fee)
+    query(sql, game.id, game.start_time, game.duration, game.location, game.total_slots, game.fee)
   end
 
   def delete_game(id)
@@ -170,7 +188,7 @@ class DatabasePersistence
         FROM games AS gm
              LEFT JOIN games_players AS g_p
              ON gm.id = g_p.game_id
-             INNER JOIN groups AS gp
+             LEFT JOIN groups AS gp
              ON gm.group_id = gp.id
        GROUP BY gm.id, gp.id
       HAVING gm.template = FALSE
@@ -311,6 +329,15 @@ class DatabasePersistence
     end
   end
 
+  def last_group_id
+    sql = <<~SQL
+      SELECT last_value
+        FROM groups_id_seq;
+    SQL
+
+    query(sql).first["last_value"].to_i
+  end
+
   def edit_group_schedule_game_notes(group_id, notes)
     sql = <<~SQL
       UPDATE groups
@@ -360,10 +387,16 @@ class DatabasePersistence
   def add_group(group)
     sql = <<~SQL
       INSERT INTO groups (id, name, about)
-      VALUES (1, $1, $2)
+      VALUES ($1, $2, $3)
     SQL
 
-    query(sql, group.name, group.about)
+    new_group_id = if group.id.nil?
+                     'DEFAULT'
+                   else
+                     group.id
+                   end
+
+    query(sql, new_group_id, group.name, group.about)
   end
 
   def make_organizer(group_id, player_id)

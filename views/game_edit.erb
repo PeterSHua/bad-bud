@@ -1,0 +1,14 @@
+<h2>
+  <%= @group.name %>
+</h2>
+
+<a class="orange-link" href="/groups/<%= @group.id %>/schedule">&#128197; Back to Week View</a>
+
+<h2>
+  &#128198; <%= day_of_week_to_name(@day_of_week) %>
+</h2>
+
+<form action="/games/<%= @game_id %>/edit" method="post">
+  <%== yield %>
+  <button type="submit">Edit Game</button>
+</form>

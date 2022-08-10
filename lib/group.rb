@@ -1,7 +1,7 @@
 class Group
   attr_reader :id, :name, :about, :schedule_game_notes
 
-  def initialize(id:, name:, about:, schedule_game_notes:)
+  def initialize(id:, name: "", about: "", schedule_game_notes: "")
     self.id = id
     self.name = name
     self.about = about

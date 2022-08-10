@@ -50,6 +50,46 @@ helpers do
   def todays_date
     Time.now.to_s.split(' ').first
   end
+
+  def select_duration(duration)
+    if (params[:duration] && params[:duration] == duration) ||
+         (@game && (@game.duration == duration))
+      "selected"
+    else
+      ""
+    end
+  end
+
+  def normalize_to_12hr(hour)
+    return nil if hour.nil?
+    hour > HOUR_HAND_MAX ? hour - HOUR_HAND_MAX : hour
+  end
+
+  def select_hour(hour)
+    if (params[:hour] && params[:hour] == hour) || (@game && (normalize_to_12hr(@game.start_time&.hour) == hour))
+      "selected"
+    else
+      ""
+    end
+  end
+
+  def select_am
+    if (params[:am_pm] && params[:am_pm] == 'am') || (@game && ((@game.start_time.hour == MAX_DURATION_HOURS) ||
+          (@game.start_time.hour < HOUR_HAND_MAX)))
+      "selected"
+    else
+      ""
+    end
+  end
+
+  def select_pm
+    if (params[:am_pm] && params[:am_pm] == 'pm') || (@game && (@game.start_time.hour != MAX_DURATION_HOURS &&
+         @game.start_time.hour >= HOUR_HAND_MAX))
+      "selected"
+    else
+      ""
+    end
+  end
 end
 
 def game_have_permission?(game_id)
@@ -204,7 +244,54 @@ end
 
 # Create game
 post "/games/create" do
-  
+    @start_time = "#{params[:hour]}#{params[:am_pm]}"
+    @duration = params[:duration].to_i
+    @location = params[:location]
+    @total_slots = params[:total_slots].to_i
+    @fee = params[:fee].to_i
+    @player_id = session[:player_id]
+
+    if params[:group_id].empty?
+      @group_id = @storage.last_group_id + 1
+
+      group = Group.new(id: @group_id)
+
+      @storage.add_group(group)
+      @storage.make_organizer(@group_id, @player_id)
+    else
+      @group_id = params[:group_id].to_i
+    end
+
+  if !valid_location?
+    handle_invalid_location
+
+    erb :game_create, layout: :layout do
+      erb :game_details
+    end
+  elsif !valid_slots?
+    handle_invalid_slots
+
+    erb :game_create, layout: :layout do
+      erb :game_details
+    end
+
+  elsif !valid_fee?
+    handle_invalid_fee
+
+    erb :game_create, layout: :layout do
+      erb :game_details
+    end
+  else
+    game = Game.new(group_id: @group_id,
+                    start_time: @start_time,
+                    duration: @duration,
+                    location: @location,
+                    fee: @fee,
+                    total_slots: @total_slots)
+
+    @storage.create_game(game)
+    redirect "/game_list"
+  end
 end
 
 # View game detail
@@ -487,7 +574,9 @@ get "/games/:id/edit" do
   @group = load_group(@group_id)
   @day_of_week = @game.start_time.wday
 
-  erb :edit_game
+  erb :game_edit, layout: :layout do
+    erb :game_details
+  end
 end
 
 post "/games/:id/edit" do
@@ -507,19 +596,23 @@ post "/games/:id/edit" do
 
   if !valid_location?
     handle_invalid_location
-    erb :edit_game
+
+    erb :game_edit, layout: :layout do
+      erb :game_details
+    end
   elsif !valid_slots?
     handle_invalid_slots
-    erb :edit_game
+
+    erb :game_edit, layout: :layout do
+      erb :game_details
+    end
   elsif !valid_fee?
     handle_invalid_fee
-    erb :edit_game
-  else
-    @start_time = "#{params[:hour]}#{params[:am_pm]}"
-    @location = params[:location]
-    @total_slots = params[:total_slots].to_i
-    @fee = params[:fee].to_i
 
+    erb :game_edit, layout: :layout do
+      erb :game_details
+    end
+  else
     game = Game.new(id: @game_id,
                     group_id: @group_id,
                     group_name:@group.name,
@@ -622,7 +715,7 @@ get "/players/:id/edit" do
   @player_id = params[:id].to_i
   @player = load_player(@player_id)
 
-  erb :edit_player, layout: :layout
+  erb :player_edit, layout: :layout
 end
 
 # Edit player detail
