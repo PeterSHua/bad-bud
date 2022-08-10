@@ -146,3 +146,21 @@
     <% end %>
   </p>
 <% end %>
+
+<% if game_organizer?(@game.id, session[:player_id]) %>
+  <table>
+    <% @group_players.each do |player| %>
+      <tr>
+        <td>
+          <form action="/games/<%= @game_id %>/players/<%= player.id %>/add" method="post">
+            <button type="submit">&#10133;</button>
+          </form>
+        </td>
+
+        <td>
+          <a class="orange-link" href="/players/<%= player.id %>"><%= player.name %></a>
+        </td>
+      </tr>
+    <% end %>
+  </table>
+<% end %>

@@ -299,6 +299,9 @@ get "/games/:id" do
   @game_id = params[:id].to_i
   @game = load_game(@game_id)
   @day_of_week = @game.start_time.wday
+  @group_id = @game.group_id
+
+  @group_players = @storage.find_group_players(@group_id)
 
   erb :game, layout: :layout
 end
