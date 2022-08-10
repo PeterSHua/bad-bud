@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS groups_players(
 CREATE TABLE IF NOT EXISTS games(
     PRIMARY KEY (id),
     id          serial,
-    group_id    integer NOT NULL,
+    group_id    integer,
     start_time  timestamp NOT NULL,
     duration    integer CHECK(duration <= 24) NOT NULL,
     "location"  varchar(300),

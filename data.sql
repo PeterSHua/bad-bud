@@ -1,8 +1,5 @@
 INSERT INTO players (username, password, name, rating, about)
-VALUES ('peter', '$2a$12$W5ACHXiMPoYIHUEjTWtnUOnO18zfz65mQiqsIn/IVabLsJQ5ZelqS', 'Peter H', 3, 'Tiger got to hunt, bird got to fly;
-Man got to sit and wonder ''why, why, why?''
-Tiger got to sleep, bird got to land;
-Man got to tell himself he understand.'),
+VALUES ('peter', '$2a$12$W5ACHXiMPoYIHUEjTWtnUOnO18zfz65mQiqsIn/IVabLsJQ5ZelqS', 'Peter H', 3, 'Here we are, trapped in the amber of the moment. There is no why.'),
        ('david', '$2a$12$W5ACHXiMPoYIHUEjTWtnUOnO18zfz65mQiqsIn/IVabLsJQ5ZelqS', 'David C', 3,'Founder of Novice BM Vancouver'),
        ('john', '$2a$12$W5ACHXiMPoYIHUEjTWtnUOnO18zfz65mQiqsIn/IVabLsJQ5ZelqS', 'John C', 3, 'Shuttlecock lover'),
        ('rustam', '$2a$12$W5ACHXiMPoYIHUEjTWtnUOnO18zfz65mQiqsIn/IVabLsJQ5ZelqS', 'Rustam', 3, 'aka Wuffle'),

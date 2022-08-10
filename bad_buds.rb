@@ -35,12 +35,20 @@ helpers do
     @storage.group_organizer?(group_id, player_id)
   end
 
+  def profile_owner?(profile_id)
+    profile_id == session[:player_id].to_i
+  end
+
   def day_of_week_to_name(day_of_week)
     DAYS_OF_WEEK[day_of_week]
   end
 
   def display_time(game)
     "#{game.start_time.strftime("%l:%M%p")} - #{(game.start_time + game.duration * 60 * 60).strftime("%l:%M%p")}"
+  end
+
+  def todays_date
+    Time.now.to_s.split(' ').first
   end
 end
 
@@ -181,6 +189,22 @@ get "/game_list" do
   @game_list = @storage.all_games
 
   erb :game_list, layout: :layout
+end
+
+# View create game
+get "/games/create" do
+  @player_id = session[:player_id]
+
+  @groups = @storage.find_groups_is_organizer(@player_id)
+
+  erb :game_create, layout: :layout do
+    erb :game_details
+  end
+end
+
+# Create game
+post "/games/create" do
+  
 end
 
 # View game detail
@@ -389,7 +413,9 @@ get "/groups/:group_id/schedule/:day_of_week/add" do
   @day_of_week = params[:day_of_week].to_i
   @group_players = @storage.find_group_players(@group_id)
 
-  erb :group_schedule_day_of_week_add_game
+  erb :group_schedule_day_of_week_add_game, layout: :layout do
+    erb :game_details
+  end
 end
 
 def normalize_day(day)
@@ -417,7 +443,6 @@ end
 
 # Publish weekly schedule games
 post "/groups/:group_id/schedule/publish" do
-  binding.pry
   @group_id = params[:group_id].to_i
   check_group_permission(@group_id)
 
@@ -590,6 +615,40 @@ get "/players/:id" do
   @player = load_player(@player_id)
 
   erb :player, layout: :layout
+end
+
+# View edit player detail
+get "/players/:id/edit" do
+  @player_id = params[:id].to_i
+  @player = load_player(@player_id)
+
+  erb :edit_player, layout: :layout
+end
+
+# Edit player detail
+post "/players/:id/edit" do
+  @player_id = params[:id].to_i
+  @player = load_player(@player_id)
+
+  @name = params[:name]
+  @rating = params[:rating].to_i
+  @about = params[:about]
+  @password = if params[:password].empty?
+                @player.password
+              else
+                BCrypt::Password.create(params[:password])
+              end
+
+  player = Player.new(id: @player_id,
+                      name: @name,
+                      rating: @rating,
+                      about: @about,
+                      username: @player.username,
+                      password: @password)
+
+  @storage.edit_player(player)
+
+  redirect "/players/#{@player_id}"
 end
 
 # View login page

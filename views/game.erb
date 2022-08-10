@@ -123,7 +123,7 @@
       <dl>
         <dt>
           <% if game_organizer?(@game.id, session[:player_id]) %>
-            <label for="player_name">Sign up unregistered player for this game:</label>
+            <label for="player_name">Sign up player for this game:</label>
           <% else %>
             <label for="player_name">Sign up for this game:</label>
           <% end %>
@@ -135,7 +135,6 @@
             <input name="player_name" placeholder="Your name" type="text">
           <% end %>
         </dd>
-      </dl>
     <% end %>
 
     <% if game_organizer?(@game.id, session[:player_id]) %>

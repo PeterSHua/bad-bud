@@ -1,0 +1,14 @@
+<form action="/games/create" method="post">
+  <label for="group_select">Group:</label>
+  <select name="group" id="group_select">
+    <option value="">None</option>
+    <% @groups.each do |group| %>
+      <option value="<%= group.id %>"><%= group.name %></option>
+    <% end %>
+  </select>
+
+  <label for="date">Date:</label>
+  <input id="date" type="date" name="date" min="<%= todays_date %>">
+
+  <%== yield %>
+</form>

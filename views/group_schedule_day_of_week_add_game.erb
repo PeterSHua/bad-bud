@@ -9,54 +9,5 @@
 </h2>
 
 <form action="/groups/<%= @group_id %>/schedule/<%= @day_of_week %>/add" method="post">
-  <label for="hour_select">Start time:</label>
-
-  <select name="hour" id="hour_select">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
-      <option value="7">7</option>
-      <option value="8">8</option>
-      <option value="9">9</option>
-      <option value="10">10</option>
-      <option value="11">11</option>
-      <option value="12">12</option>
-  </select>
-
-  <select name="am_pm" id="am_pm_select">
-    <option value="am">AM</option>
-    <option value="pm">PM</option>
-  </select>
-
-  <label for="duration_select">Duration (hours):</label>
-  <select name="duration" id="duration_select">
-    <option value="1">1</option>
-    <option value="2">2</option>
-    <option value="3">3</option>
-    <option value="4">4</option>
-    <option value="5">5</option>
-    <option value="6">6</option>
-    <option value="7">7</option>
-    <option value="8">8</option>
-    <option value="9">9</option>
-    <option value="10">10</option>
-    <option value="11">11</option>
-    <option value="12">12</option>
-  </select>
-
-  <br>
-
-  <label for="location">Location:</label>
-  <input name="location" placeholder="Location name and address" type="text" value="<%= params[:location] %>">
-
-  <label for="total_slots">Slots:</label>
-  <input name="total_slots" placeholder="Number of total slots" type="text" value="<%= params[:total_slots] %>">
-
-  <label for="fee">Fee:</label>
-  <input name="fee" placeholder="Cost per player in whole dollars" type="text" value="<%= params[:fee] %>">
-
-  <button type="submit">Create Game</button>
+  <%== yield %>
 </form>

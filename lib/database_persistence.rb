@@ -251,9 +251,24 @@ class DatabasePersistence
 
     Player.new(id: tuple["id"],
                username: tuple["username"],
+               password: tuple["password"],
                name: tuple["name"],
                rating: tuple["rating"],
                about: tuple["about"])
+  end
+
+  def edit_player(player)
+    sql = <<~SQL
+      UPDATE players
+         SET password = $2,
+             name = $3,
+             rating = $4,
+             about = $5
+       WHERE id = $1;
+    SQL
+
+    query(sql, player.id, player.password, player.name,
+          player.rating, player.about)
   end
 
   def find_group(id)
@@ -272,6 +287,28 @@ class DatabasePersistence
               name: tuple["name"],
               about: tuple["about"],
               schedule_game_notes: tuple["schedule_game_notes"])
+  end
+
+  def find_groups_is_organizer(player_id)
+    sql = <<~SQL
+      SELECT groups.*
+        FROM groups
+             INNER JOIN groups_players
+             ON groups_players.group_id = groups.id
+       WHERE is_organizer = TRUE AND
+             groups_players.player_id = $1;
+    SQL
+
+    result = query(sql, player_id)
+
+    return [] if result.ntuples.zero?
+
+    result.map do |group|
+      Group.new(id: group["id"],
+                name: group["name"],
+                about: group["about"],
+                schedule_game_notes: group["schedule_game_notes"])
+    end
   end
 
   def edit_group_schedule_game_notes(group_id, notes)
