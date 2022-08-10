@@ -5,7 +5,8 @@
   <%= @group.about %>
   <br>
   <% if session[:logged_in] && group_organizer?(@group.id, session[:player_id]) %>
-    <a class="orange-link" href="/groups/<%= @group.id %>/schedule">📅 Schedule</a>
+    <a class="orange-link" href="/groups/<%= @group.id %>/schedule">&#128197; Schedule</a>
+    <a class="orange-link" href="/groups/<%= @group.id %>/edit">&#128221; Edit Group</a>
   <% end %>
 </p>
 
@@ -28,16 +29,54 @@
 </ul>
 
 <h2>Members</h2>
-<ol>
-  <% @group_players.each do |player| %>
-    <li>
-      <a class="orange-link" href="/players/<%= player.id %>">
-        <%= player.name %>
-      </a>
 
-      <% if player.is_organizer %>
-        &#128081;
+<table>
+  <tr>
+    <% if session[:logged_in] && group_organizer?(@group.id, session[:player_id]) %>
+      <th><!-- Remove player --></th>
+    <% end %>
+
+    <th>Member<th>
+
+    <th><!-- Promote/Demote player --></th>
+  </tr>
+
+  <% @group_players.each do |player| %>
+    <tr>
+      <% if session[:logged_in] && group_organizer?(@group.id, session[:player_id]) %>
+        <th>
+          <form class="inline" method="post" action="/groups/<%= @group.id %>/players/<%= player.id %>/remove">
+            <button type="submit">&#10060;</button>
+          </form>
+        </th>
       <% end %>
-    </li>
+
+      <th>
+        <a class="orange-link" href="/players/<%= player.id %>">
+          <%= player.name %>
+        </a>
+      </th>
+
+      <th>
+        <% if session[:logged_in] && group_organizer?(@group.id, session[:player_id]) %>
+          <% if player.is_organizer %>
+            <form class="inline" method="post" action="/groups/<%= @group.id %>/players/<%= player.id %>/demote">
+            <button type="submit">&#128081;</button>
+          </form>
+          <% else %>
+            <form class="inline" method="post" action="/groups/<%= @group.id %>/players/<%= player.id %>/promote">
+              <button type="submit">&#128100;</button>
+            </form>
+          <% end %>
+        <% else %>
+          <% if player.is_organizer %>
+            &#128081;
+          <% else %>
+            &#128100;
+          <% end %>
+        <% end %>
+      </th>
+    </tr>
   <% end %>
-</ol>
+</table>
+

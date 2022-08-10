@@ -1,0 +1,13 @@
+<a class="orange-link" href="/groups/<%= @group_id %>">&#128101; Back to Group</a>
+
+<form action="/groups/<%= @group_id %>/edit" method="post">
+  <label for="name">Name:</label>
+  <input name="name" type="text" value="<%= params[:name] || @group.name %>">
+
+  <div>
+    <label for="about">About:</label>
+    <textarea name="about" id="about" rows="8" cols="33"><%= params[:about] || @group.about %></textarea>
+  </div>
+
+  <button type="submit">Save</button>
+</form>

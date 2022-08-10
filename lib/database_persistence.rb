@@ -384,6 +384,16 @@ class DatabasePersistence
           player.about)
   end
 
+  def remove_player_from_group(group_id, player_id)
+    sql = <<~SQL
+      DELETE FROM groups_players
+       WHERE group_id = $1 AND
+             player_id = $2;
+    SQL
+
+    query(sql, group_id, player_id)
+  end
+
   def add_group(group)
     sql = <<~SQL
       INSERT INTO groups (id, name, about)
@@ -399,10 +409,34 @@ class DatabasePersistence
     query(sql, new_group_id, group.name, group.about)
   end
 
+  def edit_group(group)
+    sql = <<~SQL
+      UPDATE groups
+         SET name = $2,
+             about = $3
+       WHERE id = $1;
+    SQL
+
+    query(sql, group.id, group.name, group.about)
+  end
+
   def make_organizer(group_id, player_id)
     sql = <<~SQL
-      INSERT INTO groups_players (group_id, player_id, is_organizer)
-      VALUES ($1, $2, true)
+      UPDATE groups_players
+         SET is_organizer = TRUE
+       WHERE group_id = $1 AND
+             player_id = $2;
+    SQL
+
+    query(sql, group_id, player_id)
+  end
+
+  def remove_organizer(group_id, player_id)
+    sql = <<~SQL
+      UPDATE groups_players
+         SET is_organizer = FALSE
+       WHERE group_id = $1 AND
+             player_id = $2;
     SQL
 
     query(sql, group_id, player_id)

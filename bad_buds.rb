@@ -438,10 +438,101 @@ get "/groups/:group_id" do
   @group_id = params[:group_id].to_i
   @group = load_group(@group_id)
   @group_games = @storage.find_group_games(@group_id)
-
   @group_players = @storage.find_group_players(@group_id)
 
   erb :group, layout: :layout
+end
+
+# View edit group page
+get "/groups/:group_id/edit" do
+  @group_id = params[:group_id].to_i
+  check_group_permission(@group_id)
+
+  @group = load_group(@group_id)
+  @group_players = @storage.find_group_players(@group_id)
+
+  erb :group_edit, layout: :layout
+end
+
+def valid_group_name
+  (1..20).cover?(params[:name].length)
+end
+
+def handle_invalid_group_name
+  session[:error] = "Group name must be between 1 and 20 characters."
+  status 422
+end
+
+def valid_group_about
+  params[:about].nil? || (1..300).cover?(params[:about].length)
+end
+
+def handle_invalid_group_about
+  session[:error] = "Group about max character limit is 300."
+  status 422
+end
+
+# Edit group
+post "/groups/:group_id/edit" do
+  @group_id = params[:group_id].to_i
+  check_group_permission(@group_id)
+
+  @group = load_group(@group_id)
+
+  if !valid_group_name
+    handle_invalid_group_name
+    erb :group_edit, layout: :layout
+  elsif !valid_group_about
+    handle_invalid_group_about
+    erb :group_edit, layout: :layout
+  else
+    group = Group.new(id: @group_id,
+                      name: params[:name],
+                      about: params[:about])
+
+    @storage.edit_group(group)
+
+    redirect "/groups/#{@group_id}"
+  end
+end
+
+# Remove player from group
+post "/groups/:group_id/players/:player_id/remove" do
+  @group_id = params[:group_id].to_i
+  check_group_permission(@group_id)
+
+  @group = load_group(@group_id)
+  @player_id = params[:player_id].to_i
+
+  @storage.remove_player_from_group(@group_id, @player_id)
+
+  redirect "/groups/#{@group_id}"
+end
+
+# Promote player
+post "/groups/:group_id/players/:player_id/promote" do
+  @group_id = params[:group_id].to_i
+  check_group_permission(@group_id)
+
+  @group = load_group(@group_id)
+  @player_id = params[:player_id].to_i
+
+  @storage.make_organizer(@group_id, @player_id)
+
+  redirect "/groups/#{@group_id}"
+end
+
+# Demote player
+post "/groups/:group_id/players/:player_id/demote" do
+  @group_id = params[:group_id].to_i
+  check_group_permission(@group_id)
+
+  @group = load_group(@group_id)
+  @player_id = params[:player_id].to_i
+
+  @storage.remove_organizer(@group_id, @player_id)
+
+  redirect "/groups/#{@group_id}"
 end
 
 # View group schedule
