@@ -28,6 +28,18 @@
   <% end %>
 </ul>
 
+<% if @storage.already_joined_group?(@group_id, session[:player_id]) %>
+  <% unless group_organizer?(@group.id, session[:player_id])%>
+    <form class="inline" method="post" action="/groups/<%= @group.id %>/leave">
+      <button type="submit">Leave Group</button>
+    </form>
+  <% end %>
+<% else %>
+  <form class="inline" method="post" action="/groups/<%= @group.id %>/join">
+    <button type="submit">Join Group</button>
+  </form>
+<% end %>
+
 <h2>Members</h2>
 
 <table>

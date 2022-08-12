@@ -2,13 +2,18 @@
   <%= @group.name %>
 </h2>
 
-<a class="orange-link" href="/groups/<%= @group.id %>/schedule">&#128197; Back to Week View</a>
+<% if @game.template %>
+  <a class="orange-link" href="/groups/<%= @group.id %>/schedule">&#128197; Back to Week View</a>
 
-<h2>
-  &#128198; <%= day_of_week_to_name(@day_of_week) %>
-</h2>
+  <h2>
+    &#128198; <%= day_of_week_to_name(@day_of_week) %>
+  </h2>
+<% else %>
+  <label for="date">Date:</label>
+  <input id="date" type="date" name="date" min="<%= todays_date %>">
+<% end %>
 
 <form action="/games/<%= @game_id %>/edit" method="post">
   <%== yield %>
-  <button type="submit">Edit Game</button>
+  <button type="submit">Save</button>
 </form>

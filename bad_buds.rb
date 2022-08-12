@@ -318,32 +318,41 @@ post "/games/:id/delete" do
   redirect "/game_list"
 end
 
-# Signup player to game
+# Add unregistered player to game
 post "/games/:game_id/players/add" do
   @game_id = params[:game_id].to_i
   @game = load_game(@game_id)
+  @group_id = @game.group_id
+  @group_players = @storage.find_group_players(@group_id)
 
   if @game.filled_slots >= @game.total_slots
     session[:error] = "Sorry, no empty slots remaining."
-
-    status 422
-    # Others must have filled up the slots. Force a refresh for the updated list.
-    redirect "/games/#{@game_id}"
-  end
-
-  if session[:logged_in] && game_have_permission?(@game_id)
-    signup_anon_player(@game_id, params[:player_name].strip)
-  elsif session[:logged_in]
-    if @storage.already_signed_up?(@game_id, session[:player_id])
-      session[:error] = "You're already signed up!"
-
-      status 422
-      erb :game, layout: :layout
-    else
-      signup_player(@game_id, session[:player_id])
-    end
   else
     signup_anon_player(@game_id, params[:player_name].strip)
+  end
+
+  redirect "/games/#{@game_id}"
+end
+
+# Add registered player to game
+post "/games/:game_id/players/:player_id/add" do
+  @game_id = params[:game_id].to_i
+  @player_id = params[:player_id].to_i
+  @game = load_game(@game_id)
+  @group_id = @game.group_id
+  @group_players = @storage.find_group_players(@group_id)
+
+  if @game.filled_slots >= @game.total_slots
+    session[:error] = "Sorry, no empty slots remaining."
+  elsif @storage.already_signed_up?(@game_id, @player_id)
+    session[:error] = "Player already signed up!"
+
+    status 422
+    erb :game, layout: :layout
+  else
+    signup_player(@game_id, @player_id)
+
+    redirect "/games/#{@game_id}"
   end
 end
 
@@ -444,6 +453,22 @@ get "/groups/:group_id" do
   @group_players = @storage.find_group_players(@group_id)
 
   erb :group, layout: :layout
+end
+
+# Join group
+post "/groups/:group_id/join" do
+  @group_id = params[:group_id].to_i
+  @storage.add_player_to_group(@group_id, session[:player_id])
+
+  redirect "/groups/#{@group_id}"
+end
+
+# Leave group
+post "/groups/:group_id/leave" do
+  @group_id = params[:group_id].to_i
+  @storage.remove_player_from_group(@group_id, session[:player_id])
+
+  redirect "/groups/#{@group_id}"
 end
 
 # View edit group page
@@ -680,7 +705,10 @@ post "/games/:id/edit" do
   check_group_permission(@group_id)
 
   @group = load_group(@group_id)
+
   @start_time = "#{params[:hour]}#{params[:am_pm]}"
+  @start_time = "#{params[:date]} #{@start_time}" if !params[:date].nil?
+
   @day_of_week = @game.start_time.wday
   @group_players = @storage.find_group_players(@group_id)
   @duration = params[:duration].to_i

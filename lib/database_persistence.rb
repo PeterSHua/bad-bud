@@ -517,6 +517,35 @@ class DatabasePersistence
     !result.ntuples.zero?
   end
 
+  def already_joined_group?(group_id, player_id)
+    sql = <<~SQL
+      SELECT 1 FROM groups_players
+       WHERE group_id = $1 AND player_id = $2;
+    SQL
+
+    result = query(sql, group_id, player_id)
+
+    !result.ntuples.zero?
+  end
+
+  def add_player_to_group(group_id, player_id)
+    sql = <<~SQL
+      INSERT INTO groups_players (group_id, player_id)
+      VALUES ($1, $2);
+    SQL
+
+    query(sql, group_id, player_id)
+  end
+
+  def remove_player_from_group(group_id, player_id)
+    sql = <<~SQL
+      DELETE FROM groups_players
+       WHERE group_id = $1 AND player_id = $2;
+    SQL
+
+    query(sql, group_id, player_id)
+  end
+
   def group_organizer?(group_id, player_id)
     sql = <<~SQL
       SELECT is_organizer

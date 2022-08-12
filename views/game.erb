@@ -108,43 +108,30 @@
 <br>
 
 <% unless @game.filled_slots >= @game.total_slots %>
-  <form action="/games/<%= @game_id %>/players/add" method="post">
-    <% if !session[:logged_in] || game_organizer?(@game.id, session[:player_id]) %>
-      <dl>
-        <dt>
-          <% if game_organizer?(@game.id, session[:player_id]) %>
-            <label for="player_name">Sign up player for this game:</label>
-          <% else %>
-            <label for="player_name">Sign up for this game:</label>
-          <% end %>
-        </dt>
-        <dd>
-          <% if game_organizer?(@game.id, session[:player_id]) %>
-            <input name="player_name" placeholder="Player name" type="text">
-          <% else %>
-            <input name="player_name" placeholder="Your name" type="text">
-          <% end %>
-        </dd>
-    <% end %>
-
-    <% if game_organizer?(@game.id, session[:player_id]) %>
+  <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) %>
+    <form action="/games/<%= @game_id %>/players/add" method="post">
+      <label for="player_name">Sign up player for this game:</label>
+      <input name="player_name" placeholder="Player name" type="text">
       <button type="submit">Sign up</button>
-    <% elsif !already_signed_up?(@game_id, session[:player_id]) %>
-      <button type="submit">Sign me up</button>
-    <% end %>
-  </form>
-
-  <% if session[:logged_in] && already_signed_up?(@game_id, session[:player_id]) %>
-    <form class="inline" method="post" action="/games/<%= @game.id %>/players/remove">
-      <button type="submit">Remove me</button>
     </form>
-  <% end %>
-
-  <p>
-    <% unless session[:logged_in] %>
-      <a class="orange-link" href="/register">Register an account to manage your RSVP.</a>
+  <% elsif session[:logged_in] %>
+    <% if already_signed_up?(@game_id, session[:player_id]) %>
+      <form class="inline" method="post" action="/games/<%= @game.id %>/players/remove">
+        <button type="submit">Remove me</button>
+      </form>
+    <% else %>
+      <form action="/games/<%= @game_id %>/players/<%= session[:player_id] %>/add" method="post">
+        <button type="submit">Add me</button>
+      </form>
     <% end %>
-  </p>
+  <% else %>
+    <form action="/games/<%= @game_id %>/players/add" method="post">
+      <label for="player_name">Sign up for this game:</label>
+      <input name="player_name" placeholder="Player name" type="text">
+      <button type="submit">Sign up</button>
+    </form>
+    <a class="orange-link" href="/register">Register an account to manage your RSVP.</a>
+  <% end %>
 <% end %>
 
 <% if game_organizer?(@game.id, session[:player_id]) %>
