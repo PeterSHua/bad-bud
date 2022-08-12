@@ -289,6 +289,15 @@ class DatabasePersistence
           player.rating, player.about)
   end
 
+  def delete_group(group_id)
+    sql = <<~SQL
+      DELETE FROM groups
+       WHERE id = $1;
+    SQL
+
+    query(sql, group_id)
+  end
+
   def find_group(id)
     sql = <<~SQL
       SELECT *

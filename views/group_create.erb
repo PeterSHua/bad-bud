@@ -1,0 +1,11 @@
+<form action="/groups/<%= @group_id %>/create" method="post">
+  <label for="name">Name:</label>
+  <input name="name" type="text" value="<%= params[:name] || @group.name %>">
+
+  <div>
+    <label for="about">About:</label>
+    <textarea name="about" id="about" rows="8" cols="33"><%= params[:about] || @group.about %></textarea>
+  </div>
+
+  <button type="submit">Save</button>
+</form>

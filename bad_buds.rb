@@ -195,21 +195,6 @@ def signup_player(game_id, player_id)
   redirect "/games/#{@game_id}"
 end
 
-def signup_anon_player(game_id, player_name)
-  error = error_for_player_name(player_name)
-
-  if error
-    session[:error] = error
-
-    status 422
-    erb :game, layout: :layout
-  else
-    @storage.rsvp_anon_player(game_id, player_name)
-
-    session[:success] = "Player has been signed up."
-    redirect "/games/#{game_id}"
-  end
-end
 
 before do
   @storage = DatabasePersistence.new(logger)
@@ -318,6 +303,20 @@ post "/games/:id/delete" do
   redirect "/game_list"
 end
 
+def valid_player_name?
+  (1..20).cover?(params[:player_name].length)
+end
+
+def handle_invalid_player_name
+  session[:error] = "Your name must be between 1 and 20 characters."
+  status 422
+end
+
+def signup_anon_player(game_id, player_name)
+  @storage.rsvp_anon_player(game_id, player_name)
+  session[:success] = "Player has been signed up."
+end
+
 # Add unregistered player to game
 post "/games/:game_id/players/add" do
   @game_id = params[:game_id].to_i
@@ -327,11 +326,16 @@ post "/games/:game_id/players/add" do
 
   if @game.filled_slots >= @game.total_slots
     session[:error] = "Sorry, no empty slots remaining."
+
+    # Force redirect to re-render page
+    redirect "/games/#{@game_id}"
+  elsif !valid_player_name?
+    handle_invalid_player_name
+    erb :game, layout: :layout
   else
     signup_anon_player(@game_id, params[:player_name].strip)
+    redirect "/games/#{@game_id}"
   end
-
-  redirect "/games/#{@game_id}"
 end
 
 # Add registered player to game
@@ -445,6 +449,38 @@ get "/group_list" do
   erb :group_list, layout: :layout
 end
 
+# View create group page
+get "/groups/:group_id/create" do
+  @group_id = params[:group_id].to_i
+
+  erb :group_create, layout: :layout
+end
+
+post "/groups/:group_id/create" do
+  @group_id = params[:group_id].to_i
+  @group_name = params[:name]
+  @group_about = params[:about]
+
+  if !valid_group_name
+    handle_invalid_group_name
+    erb :group_edit, layout: :layout
+  elsif !valid_group_about
+    handle_invalid_group_about
+    erb :group_edit, layout: :layout
+  else
+    group = Group.new(id: @group_id,
+                      name: @group_name,
+                      about: @group_about)
+    @storage.add_group(group)
+
+    redirect "/groups/#{@group_id}"
+  end
+
+  @storage.create_group(group)
+
+  redirect "/groups"
+end
+
 # View group detail
 get "/groups/:group_id" do
   @group_id = params[:group_id].to_i
@@ -453,6 +489,16 @@ get "/groups/:group_id" do
   @group_players = @storage.find_group_players(@group_id)
 
   erb :group, layout: :layout
+end
+
+# Delete group
+post "/groups/:group_id/delete" do
+  @group_id = params[:group_id].to_i
+  check_group_permission(@group_id)
+
+  @storage.delete_group(@group_id)
+
+  redirect "/group_list"
 end
 
 # Join group

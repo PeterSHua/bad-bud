@@ -40,6 +40,12 @@
   </form>
 <% end %>
 
+<% if group_organizer?(@group.id, session[:player_id]) %>
+  <form class="inline" method="post" action="/groups/<%= @group.id %>/delete">
+    <button type="submit">Delete Group</button>
+  </form>
+<% end %>
+
 <h2>Members</h2>
 
 <table>
@@ -57,9 +63,11 @@
     <tr>
       <% if session[:logged_in] && group_organizer?(@group.id, session[:player_id]) %>
         <th>
-          <form class="inline" method="post" action="/groups/<%= @group.id %>/players/<%= player.id %>/remove">
-            <button type="submit">&#10060;</button>
-          </form>
+          <% unless group_organizer?(@group.id, player.id) %>
+            <form class="inline" method="post" action="/groups/<%= @group.id %>/players/<%= player.id %>/remove">
+              <button type="submit">&#10060;</button>
+            </form>
+          <% end %>
         </th>
       <% end %>
 

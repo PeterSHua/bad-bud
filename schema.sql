@@ -35,6 +35,9 @@ CREATE TABLE IF NOT EXISTS games(
     PRIMARY KEY (id),
     id          serial,
     group_id    integer,
+    FOREIGN KEY (group_id)
+    REFERENCES groups(id)
+    ON DELETE CASCADE,
     start_time  timestamp NOT NULL,
     duration    integer CHECK(duration <= 24) NOT NULL,
     "location"  varchar(300),
