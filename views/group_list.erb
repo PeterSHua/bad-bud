@@ -1,3 +1,7 @@
+<% if session[:logged_in] %>
+  <a class="orange-link" href="/groups/create">&#10133; Create Group</a>
+<% end %>
+
 <ul id="red-list">
   <% @group_list.each do |group| %>
     <% next if group.name.empty? %>

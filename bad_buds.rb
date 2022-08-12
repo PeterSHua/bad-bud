@@ -279,9 +279,22 @@ post "/games/create" do
   end
 end
 
+def valid_game_id?
+  params[:game_id].to_i.to_s == params[:game_id]
+end
+
+def handle_invalid_game_id
+  session[:error] = "Invalid game."
+end
+
 # View game detail
-get "/games/:id" do
-  @game_id = params[:id].to_i
+get "/games/:game_id" do
+  if !valid_game_id?
+    handle_invalid_game_id
+    redirect "/game_list"
+  end
+
+  @game_id = params[:game_id].to_i
   @game = load_game(@game_id)
   @day_of_week = @game.start_time.wday
   @group_id = @game.group_id
@@ -304,7 +317,7 @@ post "/games/:id/delete" do
 end
 
 def valid_player_name?
-  (1..20).cover?(params[:player_name].length)
+  (1..20).cover?(params[:player_name].strip.length)
 end
 
 def handle_invalid_player_name
@@ -360,7 +373,7 @@ post "/games/:game_id/players/:player_id/add" do
   end
 end
 
-# Remove self from game
+# Organizer remove player from game
 post "/games/:game_id/players/remove" do
   @game_id = params[:game_id].to_i
 
@@ -398,11 +411,31 @@ post "/games/:game_id/players/:player_id/remove" do
   end
 end
 
+def valid_player_id?
+  params[:player_id].to_i.to_s == params[:player_id]
+end
+
+def handle_invalid_player_id
+  session[:error] = "Invalid player."
+end
+
 # Confirm player payment
 post "/games/:game_id/players/:player_id/confirm_paid" do
+  if !valid_game_id?
+    handle_invalid_game_id
+    redirect "/game_list"
+  end
+
+  if !valid_player_id?
+    handle_invalid_player_id
+    redirect "/games/#{params[:game_id]}"
+  end
+
   @game_id = params[:game_id]
+  @game = load_game(@game_id)
   check_game_permission(@game_id)
   @player_id = params[:player_id]
+  @player = load_player(@player_id)
 
   @storage.confirm_paid(@game_id, @player_id)
 
@@ -450,14 +483,11 @@ get "/group_list" do
 end
 
 # View create group page
-get "/groups/:group_id/create" do
-  @group_id = params[:group_id].to_i
-
+get "/groups/create" do
   erb :group_create, layout: :layout
 end
 
-post "/groups/:group_id/create" do
-  @group_id = params[:group_id].to_i
+post "/groups/create" do
   @group_name = params[:name]
   @group_about = params[:about]
 
@@ -468,17 +498,18 @@ post "/groups/:group_id/create" do
     handle_invalid_group_about
     erb :group_edit, layout: :layout
   else
+    @group_id = @storage.last_group_id + 1
+
     group = Group.new(id: @group_id,
                       name: @group_name,
                       about: @group_about)
+
     @storage.add_group(group)
+    @storage.add_player_to_group(@group_id, session[:player_id])
+    @storage.make_organizer(@group_id, session[:player_id])
 
     redirect "/groups/#{@group_id}"
   end
-
-  @storage.create_group(group)
-
-  redirect "/groups"
 end
 
 # View group detail

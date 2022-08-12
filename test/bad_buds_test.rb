@@ -76,8 +76,22 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "3 / 18"
   end
 
-  def test_view_invalid_group
+  def test_view_invalid_group1
     get "/groups/9"
+
+    assert_equal 302, last_response.status
+    assert_equal "The specified group was not found.", session[:error]
+  end
+
+  def test_view_invalid_group2
+    get "/groups/abc"
+
+    assert_equal 302, last_response.status
+    assert_equal "The specified group was not found.", session[:error]
+  end
+
+  def test_view_invalid_group2
+    get "/groups/9abc"
 
     assert_equal 302, last_response.status
     assert_equal "The specified group was not found.", session[:error]
@@ -96,11 +110,25 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "E-transfer the fee to David"
   end
 
-  def test_view_invalid_game
+  def test_view_game_not_found
     get "/games/9"
 
     assert_equal 302, last_response.status
     assert_equal "The specified game was not found.", session[:error]
+  end
+
+  def test_view_invalid_game1
+    get "/games/abc"
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid game.", session[:error]
+  end
+
+  def test_view_invalid_game2
+    get "/games/1abc"
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid game.", session[:error]
   end
 
   def test_view_player
@@ -113,8 +141,22 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Founder of Novice BM Vancouver"
   end
 
-  def test_view_invalid_player
+  def test_view_invalid_player1
     get "/players/9"
+
+    assert_equal 302, last_response.status
+    assert_equal "The specified player was not found.", session[:error]
+  end
+
+  def test_view_invalid_player2
+    get "/players/abc"
+
+    assert_equal 302, last_response.status
+    assert_equal "The specified player was not found.", session[:error]
+  end
+
+  def test_view_invalid_player3
+    get "/players/9abc"
 
     assert_equal 302, last_response.status
     assert_equal "The specified player was not found.", session[:error]
@@ -273,6 +315,13 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Your name must be between 1 and 20 characters."
   end
 
+  def test_rsvp_anon_player_empty_name
+    post "/games/1/players/add", { player_name: "  " }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "Your name must be between 1 and 20 characters."
+  end
+
   def test_rsvp_anon_player_long_name
     post "/games/1/players/add", { player_name: "Chico Harpo Groucho Gummo and Zeppo" }, logged_in_as_peter
 
@@ -389,6 +438,39 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "You don't have permission to do that!"
   end
 
+  def test_confirm_payment_game_not_found
+    post "/games/15/players/1/confirm_paid", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "The specified game was not found.", session[:error]
+  end
+
+  def test_confirm_payment_invalid_game1
+    post "/games/abc/players/1/confirm_paid", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid game.", session[:error]
+  end
+
+  def test_confirm_payment_invalid_game2
+    post "/games/1abc/players/1/confirm_paid", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid game.", session[:error]
+  end
+
+  def test_confirm_payment_player_not_signed_up
+
+  end
+
+  def test_confirm_payment_invalid_player2
+
+  end
+
+  def test_confirm_payment_invalid_player3
+
+  end
+
   def test_un_confirm_payment
     post "/games/1/players/4/remove", {}, logged_in_as_david
     post "/games/1/players/5/remove", {}, logged_in_as_david
@@ -462,6 +544,9 @@ class BadBudsTest < Minitest::Test
 
     get last_response["Location"]
     assert_includes last_response.body, "You don't have permission to do that!"
+  end
+
+  def test_view_create_group
   end
 
   def test_create_group

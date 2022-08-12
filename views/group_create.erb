@@ -1,11 +1,15 @@
-<form action="/groups/<%= @group_id %>/create" method="post">
+<% if session[:logged_in] %>
+  <a class="orange-link" href="/groups/create">&#10133; Create Group</a>
+<% end %>
+
+<form action="/groups/create" method="post">
   <label for="name">Name:</label>
-  <input name="name" type="text" value="<%= params[:name] || @group.name %>">
+  <input name="name" type="text" value="<%= params[:name] %>">
 
   <div>
     <label for="about">About:</label>
-    <textarea name="about" id="about" rows="8" cols="33"><%= params[:about] || @group.about %></textarea>
+    <textarea name="about" id="about" rows="8" cols="33"><%= params[:about] %></textarea>
   </div>
 
-  <button type="submit">Save</button>
+  <button type="submit">Create</button>
 </form>
