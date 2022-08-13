@@ -17,7 +17,7 @@ class Game
                  location:, fee:, filled_slots: 0, total_slots:, players: {},
                  notes: "", template: false)
 
-    self.id = id;
+    self.id = id
     self.start_time = Time.parse(start_time)
     self.duration = duration
     self.group_name = group_name

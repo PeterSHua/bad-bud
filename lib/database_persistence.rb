@@ -393,16 +393,6 @@ class DatabasePersistence
           player.about)
   end
 
-  def remove_player_from_group(group_id, player_id)
-    sql = <<~SQL
-      DELETE FROM groups_players
-       WHERE group_id = $1 AND
-             player_id = $2;
-    SQL
-
-    query(sql, group_id, player_id)
-  end
-
   def add_group(group)
     sql = <<~SQL
       INSERT INTO groups (id, name, about)
