@@ -1,6 +1,49 @@
+require_relative "helper"
+
 class BadBudsTest < Minitest::Test
-  # rubocop: disable Metrics/AbcSize
+  def test_view_create_game
+    get "/games/create", {}, logged_in_as_david
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Create Game"
+  end
+
+  def test_view_create_game_no_permission
+    get "/games/create"
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be logged in to do that.", session[:error]
+  end
+
   def test_create_game
+    skip
+  end
+
+  def test_create_game_no_permission
+    skip
+  end
+
+  def test_create_game_location_too_short
+    skip
+  end
+
+  def test_create_game_location_too_long
+    skip
+  end
+
+  def test_create_game_invalid_slots
+    skip
+  end
+
+  def test_create_game_slots_too_high
+    skip
+  end
+
+  def test_create_game_invalid_fee
+    skip
+  end
+
+  def test_create_game_fee_too_high
     skip
   end
 
@@ -16,7 +59,6 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Fee: $12"
     assert_includes last_response.body, "E-transfer the fee to David"
   end
-  # rubocop: enable Metrics/AbcSize
 
   def test_view_game_not_found
     get "/games/9"
@@ -51,6 +93,30 @@ class BadBudsTest < Minitest::Test
     skip
   end
 
+  def test_edit_game_location_too_short
+    skip
+  end
+
+  def test_edit_game_location_too_long
+    skip
+  end
+
+  def test_edit_game_invalid_slots
+    skip
+  end
+
+  def test_edit_game_slots_too_high
+    skip
+  end
+
+  def test_edit_game_invalid_fee
+    skip
+  end
+
+  def test_edit_game_fee_too_high
+    skip
+  end
+
   def test_delete_game
     post "/games/1/delete", {}, logged_in_as_david
 
@@ -61,7 +127,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_delete_game_no_permission
-    test_view_add_game_to_group_schedule_for_day_of_week_no_permission
+    skip
   end
 
   def test_delete_invalid_game

@@ -8,5 +8,7 @@ class Group
     self.schedule_game_notes = schedule_game_notes
   end
 
+  private
+
   attr_writer :id, :name, :about, :schedule_game_notes
 end

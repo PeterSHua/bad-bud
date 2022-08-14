@@ -30,8 +30,6 @@ class BadBudsTest < Minitest::Test
     refute session[:logged_in]
   end
 
-  # rubocop: disable Metrics/MethodLength
-  # rubocop: disable Metrics/AbcSize
   def test_logout
     post "/login", { username: "david", password: "abc123" }
     get last_response["Location"]
@@ -53,10 +51,7 @@ class BadBudsTest < Minitest::Test
 
     assert_includes last_response.body, "Sign In"
   end
-  # rubocop: enable Metrics/MethodLength
-  # rubocop: enable Metrics/AbcSize
 
-  # rubocop: disable Metrics/AbcSize
   def test_register
     post "/register", { username: "groucho", password: "marx" }
     get last_response["Location"]
@@ -74,7 +69,6 @@ class BadBudsTest < Minitest::Test
     refute session[:logged_in]
     assert_includes last_response.body, "Sign In"
   end
-  # rubocop: enable Metrics/AbcSize
 
   def test_register_already_logged_in
     post "/register",

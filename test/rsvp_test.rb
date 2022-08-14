@@ -38,8 +38,6 @@ class BadBudsTest < Minitest::Test
     refute_includes last_response.body, "Chico Harpo Groucho Gummo and Zeppo"
   end
 
-  # rubocop: disable Metrics/MethodLength
-  # rubocop: disable Metrics/AbcSize
   def test_rsvp_anon_player_no_empty_slots
     post "/games/2/players/add", { player_name: "Chico" }
     post "/games/2/players/add", { player_name: "Harpo" }
@@ -57,8 +55,6 @@ class BadBudsTest < Minitest::Test
 
     refute_includes last_response.body, "Sam"
   end
-  # rubocop: enable Metrics/MethodLength
-  # rubocop: enable Metrics/AbcSize
 
   def test_rvsp_player
     post "/games/1/players/add", { player_name: "joe" }, logged_in_as_david
@@ -80,7 +76,6 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Player already signed up!"
   end
 
-  # rubocop: disable Metrics/AbcSize
   def test_rsvp_player_no_empty_slots
     post "/games/2/players/add", { player_name: "Chico" }, logged_in_as_david
     post "/games/2/players/add", { player_name: "Harpo" }
@@ -97,7 +92,6 @@ class BadBudsTest < Minitest::Test
 
     refute_includes last_response.body, "Minnie"
   end
-  # rubocop: enable Metrics/AbcSize
 
   def test_unrsvp_player
     post "/games/1/players/4/remove", {}, logged_in_as_david

@@ -238,7 +238,8 @@ class DatabasePersistence
   end
 
   def find_group_template_games_for_day(group_id, day_of_week)
-    result = query(sql, group_id, day_of_week)
+    result = query(find_group_template_games_for_day_sql_query, group_id,
+                   day_of_week)
 
     result.map do |tuple|
       Game.new(id: tuple["id"].to_i,

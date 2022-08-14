@@ -2,14 +2,8 @@ class Player
   attr_reader :id,:username, :password, :name, :rating, :about,
               :fee_paid, :is_organizer
 
-  def initialize(id: 0,
-                name: "Anonymous",
-                rating: 1,
-                about: "",
-                username: "",
-                password: "",
-                fee_paid: false,
-                is_organizer: false)
+  def initialize(id: 0, name: "Anonymous", rating: 1, about: "", username: "",
+                 password: "", fee_paid: false, is_organizer: false)
 
     self.id = id
     self.username = username

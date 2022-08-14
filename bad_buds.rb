@@ -48,6 +48,11 @@ end
 get "/games/create" do
   @player_id = session[:player_id]
 
+  if @player_id.nil?
+    session[:error] = "You must be logged in to do that."
+    redirect "/game_list"
+  end
+
   @groups = @storage.find_groups_is_organizer(@player_id)
 
   erb :game_create, layout: :layout do
@@ -55,18 +60,14 @@ get "/games/create" do
   end
 end
 
-def before_create_game
+# Create game
+post "/games/create" do
   @start_time = "#{params[:hour]}#{params[:am_pm]}"
   @duration = params[:duration].to_i
   @location = params[:location]
   @total_slots = params[:total_slots].to_i
   @fee = params[:fee].to_i
   @player_id = session[:player_id]
-end
-
-# Create game
-post "/games/create" do
-  before_create_game
 
   if no_group_selected?
     create_group_entry_for_game_without_group

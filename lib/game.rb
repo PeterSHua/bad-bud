@@ -1,5 +1,3 @@
-# Move to time module
-
 require "time"
 
 MONTHS = %w(Jan Feb Mar Apr May Jun Jul Aug Sept Oct Nov Dec)
@@ -13,9 +11,9 @@ class Game
   attr_reader :id, :start_time, :duration, :group_name, :group_id, :location,
               :fee, :filled_slots, :total_slots, :players, :notes, :template
 
-  def initialize(id: nil, start_time:, duration:, group_name: "", group_id:,
-                 location:, fee:, filled_slots: 0, total_slots:, players: {},
-                 notes: "", template: false)
+  def initialize(start_time:, duration:, group_id:, location:, fee:,
+                 total_slots:, id: nil, group_name: "", players: {},
+                 filled_slots: 0, notes: "", template: false)
 
     self.id = id
     self.start_time = Time.parse(start_time)
