@@ -68,6 +68,12 @@ post "/games/create" do
   @total_slots = params[:total_slots].to_i
   @fee = params[:fee].to_i
   @player_id = session[:player_id]
+  @groups = @storage.find_groups_is_organizer(@player_id)
+
+  if !already_logged_in?
+    handle_not_logged_in
+    redirect "/game_list"
+  end
 
   if no_group_selected?
     create_group_entry_for_game_without_group
@@ -96,6 +102,8 @@ post "/games/create" do
     end
   else
     create_game
+
+    session[:success] = "Game was created."
     redirect "/game_list"
   end
 end

@@ -83,6 +83,10 @@ def already_logged_in?
   session[:logged_in]
 end
 
+def handle_not_logged_in
+  session[:error] = "You must be logged in to do that."
+end
+
 def handle_already_logged_in
   session[:error] = "You're already logged in."
 end
@@ -161,7 +165,8 @@ def handle_invalid_location
 end
 
 def valid_slots?
-  params[:total_slots].to_i.between?(1, 1000)
+  params[:total_slots].to_i.to_s == params[:total_slots] &&
+    params[:total_slots].to_i.between?(1, 1000)
 end
 
 def handle_invalid_slots
@@ -170,7 +175,8 @@ def handle_invalid_slots
 end
 
 def valid_fee?
-  params[:fee].to_i.between?(0, 1000)
+  params[:fee].to_i.to_s == params[:fee] &&
+    params[:fee].to_i.between?(0, 1000)
 end
 
 def handle_invalid_fee

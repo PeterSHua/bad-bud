@@ -15,36 +15,184 @@ class BadBudsTest < Minitest::Test
     assert_equal "You must be logged in to do that.", session[:error]
   end
 
-  def test_create_game
-    skip
+  def test_create_game_for_group
+    game_details = {
+      group_id: 1,
+      date: "2022/8/15",
+      hour: 1,
+      am_pm: 'am',
+      duration: 4,
+      location: 'My backyard',
+      total_slots: 9,
+      fee: 19
+    }
+
+    post "/games/create", game_details, logged_in_as_david
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Game was created."
+    assert_includes last_response.body, "My backyard"
+  end
+
+  def test_create_game_no_group
+    game_details = {
+      group_id: "",
+      date: "2022/8/15",
+      hour: 1,
+      am_pm: 'am',
+      duration: 4,
+      location: 'My backyard',
+      total_slots: 9,
+      fee: 19
+    }
+
+    post "/games/create", game_details, logged_in_as_david
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Game was created."
+    assert_includes last_response.body, "My backyard"
   end
 
   def test_create_game_no_permission
-    skip
+    game_details = {
+      group_id: "",
+      date: "2022/8/15",
+      hour: 1,
+      am_pm: 'am',
+      duration: 4,
+      location: 'My backyard',
+      total_slots: 9,
+      fee: 19
+    }
+
+    post "/games/create", game_details
+
+    get last_response["Location"]
+    assert_includes last_response.body, "You must be logged in to do that."
+    refute_includes last_response.body, "My backyard"
   end
 
   def test_create_game_location_too_short
-    skip
+    game_details = {
+      group_id: "",
+      date: "2022/8/15",
+      hour: 1,
+      am_pm: 'am',
+      duration: 4,
+      location: '',
+      total_slots: 9,
+      fee: 19
+    }
+
+    post "/games/create", game_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Location cannot be empty and total length cannot exceed 1000 characters."
+    refute_includes last_response.body, "My backyard"
   end
 
   def test_create_game_location_too_long
-    skip
+    location = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+               "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+               "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+               "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+               "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+               "zzzzzz"
+
+    game_details = {
+      group_id: "",
+      date: "2022/8/15",
+      hour: 1,
+      am_pm: 'am',
+      duration: 4,
+      location: location,
+      total_slots: 9,
+      fee: 19
+    }
+
+    post "/games/create", game_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Location cannot be empty and total length cannot exceed 1000 characters."
+    refute_includes last_response.body, "My backyard"
   end
 
   def test_create_game_invalid_slots
-    skip
+    game_details = {
+      group_id: "",
+      date: "2022/8/15",
+      hour: 1,
+      am_pm: 'am',
+      duration: 4,
+      location: 'My backard',
+      total_slots: 'abc',
+      fee: 19
+    }
+
+    post "/games/create", game_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Slots must be between 1 and 1000."
+    refute_includes last_response.body, "My backyard"
   end
 
   def test_create_game_slots_too_high
-    skip
+    game_details = {
+      group_id: "",
+      date: "2022/8/15",
+      hour: 1,
+      am_pm: 'am',
+      duration: 4,
+      location: 'My backard',
+      total_slots: '1001',
+      fee: 19
+    }
+
+    post "/games/create", game_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Slots must be between 1 and 1000."
+    refute_includes last_response.body, "My backyard"
   end
 
   def test_create_game_invalid_fee
-    skip
+    game_details = {
+      group_id: "",
+      date: "2022/8/15",
+      hour: 1,
+      am_pm: 'am',
+      duration: 4,
+      location: 'My backard',
+      total_slots: '9',
+      fee: 'abc'
+    }
+
+    post "/games/create", game_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Fee must be between 0 and 1000."
+    refute_includes last_response.body, "My backyard"
   end
 
   def test_create_game_fee_too_high
-    skip
+    game_details = {
+      group_id: "",
+      date: "2022/8/15",
+      hour: 1,
+      am_pm: 'am',
+      duration: 4,
+      location: 'My backard',
+      total_slots: '9',
+      fee: '1001'
+    }
+
+    post "/games/create", game_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Fee must be between 0 and 1000."
+    refute_includes last_response.body, "My backyard"
   end
 
   def test_view_game
