@@ -46,12 +46,7 @@ end
 
 # View create game page
 get "/games/create" do
-  @player_id = session[:player_id]
-
-  if @player_id.nil?
-    session[:error] = "You must be logged in to do that."
-    redirect "/game_list"
-  end
+  force_login
 
   @groups = @storage.find_groups_is_organizer(@player_id)
 
@@ -126,8 +121,15 @@ get "/games/:game_id" do
 end
 
 # Delete game
-post "/games/:id/delete" do
-  @game_id = params[:id].to_i
+post "/games/:game_id/delete" do
+  force_login
+
+  if !valid_game_id?
+    handle_invalid_game_id
+    redirect "/game_list"
+  end
+
+  @game_id = params[:game_id].to_i
   check_game_permission(@game_id)
 
   load_game(@game_id)
@@ -287,24 +289,14 @@ end
 
 # View create group page
 get "/groups/create" do
-  @player_id = session[:player_id]
-
-  if @player_id.nil?
-    session[:error] = "You must be logged in to do that."
-    redirect "/game_list"
-  end
+  force_login
 
   erb :group_create, layout: :layout
 end
 
 # Create group
 post "/groups/create" do
-  @player_id = session[:player_id]
-
-  if @player_id.nil?
-    session[:error] = "You must be logged in to do that."
-    redirect "/game_list"
-  end
+  force_login
 
   @group_name = params[:name]
   @group_about = params[:about]
@@ -347,10 +339,18 @@ end
 
 # Delete group
 post "/groups/:group_id/delete" do
+  force_login
+
+  if !valid_group_id?
+    handle_invalid_group_id
+    redirect "/group_list"
+  end
+
   @group_id = params[:group_id].to_i
   check_group_permission(@group_id)
 
   @storage.delete_group(@group_id)
+  session[:success] = "Group has been deleted."
 
   redirect "/group_list"
 end
@@ -384,6 +384,13 @@ end
 
 # Edit group
 post "/groups/:group_id/edit" do
+  force_login
+
+  if !valid_group_id?
+    handle_invalid_group_id
+    redirect "/group_list"
+  end
+
   @group_id = params[:group_id].to_i
   check_group_permission(@group_id)
 
@@ -391,6 +398,9 @@ post "/groups/:group_id/edit" do
 
   if !valid_group_name
     handle_invalid_group_name
+    erb :group_edit, layout: :layout
+  elsif group_exists?
+    handle_group_already_exists
     erb :group_edit, layout: :layout
   elsif !valid_group_about
     handle_invalid_group_about
@@ -402,6 +412,7 @@ post "/groups/:group_id/edit" do
 
     @storage.edit_group(group)
 
+    session[:success] = "Group updated."
     redirect "/groups/#{@group_id}"
   end
 end

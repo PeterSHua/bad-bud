@@ -50,7 +50,7 @@ class BadBudsTest < Minitest::Test
     }
 
     post "/groups/create", group_details, logged_in_as_david
-    
+
     assert_includes last_response.body, "A group already exists with that name."
   end
 
@@ -83,6 +83,25 @@ class BadBudsTest < Minitest::Test
     assert_equal 422, last_response.status
 
     assert_includes last_response.body, "Group name must be between 1 and 20 characters."
+  end
+
+  def test_create_group_long_about
+    about = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzz"
+
+    group_details = {
+      name: 'A new group',
+      about: about
+    }
+
+    post "/groups/create", group_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Group about max character limit is 300."
   end
 
   def test_view_group
@@ -123,62 +142,152 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_group
+    group_details = {
+      name: 'A new group',
+      about: 'Details of the new group'
+    }
 
+    post "/groups/1/edit", group_details, logged_in_as_david
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Group updated."
+    assert_includes last_response.body, "A new group"
+    assert_includes last_response.body, "Details of the new group"
   end
 
   def test_edit_group_no_permission
+    group_details = {
+      name: 'A new group',
+      about: 'Details of the new group'
+    }
 
+    post "/groups/1/edit", group_details
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be logged in to do that.", session[:error]
+
+    get last_response["Location"]
+    refute_includes last_response.body, "A new group"
+    refute_includes last_response.body, "Details of the new group"
   end
 
   def test_edit_group_already_exists
-    skip
+    group_details = {
+      name: 'Novice BM Vancouver',
+      about: 'Details of the new group'
+    }
+
+    post "/groups/1/edit", group_details, logged_in_as_david
+
+    assert_includes last_response.body, "A group already exists with that name."
   end
 
   def test_edit_group_short_name
-    skip
+    group_details = {
+      name: '',
+      about: 'Details of the new group'
+    }
+
+    post "/groups/1/edit", group_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Group name must be between 1 and 20 characters."
   end
 
   def test_edit_group_long_name
-    skip
-  end
+    name = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzz"
 
-  def test_edit_group_invalid_chars_name
-    skip
+    group_details = {
+      name: name,
+      about: 'Details of the new group'
+    }
+
+    post "/groups/1/edit", group_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Group name must be between 1 and 20 characters."
   end
 
   def test_edit_group_long_about
-    skip
+    about = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzz"
+
+    group_details = {
+      name: 'A new group',
+      about: about
+    }
+
+    post "/groups/1/edit", group_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Group about max character limit is 300."
   end
 
   def test_edit_invalid_group1
-    skip
+    post "/groups/9/edit", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "You don't have permission to do that!", session[:error]
   end
 
   def test_edit_invalid_group2
-    skip
+    post "/groups/abc/edit", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid group.", session[:error]
   end
 
   def test_edit_invalid_group3
-    skip
+    post "/groups/9abc/edit", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid group.", session[:error]
   end
 
   def test_delete_group
-    skip
+    post "/groups/1/delete", {}, logged_in_as_david
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Group has been deleted."
+
+    refute_includes last_response.body, "Novice BM Vancouver"
   end
 
   def test_delete_group_no_permission
-    skip
+    post "/groups/1/delete"
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be logged in to do that.", session[:error]
   end
 
   def test_delete_invalid_group1
-    skip
+    post "/groups/20/delete", {}, logged_in_as_david
+
+    get last_response["Location"]
+    assert_includes last_response.body, "You don't have permission to do that!"
   end
 
   def test_delete_invalid_group2
-    skip
+    post "/groups/abc/delete", {}, logged_in_as_david
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Invalid group."
   end
 
   def test_delete_invalid_group3
-    skip
+    post "/groups/20abc/delete", {}, logged_in_as_david
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Invalid group."
   end
 end

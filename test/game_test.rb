@@ -421,13 +421,27 @@ class BadBudsTest < Minitest::Test
     post "/games/1/delete"
 
     assert_equal 302, last_response.status
-    assert_equal "You don't have permission to do that!", session[:error]
+    assert_equal "You must be logged in to do that.", session[:error]
   end
 
-  def test_delete_invalid_game
+  def test_delete_invalid_game1
     post "/games/20/delete", {}, logged_in_as_david
 
     get last_response["Location"]
     assert_includes last_response.body, "You don't have permission to do that!"
+  end
+
+  def test_delete_invalid_game2
+    post "/games/abc/delete", {}, logged_in_as_david
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Invalid game."
+  end
+
+  def test_delete_invalid_game2
+    post "/games/9abc/delete", {}, logged_in_as_david
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Invalid game."
   end
 end

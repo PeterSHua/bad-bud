@@ -1,4 +1,13 @@
 # Route helpers
+def force_login
+  @player_id = session[:player_id]
+
+  if @player_id.nil?
+    session[:error] = "You must be logged in to do that."
+    redirect "/game_list"
+  end
+end
+
 def game_have_permission?(game_id)
   if session[:logged_in] && @storage.game_organizer?(game_id, session[:player_id])
     true
@@ -153,6 +162,14 @@ end
 
 def handle_invalid_game_id
   session[:error] = "Invalid game."
+end
+
+def valid_group_id?
+  params[:group_id].to_i.to_s == params[:group_id]
+end
+
+def handle_invalid_group_id
+  session[:error] = "Invalid group."
 end
 
 def valid_location?
