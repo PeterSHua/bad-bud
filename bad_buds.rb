@@ -519,20 +519,29 @@ post "/groups/:group_id/schedule/publish" do
 end
 
 # View edit game page
-get "/games/:id/edit" do
-  @game_id = params[:id].to_i
+get "/games/:game_id/edit" do
+  @game_id = params[:game_id].to_i
+  check_game_permission(@game_id)
+
   @game = load_game(@game_id)
   @group_id = @game.group_id
   @group = load_group(@group_id)
   @day_of_week = @game.start_time.wday
 
-  erb :game_edit, layout: :layout do
-    erb :game_details
+  if !valid_game_id?
+    handle_invalid_game_id
+    redirect "/game_list"
+  else
+    erb :game_edit, layout: :layout do
+      erb :game_details
+    end
   end
 end
 
 post "/games/:id/edit" do
   @game_id = params[:id].to_i
+  check_game_permission(@game_id)
+  
   @game = @storage.find_game(@game_id)
   @group_id = @game.group_id
   check_group_permission(@group_id)
@@ -577,6 +586,7 @@ post "/games/:id/edit" do
                     fee: @fee,
                     total_slots: @total_slots)
 
+    session[:success] = "Game was updated."
     @storage.edit_game(game)
     redirect "/games/#{@game_id}"
   end
