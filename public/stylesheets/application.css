@@ -13,19 +13,16 @@ button {
   color: rgb(232, 230, 227);
   border-radius: 1000px;
   padding: 0.875rem 1rem 0.9375rem 1rem;
-  font-size: 0.8125rem;
-  border-color: rgb(66, 71, 74);
+  font-size: 0.8rem;
   letter-spacing: 0.125rem;
   display: inline-block;
   border-style: solid;
   border-width: 0;
-  font-family: "AvenirNext", "myriad-pro", "myriad pro", "Helvetica Neue", Helvetica, Roboto, Arial, sans-serif;
   font-weight: bold;
   line-height: normal;
   position: relative;
   text-align: center;
   text-decoration: none;
-  transition: background-color 300ms ease-out;
   margin: 10px 0 10px 0;
 }
 
@@ -154,6 +151,10 @@ ul {
 .hero {
   display: inline-block;
   width: 65%;
+}
+
+.account {
+  display: inline-block;
 }
 
 .orange-link {
@@ -326,18 +327,8 @@ footer {
   }
 }
 
-@media screen and (max-width: 650px) {
-  #players header h2 {
-    display: block;
-    width: auto;
-    padding: 0 0 15px 0;
-  }
-}
-
-@media screen and (max-width: 650px) {
-  #players header ul {
-    display: block;
-    width: auto;
-    text-align: left;
+@media screen and (min-width: 1025px) {
+  html {
+    font-size: 14px;
   }
 }

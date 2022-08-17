@@ -14,7 +14,7 @@
         <h1>Badminton Buddies</h1>
       </div>
 
-      <div>
+      <div class="account">
         <% if session[:logged_in] %>
           <em>&#128075;<%= session[:username] %></a></em>
           <form class="inline" method="post" action="/logout">

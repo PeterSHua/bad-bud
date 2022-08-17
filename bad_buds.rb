@@ -15,7 +15,7 @@ require "pry-byebug"
 
 configure do
   enable :sessions
-  set :session_secret, "secret" # fix
+  set :session_secret, ENV['SESSION_SECRET']
   set :erb, escape_html: true
 end
 
