@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+require "pg"
+DB = PG.connect(ENV['DATABASE_URL'])
+puts "Removing old games..."
+DB.exec_params("DELETE FROM games WHERE start_time < $1", [Time.now])
+puts "Done."
