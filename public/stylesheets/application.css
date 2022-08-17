@@ -9,21 +9,18 @@ a {
 
 button {
   background-color: rgb(22, 102, 146);
-  cursor: pointer;
-  color: rgb(232, 230, 227);
-  border-radius: 1000px;
-  padding: 0.875rem 1rem 0.9375rem 1rem;
-  font-size: 0.8rem;
-  letter-spacing: 0.125rem;
-  display: inline-block;
+  border-radius: 900px;
   border-style: solid;
   border-width: 0;
+  color: rgb(232, 230, 227);
+  cursor: pointer;
+  font-size: 0.8rem;
   font-weight: bold;
-  line-height: normal;
+  letter-spacing: 0.15rem;
+  margin: 10px 0 10px 0;
+  padding: 1rem;
   position: relative;
   text-align: center;
-  text-decoration: none;
-  margin: 10px 0 10px 0;
 }
 
 nav {
@@ -35,9 +32,8 @@ p {
 }
 
 body {
-  font: normal 1rem "PT Sans", Helvetica, Arial, sans-serif;
-  color: #3f3f3f;
-  background: #ffffff;
+  font: normal 1rem 'ArialRounded', Helvetica, Arial, sans-serif;
+  margin: 0 20px 0 20px;
 }
 
 body > header {
@@ -80,63 +76,18 @@ form dd {
   padding: 0 0 15px 0;
 }
 
-form input[type="text"] {
-  width: 100%;
-
-  padding: 15px 20px;
-  font: normal 1rem "PT Sans", Helvetica, Arial, sans-serif;
+form input {
+  font: normal 1rem 'ArialRounded', Helvetica, Arial, sans-serif;
   border: 1px solid #a4a4a4;
   border-radius: 8px;
   box-sizing: border-box;
-}
-
-form input[type="password"] {
-  width: 100%;
-
   padding: 15px 20px;
-  font: normal 1rem "PT Sans", Helvetica, Arial, sans-serif;
-  border: 1px solid #a4a4a4;
-  border-radius: 8px;
-  box-sizing: border-box;
+  width: 100%;
 }
 
-form input[type="submit"] {
-  padding: 12px 45px;
-  margin: 0 40px 0 0;
-  font: normal 24px "PT Sans", Helvetica, Arial, sans-serif;
-  color: #ffffff;
-  border: none;
-  border-radius: 8px;
-  background: #dd5f4f;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  -webkit-transition: background-color 200ms ease;
-  -moz-transition: background-color 200ms ease;
-  -o-transition: background-color 200ms ease;
-}
-
-form input[name="username"] {
-  width: 50%;
-}
-
-form input[name="password"] {
-  width: 50%;
-}
-
-form input[type="submit"]:hover {
-  background-color: #d13b28;
-  cursor: pointer;
-}
-
-form fieldset.actions a {
-  color: #666666;
-  -webkit-transition: color 200ms ease;
-  -moz-transition: color 200ms ease;
-  -o-transition: color 200ms ease;
-}
-
-form fieldset.actions a:hover {
-  color: #b00b00;
+label {
+  display: inline-block;
+  margin: 10px 0 10px 0;
 }
 
 nav li {
@@ -148,12 +99,19 @@ ul {
   margin: 0 0 35px 0
 }
 
-.hero {
-  display: inline-block;
-  width: 65%;
+footer {
+  border-top: 2px solid #efefef;
+  font-size: 0.8em;
+  text-align: center;
+  padding-top: 30px;
+  padding-bottom: 20px
 }
 
 .account {
+  display: inline-block;
+}
+
+.account form {
   display: inline-block;
 }
 
@@ -161,102 +119,59 @@ ul {
   color: #f25858;
 }
 
-#login-links {
-  display: inline-block;
-  text-align: right;
-}
-
 .flash {
+  background: #CBE5F2;
+  color: #3399cc;
+  margin: 20px auto 1.5em auto;
   max-width: 960px;
   padding: 10px 20px;
-  margin: 20px auto 1.5em auto;
-  color: #3399cc;
-  background: #CBE5F2;
 }
 
 .flash p {
-  font-size: 1rempx;
+  font-size: 1rem;
   font-weight: bold;
 }
 
 .flash.error {
-  color: #ff6633;
   background: #FFCFBF;
+  color: #ff6633;
 }
 
 .flash.success {
-  color: #33cc99;
   background: #CBF2E5;
-}
-
-#no_list {
-  padding: 128px 0 0 0;
-  text-align: center;
-  background: transparent url("../images/arrow_new_list.png") 85% 0 no-repeat;
+  color: #33cc99;
 }
 
 #red-list li {
-  position: relative;
-  padding: 18px 25px 18px 57px;
-  margin: 0 0 10px 0;
-  border-radius: 8px;
   background: #f6f6f6;
-}
-
-#red-list li:before {
-  position: absolute;
-  top: 50%;
-  left: 23px;
-  z-index: 1;
-  width: 16px;
-  height: 16px;
-  margin: -8px 0 0 0;
-  content: "";
-  border-radius: 100%;
-  background: #dd5f4f;
-}
-
-#red-list li.complete p {
-  color: #bebebe;
-}
-
-#red-list a {
-  display: block;
-  color: inherit;
-  overflow: hidden;
-}
-
-#red-list h2 {
-
-  float: left;
+  margin: 0 0 10px 0;
+  position: relative;
+  padding: 20px;
 }
 
 #red-list p {
   float: right;
-
-  font-size: 1em;
   text-align: right;
-  color: #666666;
 }
 
 #players header {
-  padding: 15px 20px;
   border-radius: 6px;
   background: #f6f6f6;
+  padding: 15px 20px;
 }
 
 #players header h2 {
   display: inline-block;
-  width: 50%;
   vertical-align: middle;
+  width: 50%;
 }
 
 
 #players header ul {
   display: inline-block;
-  width: 49%;
   text-align: right;
   vertical-align: middle;
+  width: 49%;
 }
 
 #players header ul li {
@@ -272,63 +187,26 @@ ul {
   position: relative;
   padding: 10px 0;
   margin: 0 0 25px 60px;
-  border-bottom: 1px solid #d7d7d7;
-}
-
-#players > ul li a {
-  position: absolute;
-  z-index: 1;
-  top: 50%;
-  overflow: hidden;
-  text-indent: -8685px;
-}
-
-#players > ul li form {
-  position: absolute;
-  top: 50%;
-  z-index: 1;
-}
-
-#players > ul li .check {
-  left: -45px;
-  height: 30px;
-  margin: -15px 0 0 0;
-}
-
-#players > ul li .check [type="submit"] {
-  height: 28px;
-  width: 28px;
-  color: transparent;
-  border: 1px solid #666666;
-  border-radius: 4px;
-  background-color: transparent;
-  cursor: pointer;
-}
-
-#players > ul li .check [type="submit"]:hover {
-  border-color: #dd5f4f;
-}
-
-#players > ul li.complete h3 {
-  color: #bebebe;
-  text-decoration: line-through;
-}
-
-footer {
-  border-top: 2px solid #efefef;
-  text-align: center;
-  padding-top: 30px;
-  padding-bottom: 20px
 }
 
 @media screen and (min-width: 320px) {
   html {
     font-size: 48px;
   }
+
+  .hero {
+    display: inline-block;
+    width: 60%;
+  }
 }
 
 @media screen and (min-width: 1025px) {
   html {
-    font-size: 14px;
+    font-size: 16px;
+  }
+
+  .hero {
+    display: inline-block;
+    width: 80%;
   }
 }

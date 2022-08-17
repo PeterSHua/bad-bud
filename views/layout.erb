@@ -11,18 +11,13 @@
   <body>
     <header>
       <div class="hero">
-        <h1>Badminton Buddies</h1>
+        <a href="/game_list"><h1>Bad Buds</h1></a>
       </div>
 
       <div class="account">
         <% if session[:logged_in] %>
-          <em>&#128075;<%= session[:username] %></a></em>
-          <form class="inline" method="post" action="/logout">
+          <form method="post" action="/logout">
             <button type="submit">Sign Out</button>
-          </form>
-        <% else %>
-          <form method="get" action="/login">
-            <button type="submit">Sign In</button>
           </form>
         <% end %>
       </div>
@@ -41,13 +36,15 @@
             <li>
               <a class="orange-link" href="/players/<%= session[:player_id] %>">&#128100; Profile</a>
             </li>
+          <% else %>
+            <a class="orange-link" href="/login">&#128273; Sign In</a>
           <% end %>
         </ul>
       </nav>
 
       <% if session[:error] %>
         <div class="flash error">
-          <p><%= session.delete(:error) %></p>
+          <%= session.delete(:error) %>
         </div>
       <% end %>
 
@@ -63,7 +60,7 @@
     </main>
 
     <footer>
-      Made by <a class="orange-link" href="https://github.com/PeterSHua">Peter Hua</a>
+      Made with <span style="color: #e25555;">&#9829;</span> by <a class="orange-link" href="https://github.com/PeterSHua">Peter Hua</a>
     </footer>
 
   </body>

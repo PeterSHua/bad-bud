@@ -8,12 +8,14 @@
   <h2>
     &#128198; <%= day_of_week_to_name(@day_of_week) %>
   </h2>
-<% else %>
-  <label for="date">Date:</label>
-  <input id="date" type="date" name="date" min="<%= todays_date %>">
 <% end %>
 
 <form action="/games/<%= @game_id %>/edit" method="post">
+  <% if !@game.template %>
+    <label for="date">Date:</label>
+    <input id="date" type="date" name="date" min="<%= todays_date %>">
+  <% end %>
+
   <%== yield %>
   <button type="submit">Save</button>
 </form>
