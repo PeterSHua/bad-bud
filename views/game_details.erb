@@ -23,6 +23,9 @@
 <label for="location">Location:</label>
 <input name="location" placeholder="Location name and address" type="text" value="<%= params[:location] || @game&.location %>">
 
+<label for="level">Skill Level:</label>
+<input name="level" placeholder="All level/intermediate/advanced/professional" type="text" value="<%= params[:level] || @game&.level %>">
+
 <label for="total_slots">Slots:</label>
 <input name="total_slots" placeholder="Number of total slots" type="text" value="<%= params[:total_slots] || @game&.total_slots %>">
 

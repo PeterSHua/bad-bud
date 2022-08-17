@@ -1,3 +1,7 @@
+<button class="copy-clipboard" onclick="copyGameDetails()">
+  Copy to Clipboard
+</button>
+
 <% if @game.template %>
   <a class="orange-link" href="/groups/<%= @game.group_id %>/schedule/<%= @day_of_week %>">&#128197; Back to <%= day_of_week_to_name(@game.start_time.wday) %> View</a>
 <% end %>
@@ -13,23 +17,25 @@
   <% if @game.template %>
     Weekly Game Template
   <% else %>
-    <%= MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %>
+    <span id="gameDate"><%= MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %></span>
   <% end %>
 </h2>
 
 <h2>
-  &#128340; <%= display_time(@game) %>
+  &#128340; <span id="gameTime"><%= display_time(@game) %></span>
 </h2>
 
 <h2>
-  &#127758; <%= @game.location %>
+  &#127758; <span id="gameLocation"><%= @game.location %></span>
 </h2>
 
 <p>
   <br>
-    Attendees: <%= @game.filled_slots %> / <%= @game.total_slots %>
+    <span id="gameLevel">Level: <%= @game.level %></span>
   <br>
-    Fee: $<%= @game.fee %>
+    <span id="gameSlots">Attendees: <%= @game.filled_slots %> / <%= @game.total_slots %></span>
+  <br>
+    <span id="gameFee">Fee: $<%= @game.fee %></span>
   <br>
 </p>
 

@@ -9,9 +9,10 @@ HOURS_IN_DAY = 24
 
 class Game
   attr_reader :id, :start_time, :duration, :group_name, :group_id, :location,
-              :fee, :filled_slots, :total_slots, :players, :notes, :template
+              :level, :fee, :filled_slots, :total_slots, :players, :notes,
+              :template
 
-  def initialize(start_time:, duration:, group_id:, location:, fee:,
+  def initialize(start_time:, duration:, group_id:, location:, level:, fee:,
                  total_slots:, id: nil, group_name: "", players: {},
                  filled_slots: 0, notes: "", template: false)
 
@@ -21,6 +22,7 @@ class Game
     self.group_name = group_name
     self.group_id = group_id
     self.location = location
+    self.level = level
     self.fee = fee
     self.filled_slots = filled_slots
     self.total_slots = total_slots
@@ -32,5 +34,6 @@ class Game
   private
 
   attr_writer :id, :start_time, :duration, :group_name, :group_id, :location,
-              :fee, :filled_slots, :total_slots, :players, :notes, :template
+              :level, :fee, :filled_slots, :total_slots, :players, :notes,
+              :template
 end

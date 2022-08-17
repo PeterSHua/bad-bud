@@ -60,6 +60,7 @@ post "/games/create" do
   @start_time = "#{params[:hour]}#{params[:am_pm]}"
   @duration = params[:duration].to_i
   @location = params[:location]
+  @level = params[:level]
   @total_slots = params[:total_slots].to_i
   @fee = params[:fee].to_i
   @player_id = session[:player_id]
@@ -530,6 +531,7 @@ post "/groups/:group_id/schedule/publish" do
              group_name: scheduled_game.group_name,
              group_id: scheduled_game.group_id,
              location: scheduled_game.location,
+             level: scheduled_game.level,
              fee: scheduled_game.fee,
              filled_slots: scheduled_game.filled_slots,
              total_slots: scheduled_game.total_slots,
@@ -594,6 +596,7 @@ post "/games/:game_id/edit" do
   @group_players = @storage.find_group_players(@group_id)
   @duration = params[:duration].to_i
   @location = params[:location]
+  @level = params[:level]
   @fee = params[:fee].to_i
   @total_slots = params[:total_slots].to_i
 
@@ -622,6 +625,7 @@ post "/games/:game_id/edit" do
                     start_time: @start_time,
                     duration: @duration,
                     location: @location,
+                    level: @level,
                     fee: @fee,
                     total_slots: @total_slots)
 

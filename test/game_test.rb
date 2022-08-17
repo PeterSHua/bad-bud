@@ -23,6 +23,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: 'My backyard',
+      level: 'All level',
       total_slots: 9,
       fee: 19
     }
@@ -43,6 +44,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: 'My backyard',
+      level: 'All level',
       total_slots: 9,
       fee: 19
     }
@@ -334,6 +336,10 @@ class BadBudsTest < Minitest::Test
 
     assert_includes last_response.body, "Location cannot be empty and total length cannot exceed 1000 characters."
     refute_includes last_response.body, "Badminton Vancouver"
+  end
+
+  def test_edit_level_too_long
+
   end
 
   def test_edit_game_invalid_slots

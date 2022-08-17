@@ -18,6 +18,7 @@ class DatabasePersistence
             gm.start_time,
             gm.duration,
             gm.location,
+            gm.level,
             gp.id AS group_id,
             gp.name AS group_name,
             gm.fee,
@@ -49,6 +50,7 @@ class DatabasePersistence
              group_name: tuple["group_name"],
              group_id: tuple["group_id"].to_i,
              location: tuple["location"],
+             level: tuple["level"],
              fee: tuple["fee"].to_i,
              filled_slots: filled_slots,
              total_slots: tuple["total_slots"].to_i,
@@ -63,17 +65,19 @@ class DatabasePersistence
                         start_time,
                         duration,
                         location,
+                        level,
                         fee,
                         total_slots,
                         notes,
                         template)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
     SQL
   end
 
   def create_game(game)
     query(create_game_sql_query, game.group_id, game.start_time, game.duration,
-          game.location, game.fee, game.total_slots, game.notes, game.template)
+          game.location, game.level, game.fee, game.total_slots, game.notes,
+          game.template)
   end
 
   def edit_game_sql_query
@@ -82,15 +86,16 @@ class DatabasePersistence
         SET start_time = $2,
             duration = $3,
             location = $4,
-            total_slots = $5,
-            fee = $6
+            level = $5,
+            total_slots = $6,
+            fee = $7
       WHERE id = $1;
     SQL
   end
 
   def edit_game(game)
     query(edit_game_sql_query, game.id, game.start_time, game.duration,
-          game.location, game.total_slots, game.fee)
+          game.location, game.level, game.total_slots, game.fee)
   end
 
   def delete_game(id)
@@ -134,6 +139,7 @@ class DatabasePersistence
                group_name: tuple["group_name"],
                group_id: tuple["group_id"].to_i,
                location: tuple["location"],
+               level: tuple["level"],
                fee: tuple["fee"].to_i,
                filled_slots: tuple["filled_slots"].to_i,
                total_slots: tuple["total_slots"].to_i)
@@ -176,6 +182,7 @@ class DatabasePersistence
                group_name: tuple["group_name"],
                group_id: tuple["group_id"].to_i,
                location: tuple["location"],
+               level: tuple["level"],
                fee: tuple["fee"].to_i,
                filled_slots: filled_slots,
                total_slots: tuple["total_slots"].to_i,
@@ -217,6 +224,7 @@ class DatabasePersistence
                group_name: tuple["group_name"],
                group_id: tuple["group_id"].to_i,
                location: tuple["location"],
+               level: tuple["level"],
                fee: tuple["fee"].to_i,
                filled_slots: tuple["filled_slots"].to_i,
                total_slots: tuple["total_slots"].to_i)
@@ -248,6 +256,7 @@ class DatabasePersistence
                group_name: tuple["group_name"],
                group_id: tuple["group_id"].to_i,
                location: tuple["location"],
+               level: tuple["level"],
                fee: tuple["fee"].to_i,
                filled_slots: tuple["filled_slots"].to_i,
                total_slots: tuple["total_slots"].to_i,

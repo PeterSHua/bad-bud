@@ -47,6 +47,7 @@ def create_game
                   start_time: @start_time,
                   duration: @duration,
                   location: @location,
+                  level: @level,
                   fee: @fee,
                   total_slots: @total_slots)
 
