@@ -338,6 +338,18 @@ class DatabasePersistence
               schedule_game_notes: tuple["schedule_game_notes"])
   end
 
+  def group_name_exists_sql_query
+    <<~SQL
+      SELECT *
+        FROM groups
+      WHERE name = $1;
+    SQL
+  end
+
+  def group_name_exists?(name)
+    !query(group_name_exists_sql_query, name).ntuples.zero?
+  end
+
   def find_groups_is_organizer_sql_query
     <<~SQL
       SELECT groups.*

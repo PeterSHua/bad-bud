@@ -44,7 +44,7 @@ get "/game_list" do
   erb :game_list, layout: :layout
 end
 
-# View create game
+# View create game page
 get "/games/create" do
   @player_id = session[:player_id]
 
@@ -287,15 +287,33 @@ end
 
 # View create group page
 get "/groups/create" do
+  @player_id = session[:player_id]
+
+  if @player_id.nil?
+    session[:error] = "You must be logged in to do that."
+    redirect "/game_list"
+  end
+
   erb :group_create, layout: :layout
 end
 
+# Create group
 post "/groups/create" do
+  @player_id = session[:player_id]
+
+  if @player_id.nil?
+    session[:error] = "You must be logged in to do that."
+    redirect "/game_list"
+  end
+
   @group_name = params[:name]
   @group_about = params[:about]
 
   if !valid_group_name
     handle_invalid_group_name
+    erb :group_edit, layout: :layout
+  elsif group_exists?
+    handle_group_already_exists
     erb :group_edit, layout: :layout
   elsif !valid_group_about
     handle_invalid_group_about
@@ -310,6 +328,8 @@ post "/groups/create" do
     @storage.add_group(group)
     @storage.add_player_to_group(@group_id, session[:player_id])
     @storage.make_organizer(@group_id, session[:player_id])
+
+    session[:success] = "Group was created."
 
     redirect "/groups/#{@group_id}"
   end
@@ -521,6 +541,12 @@ end
 # View edit game page
 get "/games/:game_id/edit" do
   @game_id = params[:game_id].to_i
+
+  if !valid_game_id?
+    handle_invalid_game_id
+    redirect "/game_list"
+  end
+
   check_game_permission(@game_id)
 
   @game = load_game(@game_id)
@@ -528,20 +554,22 @@ get "/games/:game_id/edit" do
   @group = load_group(@group_id)
   @day_of_week = @game.start_time.wday
 
-  if !valid_game_id?
-    handle_invalid_game_id
-    redirect "/game_list"
-  else
-    erb :game_edit, layout: :layout do
-      erb :game_details
-    end
+  erb :game_edit, layout: :layout do
+    erb :game_details
   end
 end
 
-post "/games/:id/edit" do
-  @game_id = params[:id].to_i
+# Edit game
+post "/games/:game_id/edit" do
+  @game_id = params[:game_id].to_i
+
+  if !valid_game_id?
+    handle_invalid_game_id
+    redirect "/game_list"
+  end
+
   check_game_permission(@game_id)
-  
+
   @game = @storage.find_game(@game_id)
   @group_id = @game.group_id
   check_group_permission(@group_id)

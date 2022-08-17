@@ -1,30 +1,88 @@
+require_relative "helper"
+
 class BadBudsTest < Minitest::Test
   def test_view_create_group
-    skip
+    get "/groups/create", {}, logged_in_as_david
+
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Create Group"
+  end
+
+  def test_view_create_group_no_permission
+    get "/groups/create"
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be logged in to do that.", session[:error]
   end
 
   def test_create_group
-    skip
+    group_details = {
+      name: 'A new group',
+      about: 'Details of the new group'
+    }
+
+    post "/groups/create", group_details, logged_in_as_david
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Group was created."
+    assert_includes last_response.body, "A new group"
+    assert_includes last_response.body, "Details of the new group"
   end
 
   def test_create_group_no_permission
-    skip
+    group_details = {
+      name: 'A new group',
+      about: 'Details of the new group'
+    }
+
+    post "/groups/create", group_details
+
+    get last_response["Location"]
+    assert_includes last_response.body, "You must be logged in to do that."
+    refute_includes last_response.body, "A new group"
   end
 
   def test_create_group_already_exists
-    skip
+    group_details = {
+      name: 'Novice BM Vancouver',
+      about: 'Details of the new group'
+    }
+
+    post "/groups/create", group_details, logged_in_as_david
+    
+    assert_includes last_response.body, "A group already exists with that name."
   end
 
   def test_create_group_short_name
-    skip
+    group_details = {
+      name: '',
+      about: 'Details of the new group'
+    }
+
+    post "/groups/create", group_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Group name must be between 1 and 20 characters."
   end
 
   def test_create_group_long_name
-    skip
-  end
+    name = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+           "zzzzzz"
 
-  def test_create_group_invalid_chars_name
-    skip
+    group_details = {
+      name: name,
+      about: 'Details of the new group'
+    }
+
+    post "/groups/create", group_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Group name must be between 1 and 20 characters."
   end
 
   def test_view_group
@@ -59,7 +117,9 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_view_edit_group
+    get "/groups/1/edit", {}, logged_in_as_david
 
+    assert_equal 200, last_response.status
   end
 
   def test_edit_group

@@ -270,11 +270,25 @@ class BadBudsTest < Minitest::Test
     assert_equal "You don't have permission to do that!", session[:error]
   end
 
-  def test_edit_invalid_game
+  def test_edit_invalid_game1
     post "/games/15/edit", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
     assert_equal "You don't have permission to do that!", session[:error]
+  end
+
+  def test_edit_invalid_game2
+    post "/games/abc/edit", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid game.", session[:error]
+  end
+
+  def test_edit_invalid_game3
+    post "/games/1abc/edit", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid game.", session[:error]
   end
 
   def test_edit_game_location_too_short
@@ -324,7 +338,7 @@ class BadBudsTest < Minitest::Test
 
   def test_edit_game_invalid_slots
     game_details = {
-      group_id: "",
+      group_id: 1,
       date: "2022/8/15",
       hour: 1,
       am_pm: 'am',
@@ -342,7 +356,7 @@ class BadBudsTest < Minitest::Test
 
   def test_edit_game_slots_too_high
     game_details = {
-      group_id: "",
+      group_id: 1,
       date: "2022/8/15",
       hour: 1,
       am_pm: 'am',
@@ -360,7 +374,7 @@ class BadBudsTest < Minitest::Test
 
   def test_edit_game_invalid_fee
     game_details = {
-      group_id: "",
+      group_id: 1,
       date: "2022/8/15",
       hour: 1,
       am_pm: 'am',
@@ -378,7 +392,7 @@ class BadBudsTest < Minitest::Test
 
   def test_edit_game_fee_too_high
     game_details = {
-      group_id: "",
+      group_id: 1,
       date: "2022/8/15",
       hour: 1,
       am_pm: 'am',

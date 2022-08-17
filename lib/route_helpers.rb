@@ -205,6 +205,15 @@ def valid_group_name
   (1..20).cover?(params[:name].length)
 end
 
+def group_exists?
+  @storage.group_name_exists?(params[:name])
+end
+
+def handle_group_already_exists
+  session[:error] = "A group already exists with that name."
+  status 422
+end
+
 def handle_invalid_group_name
   session[:error] = "Group name must be between 1 and 20 characters."
   status 422
