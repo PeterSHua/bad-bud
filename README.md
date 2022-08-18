@@ -16,9 +16,9 @@ Badminton lovers, enjoy a simple and easy to use interface. No more fiddling wit
 ## Installation
 This app was tested on:
 
-Ruby 3.1.2
-PostgreSQL 13.8
-Firefox 103.0.2 (64-bit)
+- Ruby 3.1.2
+- PostgreSQL 13.8
+- Firefox 103.0.2 (64-bit)
 
 ### Local Installation
 Install gems
