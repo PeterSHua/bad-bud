@@ -22,35 +22,55 @@ Firefox 103.0.2 (64-bit)
 
 ### Local Installation
 Install gems
-`bundle install`
+```unix
+bundle install
+```
 
 Start PostgreSQL
-`sudo service postgresql start`
+```unix
+sudo service postgresql start
+```
 
 Setup the local database
-`bash setup.sh`
+```unix
+bash setup.sh
+```
 
 Run app on your machine
-`rake`
+```unix
+rake
+```
 
 Enter the URL in your browser to access the app
-`localhost:4567/`
+```unix
+localhost:4567/
+```
 
 Run test suite
-`rake test`
+```unix
+rake test
+```
 
 ### Heroku Installation
 Create app
-`heroku apps:create your-app-name`
+```unix
+heroku apps:create your-app-name
+```
 
 Enable PostgreSQL
-`heroku addons:create heroku-postgresql:hobby-dev -a your-app-name`
+```unix
+heroku addons:create heroku-postgresql:hobby-dev -a your-app-name
+```
 
 Setup the database
-`heroku pg:psql -a your-app-name < schema.sql`
+```unix
+heroku pg:psql -a your-app-name < schema.sql
+```
 
 Deploy to Heroku
-`rake deploy`
+```unix
+rake deploy
+```
 
 ## License
 The source code in this project is released under the GNU GPLv3 License.
