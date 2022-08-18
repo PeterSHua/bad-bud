@@ -1,8 +1,8 @@
+<h2>Upcoming Games</h2>
+
 <% if session[:logged_in] %>
   <a class="orange-link" href="/games/create">&#10133; Create Game</a>
 <% end %>
-
-<h2>Upcoming Games</h2>
 
 <ul id="red-list">
   <% @game_list.each do |game| %>
