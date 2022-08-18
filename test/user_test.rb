@@ -1,6 +1,4 @@
 class BadBudsTest < Minitest::Test
-  # rubocop: disable Metrics/MethodLength
-  # rubocop: disable Metrics/AbcSize
   def test_login
     get "/login"
 
@@ -15,12 +13,7 @@ class BadBudsTest < Minitest::Test
     assert_equal "david", session[:username]
     assert_equal "2", session[:player_id]
     assert session[:logged_in]
-
-    get last_response["Location"]
-    assert_includes last_response.body, "&#128075;david"
   end
-  # rubocop: enable Metrics/MethodLength
-  # rubocop: enable Metrics/AbcSize
 
   def test_login_fail
     post "/login", { username: "groucho", password: "marx" }
@@ -55,8 +48,6 @@ class BadBudsTest < Minitest::Test
   def test_register
     post "/register", { username: "groucho", password: "marx" }
     get last_response["Location"]
-
-    assert_includes last_response.body, "&#128075;groucho"
 
     post "/logout"
 

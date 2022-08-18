@@ -38,7 +38,6 @@ body {
 
 body > header {
   max-width: 1000px;
-  padding: 0px 0 10px 0;
   margin: 0 auto;
 }
 
@@ -62,6 +61,7 @@ select {
 textarea {
   display: block;
   font-size: 1.1rem;
+  width: 100%;
 }
 
 table {
@@ -103,7 +103,7 @@ footer {
   border-top: 2px solid #efefef;
   font-size: 0.8em;
   text-align: center;
-  padding-top: 30px;
+  padding-top: 20px;
   padding-bottom: 20px
 }
 

@@ -7,7 +7,9 @@
 <p>
   <b><%= @player.name%></b>
   <br>
-  <img src="/images/<%= @player.username %>.jpg">
+    <% if profile_pic_exists? %>
+      <img src="/images/<%= @player.username %>.jpg">
+    <% end %>
   <br>
   <%= @player.about %>
 </p>

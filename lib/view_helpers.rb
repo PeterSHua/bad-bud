@@ -67,4 +67,8 @@ helpers do
       ""
     end
   end
+
+  def profile_pic_exists?
+    File.file?("#{ROOT}/public/images/#{@player.username}.jpg")
+  end
 end

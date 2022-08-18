@@ -13,6 +13,8 @@ require_relative "lib/route_helpers"
 
 require "pry-byebug"
 
+ROOT = File.expand_path(__dir__)
+
 configure do
   enable :sessions
   set :session_secret, ENV['SESSION_SECRET']
@@ -433,6 +435,18 @@ end
 
 # Promote player
 post "/groups/:group_id/players/:player_id/promote" do
+  force_login
+
+  if !valid_group_id?
+    handle_invalid_group_id
+    redirect "/group_list"
+  end
+
+  if !valid_player_id?
+    handle_invalid_player_id
+    redirect "/groups/#{group_id}"
+  end
+
   @group_id = params[:group_id].to_i
   check_group_permission(@group_id)
 
@@ -440,6 +454,8 @@ post "/groups/:group_id/players/:player_id/promote" do
   @player_id = params[:player_id].to_i
 
   @storage.make_organizer(@group_id, @player_id)
+
+  session[:success] = "Player promoted."
 
   redirect "/groups/#{@group_id}"
 end
