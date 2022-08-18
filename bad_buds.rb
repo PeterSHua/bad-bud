@@ -11,8 +11,6 @@ require_relative "lib/player"
 require_relative "lib/view_helpers"
 require_relative "lib/route_helpers"
 
-require "pry-byebug"
-
 ROOT = File.expand_path(__dir__)
 
 configure do

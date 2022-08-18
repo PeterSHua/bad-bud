@@ -9,7 +9,6 @@ gem "rack-test"
 gem "minitest"
 gem "bcrypt"
 gem "solargraph"
-gem "pry-byebug"
 
 group :production do
   gem "puma"
