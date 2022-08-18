@@ -9,6 +9,7 @@ gem "rack-test"
 gem "minitest"
 gem "bcrypt"
 gem "solargraph"
+gem "rake"
 
 group :production do
   gem "puma"
