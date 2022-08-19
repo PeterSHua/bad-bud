@@ -241,6 +241,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_game
+    skip
     game_details = {
       group_id: 1,
       date: "2022/8/15",
@@ -266,6 +267,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_game_no_permission
+    skip
     get "/games/1/edit"
 
     assert_equal 302, last_response.status
@@ -273,6 +275,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_invalid_game1
+    skip
     post "/games/15/edit", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
@@ -280,6 +283,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_invalid_game2
+    skip
     post "/games/abc/edit", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
@@ -287,6 +291,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_invalid_game3
+    skip
     post "/games/1abc/edit", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
@@ -294,6 +299,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_game_location_too_short
+    skip
     game_details = {
       group_id: 1,
       date: "2022/8/15",
@@ -313,6 +319,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_game_location_too_long
+    skip
     location = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
                "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
                "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
@@ -339,10 +346,11 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_level_too_long
-
+    skip
   end
 
   def test_edit_game_invalid_slots
+    skip
     game_details = {
       group_id: 1,
       date: "2022/8/15",
@@ -361,6 +369,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_game_slots_too_high
+    skip
     game_details = {
       group_id: 1,
       date: "2022/8/15",
@@ -379,6 +388,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_game_invalid_fee
+    skip
     game_details = {
       group_id: 1,
       date: "2022/8/15",
@@ -397,6 +407,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_game_fee_too_high
+    skip
     game_details = {
       group_id: 1,
       date: "2022/8/15",
@@ -415,6 +426,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_delete_game
+    skip
     post "/games/1/delete", {}, logged_in_as_david
 
     get last_response["Location"]
@@ -424,6 +436,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_delete_game_no_permission
+    skip
     post "/games/1/delete"
 
     assert_equal 302, last_response.status
@@ -431,6 +444,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_delete_invalid_game1
+    skip
     post "/games/20/delete", {}, logged_in_as_david
 
     get last_response["Location"]
@@ -438,6 +452,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_delete_invalid_game2
+    skip
     post "/games/abc/delete", {}, logged_in_as_david
 
     get last_response["Location"]
@@ -445,6 +460,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_delete_invalid_game2
+    skip
     post "/games/9abc/delete", {}, logged_in_as_david
 
     get last_response["Location"]

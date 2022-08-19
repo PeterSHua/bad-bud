@@ -2,6 +2,7 @@ ENV["RACK_ENV"] = "test"
 
 require "minitest/autorun"
 require "rack/test"
+require "pry-byebug"
 
 require_relative "../bad_buds"
 require_relative "test_helpers.rb"

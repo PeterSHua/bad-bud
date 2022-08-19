@@ -57,41 +57,18 @@ end
 
 # Create game
 post "/games/create" do
-  @start_time = "#{params[:hour]}#{params[:am_pm]}"
-  @duration = params[:duration].to_i
-  @location = params[:location]
-  @level = params[:level]
-  @total_slots = params[:total_slots].to_i
-  @fee = params[:fee].to_i
-  @player_id = session[:player_id]
-  @groups = @storage.find_groups_is_organizer(@player_id)
-
-  if !already_logged_in?
-    handle_not_logged_in
-    redirect "/game_list"
-  end
+  force_login
+  assign_create_game_params
 
   if no_group_selected?
     create_group_entry_for_game_without_group
-  else
-    @group_id = params[:group_id].to_i
   end
 
-  if !valid_location?
-    handle_invalid_location
+  error = error_for_create_game
 
-    erb :game_create, layout: :layout do
-      erb :game_details
-    end
-  elsif !valid_slots?
-    handle_invalid_slots
-
-    erb :game_create, layout: :layout do
-      erb :game_details
-    end
-
-  elsif !valid_fee?
-    handle_invalid_fee
+  if error
+    session[:error] = error
+    status 422
 
     erb :game_create, layout: :layout do
       erb :game_details
@@ -595,22 +572,19 @@ end
 
 # View edit game page
 get "/games/:game_id/edit" do
-  @game_id = params[:game_id].to_i
+  force_login
+  assign_view_edit_game_params
 
-  if !valid_game_id?
-    handle_invalid_game_id
+  error = error_for_view_edit_game
+
+  if error
     redirect "/game_list"
-  end
+  else
+    load_view_edit_game_info
 
-  check_game_permission(@game_id)
-
-  @game = load_game(@game_id)
-  @group_id = @game.group_id
-  @group = load_group(@group_id)
-  @day_of_week = @game.start_time.wday
-
-  erb :game_edit, layout: :layout do
-    erb :game_details
+    erb :game_edit, layout: :layout do
+      erb :game_details
+    end
   end
 end
 

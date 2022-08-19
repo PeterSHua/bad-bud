@@ -1,28 +1,17 @@
 # Route helpers
 def force_login
-  @player_id = session[:player_id]
-
-  if @player_id.nil?
+  if !already_logged_in?
     session[:error] = "You must be logged in to do that."
     redirect "/game_list"
   end
 end
 
-def game_have_permission?(game_id)
-  if session[:logged_in] && @storage.game_organizer?(game_id, session[:player_id])
-    true
-  else
-    false
-  end
+def game_have_permission?
+  session[:logged_in] && @storage.game_organizer?(@game_id, session[:player_id])
 end
 
-def check_game_permission(game_id)
-  if game_have_permission?(game_id)
-    return
-  end
-
+def handle_no_game_permission
   session[:error] = "You don't have permission to do that!"
-  redirect "/game_list"
 end
 
 def check_group_permission(group_id)
@@ -42,6 +31,30 @@ def group_have_permission?(group_id)
   end
 end
 
+def error_for_create_game
+  if !valid_location?
+    handle_invalid_location
+  elsif !valid_level?
+    handle_invalid_level
+  elsif !valid_slots?
+    handle_invalid_slots
+  elsif !valid_fee?
+    handle_invalid_fee
+  end
+end
+
+def assign_create_game_params
+  @start_time = "#{params[:hour]}#{params[:am_pm]}"
+  @duration = params[:duration].to_i
+  @location = params[:location]
+  @level = params[:level]
+  @total_slots = params[:total_slots].to_i
+  @fee = params[:fee].to_i
+  @player_id = session[:player_id]
+  @groups = @storage.find_groups_is_organizer(@player_id)
+  @group_id = params[:group_id].to_i
+end
+
 def create_game
   game = Game.new(group_id: @group_id,
                   start_time: @start_time,
@@ -52,6 +65,25 @@ def create_game
                   total_slots: @total_slots)
 
   @storage.create_game(game)
+end
+
+def assign_view_edit_game_params
+  @game_id = params[:game_id].to_i
+end
+
+def error_for_view_edit_game
+  if !valid_game_id?
+    handle_invalid_game_id
+  elsif !game_have_permission?
+    handle_no_game_permission
+  end
+end
+
+def load_view_edit_game_info
+  @game = load_game(@game_id)
+  @group_id = @game.group_id
+  @group = load_group(@group_id)
+  @day_of_week = @game.start_time.wday
 end
 
 def load_game(id)
@@ -179,7 +211,14 @@ end
 
 def handle_invalid_location
   session[:error] = "Location cannot be empty and total length cannot exceed 1000 characters."
-  status 422
+end
+
+def valid_level?
+  (1..300).cover?(params[:location].length)
+end
+
+def handle_invalid_level
+  session[:error] = "Level cannot be empty and total length cannot exceed 1000 characters."
 end
 
 def valid_slots?
@@ -189,7 +228,6 @@ end
 
 def handle_invalid_slots
   session[:error] = "Slots must be between 1 and 1000."
-  status 422
 end
 
 def valid_fee?
@@ -199,7 +237,6 @@ end
 
 def handle_invalid_fee
   session[:error] = "Fee must be between 0 and 1000."
-  status 422
 end
 
 def valid_player_id?
