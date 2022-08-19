@@ -23,9 +23,9 @@ class BadBudsTest < Minitest::Test
 
     post "/groups/create", group_details, logged_in_as_david
     assert_equal 302, last_response.status
+    assert_equal "Group was created.", session[:success]
 
     get last_response["Location"]
-    assert_includes last_response.body, "Group was created."
     assert_includes last_response.body, "A new group"
     assert_includes last_response.body, "Details of the new group"
   end
@@ -125,14 +125,14 @@ class BadBudsTest < Minitest::Test
     get "/groups/abc"
 
     assert_equal 302, last_response.status
-    assert_equal "The specified group was not found.", session[:error]
+    assert_equal "Invalid group.", session[:error]
   end
 
   def test_view_invalid_group3
     get "/groups/9abc"
 
     assert_equal 302, last_response.status
-    assert_equal "The specified group was not found.", session[:error]
+    assert_equal "Invalid group.", session[:error]
   end
 
   def test_view_edit_group
@@ -237,7 +237,7 @@ class BadBudsTest < Minitest::Test
     post "/groups/9/edit", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
-    assert_equal "You don't have permission to do that!", session[:error]
+    assert_equal "The specified group was not found.", session[:error]
   end
 
   def test_edit_invalid_group2
@@ -274,7 +274,7 @@ class BadBudsTest < Minitest::Test
     post "/groups/20/delete", {}, logged_in_as_david
 
     get last_response["Location"]
-    assert_includes last_response.body, "You don't have permission to do that!"
+    assert_includes last_response.body, "The specified group was not found."
   end
 
   def test_delete_invalid_group2

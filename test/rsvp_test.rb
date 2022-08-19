@@ -89,7 +89,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_remove_player
-    skip
     post "/games/1/players/4/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
@@ -97,7 +96,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_remove_player_no_permission
-    skip
     post "/games/1/players/4/remove"
 
     assert_equal 302, last_response.status
@@ -107,7 +105,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_remove_invalid_player_from_game1
-    skip
     post "/games/1/players/15/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
@@ -117,7 +114,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_remove_invalid_player_from_game2
-    skip
     post "/games/1/players/abc/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
@@ -127,7 +123,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_remove_invalid_player_from_game3
-    skip
     post "/games/1/players/1abc/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
@@ -137,7 +132,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_remove_player_from_invalid_game1
-    skip
     post "/games/15/players/1/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
@@ -147,7 +141,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_remove_player_from_invalid_game2
-    skip
     post "/games/abc/players/1/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
@@ -157,7 +150,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_remove_player_from_invalid_game3
-    skip
     post "/games/1abc/players/1/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status

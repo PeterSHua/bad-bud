@@ -9,6 +9,8 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "&#10060;"
 
     post "/games/1/players/1/confirm_paid"
+    assert_equal 302, last_response.status
+    assert_equal "Confirmed player payment.", session[:success]
 
     get last_response["Location"]
     assert_includes last_response.body, "&#9989;"
@@ -25,32 +27,28 @@ class BadBudsTest < Minitest::Test
     assert_equal 302, last_response.status
 
     get last_response["Location"]
-    assert_includes last_response.body, "You don't have permission to do that!"
+    assert_includes last_response.body, "You must be logged in to do that."
   end
 
-  def test_confirm_payment_game_not_found
+  def test_confirm_payment_invalid_game1
     post "/games/15/players/1/confirm_paid", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
     assert_equal "The specified game was not found.", session[:error]
   end
 
-  def test_confirm_payment_invalid_game1
+  def test_confirm_payment_invalid_game2
     post "/games/abc/players/1/confirm_paid", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
     assert_equal "Invalid game.", session[:error]
   end
 
-  def test_confirm_payment_invalid_game2
+  def test_confirm_payment_invalid_game3
     post "/games/1abc/players/1/confirm_paid", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
     assert_equal "Invalid game.", session[:error]
-  end
-
-  def test_confirm_payment_player_not_signed_up
-
   end
 
   def test_confirm_payment_invalid_player1
@@ -96,7 +94,49 @@ class BadBudsTest < Minitest::Test
     assert_equal 302, last_response.status
 
     get last_response["Location"]
-    assert_includes last_response.body, "You don't have permission to do that!"
+    assert_includes last_response.body, "You must be logged in to do that."
+  end
+
+  def test_un_confirm_player_invalid_game1
+    post "/games/15/players/1/unconfirm_paid", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "The specified game was not found.", session[:error]
+  end
+
+  def test_un_confirm_player_invalid_game2
+    post "/games/abc/players/1/confirm_paid", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid game.", session[:error]
+  end
+
+  def test_un_confirm_player_invalid_game3
+    post "/games/1abc/players/1/confirm_paid", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid game.", session[:error]
+  end
+
+  def test_un_confirm_invalid_player1
+    post "/games/1/players/9/confirm_paid", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "The specified player was not found.", session[:error]
+  end
+
+  def test_un_confirm_invalid_player2
+    post "/games/1/players/abc/confirm_paid", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid player.", session[:error]
+  end
+
+  def test_un_confirm_invalid_player3
+    post "/games/1/players/1abc/confirm_paid", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid player.", session[:error]
   end
 
   def test_confirm_all_payment
@@ -110,7 +150,7 @@ class BadBudsTest < Minitest::Test
     post "/games/1/players/confirm_all"
 
     get last_response["Location"]
-    assert_includes last_response.body, "You don't have permission to do that!"
+    assert_includes last_response.body, "You must be logged in to do that."
   end
 
   def test_unconfirm_all_payment
@@ -122,6 +162,9 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_unconfirm_all_payment_no_permission
-    skip
+    post "/games/1/players/unconfirm_all"
+
+    get last_response["Location"]
+    assert_includes last_response.body, "You must be logged in to do that."
   end
 end

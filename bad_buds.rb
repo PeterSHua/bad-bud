@@ -181,8 +181,8 @@ post "/games/:game_id/players/:player_id/add" do
   @group_id = @game.group_id
   @group_players = @storage.find_group_players(@group_id)
 
-  game_url_error = game_url_error_for_add_reg_player_to_game
-  player_url_error = player_url_error_for_add_reg_player_to_game
+  game_url_error = game_url_error_for_player_rsvp_in_game
+  player_url_error = player_url_error_for_player_rsvp_in_game
   input_error = input_error_for_add_reg_player_to_game
 
   if game_url_error
@@ -196,8 +196,9 @@ post "/games/:game_id/players/:player_id/add" do
     status 422
     erb :game, layout: :layout
   else
-    signup_player
+    @storage.rsvp_player(@game_id, @player_id)
 
+    session[:success] = "Player added to this game."
     redirect "/games/#{@game_id}"
   end
 end
@@ -207,90 +208,147 @@ post "/games/:game_id/players/:player_id/remove" do
   force_login
 
   @game_id = params[:game_id].to_i
-
-  if !valid_game_id?
-    handle_invalid_game_id
-    redirect "/game_list"
-  end
-
-  if !valid_player_id?
-    handle_invalid_player_id
-    redirect "/games/#{@game_id}"
-  end
-
   @game = @storage.find_game(@game_id)
 
   @player_id = params[:player_id].to_i
-  @player = load_player(@player_id)
+  @player = @storage.find_player(@player_id)
 
-  check_game_permission(@game_id)
+  @group_id = @game&.group_id
+  @group_players = @storage.find_group_players(@group_id)
 
-  if @storage.already_signed_up?(@game_id, @player_id)
+  game_url_error = game_url_error_for_player_rsvp_in_game
+  player_url_error = player_url_error_for_player_rsvp_in_game
+
+  if game_url_error
+    session[:error] = game_url_error
+    redirect "/game_list"
+  elsif player_url_error
+    session[:error] = player_url_error
+    redirect "/games/#{@game_id}"
+  else
     @storage.un_rsvp_player(@game_id, @player_id)
 
     session[:success] = "Player removed from this game."
-  else
-    session[:error] = "Player isn't signed up for this game!"
-    # Force a redirect to re-render game page
+    redirect "/games/#{@game_id}"
   end
-
-  redirect "/games/#{@game_id}"
 end
 
 # Confirm player payment
 post "/games/:game_id/players/:player_id/confirm_paid" do
-  if !valid_game_id?
-    handle_invalid_game_id
-    redirect "/game_list"
-  end
+  force_login
 
-  if !valid_player_id?
-    handle_invalid_player_id
-    redirect "/games/#{params[:game_id]}"
-  end
-
-  @game_id = params[:game_id]
+  @game_id = params[:game_id].to_i
   @game = @storage.find_game(@game_id)
-  check_game_permission(@game_id)
-  @player_id = params[:player_id]
-  @player = load_player(@player_id)
 
-  @storage.confirm_paid(@game_id, @player_id)
+  @player_id = params[:player_id].to_i
+  @player = @storage.find_player(@player_id)
 
-  redirect "/games/#{@game_id}"
+  @group_id = @game&.group_id
+  @group_players = @storage.find_group_players(@group_id)
+
+  game_url_error = game_url_error_for_player_confirm_payment_in_game
+  player_url_error = player_url_error_for_player_confirm_payment_in_game
+
+  if game_url_error
+    session[:error] = game_url_error
+    redirect "/game_list"
+  elsif player_url_error
+    session[:error] = player_url_error
+    redirect "/games/#{@game_id}"
+  else
+    @storage.confirm_paid(@game_id, @player_id)
+
+    session[:success] = "Confirmed player payment."
+    redirect "/games/#{@game_id}"
+  end
 end
 
 # Confirm all players' payment
 post "/games/:game_id/players/confirm_all" do
-  @game_id = params[:game_id]
-  check_game_permission(@game_id)
+  force_login
 
-  @storage.confirm_all_paid(@game_id)
+  @game_id = params[:game_id].to_i
+  @game = @storage.find_game(@game_id)
 
-  redirect "/games/#{@game_id}"
+  @player_id = params[:player_id].to_i
+  @player = @storage.find_player(@player_id)
+
+  @group_id = @game&.group_id
+  @group_players = @storage.find_group_players(@group_id)
+
+  game_url_error = game_url_error_for_player_confirm_payment_in_game
+  player_url_error = player_url_error_for_player_confirm_payment_in_game
+
+  if game_url_error
+    session[:error] = game_url_error
+    redirect "/game_list"
+  elsif player_url_error
+    session[:error] = player_url_error
+    redirect "/games/#{@game_id}"
+  else
+    @storage.confirm_all_paid(@game_id)
+
+    session[:success] = "All player payment confirmed."
+    redirect "/games/#{@game_id}"
+  end
 end
 
 # Un-confirm player payment
 post "/games/:game_id/players/:player_id/unconfirm_paid" do
-  @game_id = params[:game_id]
-  @player_id = params[:player_id]
+  force_login
 
-  check_game_permission(@game_id)
+  @game_id = params[:game_id].to_i
+  @game = @storage.find_game(@game_id)
 
-  @storage.unconfirm_paid(@game_id, @player_id)
+  @player_id = params[:player_id].to_i
+  @player = @storage.find_player(@player_id)
 
-  redirect "/games/#{@game_id}"
+  @group_id = @game&.group_id
+  @group_players = @storage.find_group_players(@group_id)
+
+  game_url_error = game_url_error_for_player_confirm_payment_in_game
+  player_url_error = player_url_error_for_player_confirm_payment_in_game
+
+  if game_url_error
+    session[:error] = game_url_error
+    redirect "/game_list"
+  elsif player_url_error
+    session[:error] = player_url_error
+    redirect "/games/#{@game_id}"
+  else
+    @storage.unconfirm_paid(@game_id, @player_id)
+    redirect "/games/#{@game_id}"
+  end
 end
 
-# Confirm all players' payment
+# Unconfirm all players' payment
 post "/games/:game_id/players/unconfirm_all" do
-  @game_id = params[:game_id]
+  force_login
 
-  check_game_permission(@game_id)
+  @game_id = params[:game_id].to_i
+  @game = @storage.find_game(@game_id)
 
-  @storage.unconfirm_all_paid(@game_id)
+  @player_id = params[:player_id].to_i
+  @player = @storage.find_player(@player_id)
 
-  redirect "/games/#{@game_id}"
+  @group_id = @game&.group_id
+  @group_players = @storage.find_group_players(@group_id)
+
+  game_url_error = game_url_error_for_player_confirm_payment_in_game
+  player_url_error = player_url_error_for_player_confirm_payment_in_game
+
+  if game_url_error
+    session[:error] = game_url_error
+    redirect "/game_list"
+  elsif player_url_error
+    session[:error] = player_url_error
+    redirect "/games/#{@game_id}"
+  else
+    @storage.unconfirm_all_paid(@game_id)
+
+    session[:success] = "All player payment confirmed."
+    redirect "/games/#{@game_id}"
+  end
 end
 
 # View group listing
@@ -314,14 +372,12 @@ post "/groups/create" do
   @group_name = params[:name]
   @group_about = params[:about]
 
-  if !valid_group_name
-    handle_invalid_group_name
-    erb :group_edit, layout: :layout
-  elsif group_exists?
-    handle_group_already_exists
-    erb :group_edit, layout: :layout
-  elsif !valid_group_about
-    handle_invalid_group_about
+  error = input_error_for_group
+
+  if error
+    session[:error] = error
+    status 422
+
     erb :group_edit, layout: :layout
   else
     @group_id = @storage.last_group_id + 1
@@ -335,7 +391,6 @@ post "/groups/create" do
     @storage.make_organizer(@group_id, session[:player_id])
 
     session[:success] = "Group was created."
-
     redirect "/groups/#{@group_id}"
   end
 end
@@ -343,29 +398,38 @@ end
 # View group detail
 get "/groups/:group_id" do
   @group_id = params[:group_id].to_i
-  @group = load_group(@group_id)
-  @group_games = @storage.find_group_games(@group_id)
-  @group_players = @storage.find_group_players(@group_id)
+  @group = @storage.find_group(@group_id)
 
-  erb :group, layout: :layout
+  error = error_for_group_no_permission
+
+  if error
+    session[:error] = error
+    redirect "/group_list_list"
+  else
+    @group_games = @storage.find_group_games(@group_id)
+    @group_players = @storage.find_group_players(@group_id)
+
+    erb :group, layout: :layout
+  end
 end
 
 # Delete group
 post "/groups/:group_id/delete" do
   force_login
 
-  if !valid_group_id?
-    handle_invalid_group_id
+  @group_id = params[:group_id].to_i
+  @group = @storage.find_group(@group_id)
+
+  error = url_error_for_group_need_permission
+
+  if error
+    redirect "/group_list"
+  else
+    @storage.delete_group(@group_id)
+    session[:success] = "Group has been deleted."
+
     redirect "/group_list"
   end
-
-  @group_id = params[:group_id].to_i
-  check_group_permission(@group_id)
-
-  @storage.delete_group(@group_id)
-  session[:success] = "Group has been deleted."
-
-  redirect "/group_list"
 end
 
 # Join group
@@ -386,37 +450,39 @@ end
 
 # View edit group page
 get "/groups/:group_id/edit" do
+  force_login
+
   @group_id = params[:group_id].to_i
-  check_group_permission(@group_id)
+  @group = @storage.find_group(@group_id)
 
-  @group = load_group(@group_id)
-  @group_players = @storage.find_group_players(@group_id)
+  error = url_error_for_group_need_permission
 
-  erb :group_edit, layout: :layout
+  if error
+    redirect "/group_list"
+  else
+    @group_players = @storage.find_group_players(@group_id)
+
+    erb :group_edit, layout: :layout
+  end
 end
 
 # Edit group
 post "/groups/:group_id/edit" do
   force_login
 
-  if !valid_group_id?
-    handle_invalid_group_id
-    redirect "/group_list"
-  end
-
   @group_id = params[:group_id].to_i
-  check_group_permission(@group_id)
+  @group = @storage.find_group(@group_id)
 
-  @group = load_group(@group_id)
+  url_error = url_error_for_group_need_permission
+  input_error = input_error_for_group
 
-  if !valid_group_name
-    handle_invalid_group_name
-    erb :group_edit, layout: :layout
-  elsif group_exists?
-    handle_group_already_exists
-    erb :group_edit, layout: :layout
-  elsif !valid_group_about
-    handle_invalid_group_about
+  if url_error
+    session[:error] = url_error
+    redirect "/group_list"
+  elsif input_error
+    session[:error] = input_error
+    status 422
+
     erb :group_edit, layout: :layout
   else
     group = Group.new(id: @group_id,
@@ -434,81 +500,78 @@ end
 post "/groups/:group_id/players/:player_id/remove" do
   force_login
 
-  if !valid_group_id?
-    handle_invalid_group_id
-    redirect "/group_list"
-  end
-
   @group_id = params[:group_id].to_i
-
-  if !valid_player_id?
-    handle_invalid_player_id
-    redirect "/groups/#{@group_id}"
-  end
-
-  @group = load_group(@group_id)
-  check_group_permission(@group_id)
+  @group = @storage.find_game(@group_id)
 
   @player_id = params[:player_id].to_i
-  @player = load_player(@player_id)
+  @player = @storage.find_player(@player_id)
 
-  @storage.remove_player_from_group(@group_id, @player_id)
-  session[:success] = "Player removed."
-  redirect "/groups/#{@group_id}"
+  group_url_error = url_error_for_group_need_permission
+  player_url_error = player_url_error_for_transition_player
+
+  if group_url_error
+    session[:error] = group_url_error
+    redirect "/group_list"
+  elsif player_url_error
+    session[:error] = player_url_error
+    redirect "/groups/#{@group_id}"
+  else
+    @storage.remove_player_from_group(@group_id, @player_id)
+    session[:success] = "Player removed."
+    redirect "/groups/#{@group_id}"
+  end
 end
 
 # Promote player
 post "/groups/:group_id/players/:player_id/promote" do
   force_login
 
-  if !valid_group_id?
-    handle_invalid_group_id
-    redirect "/group_list"
-  end
-
   @group_id = params[:group_id].to_i
-
-  if !valid_player_id?
-    handle_invalid_player_id
-    redirect "/groups/#{@group_id}"
-  end
-
-  @group = load_group(@group_id)
-  check_group_permission(@group_id)
+  @group = @storage.find_game(@group_id)
 
   @player_id = params[:player_id].to_i
-  @player = load_player(@player_id)
+  @player = @storage.find_player(@player_id)
 
-  @storage.make_organizer(@group_id, @player_id)
-  session[:success] = "Player promoted."
-  redirect "/groups/#{@group_id}"
+  group_url_error = group_url_error_for_transition_player
+  player_url_error = player_url_error_for_transition_player
+
+  if group_url_error
+    session[:error] = group_url_error
+    redirect "/group_list"
+  elsif player_url_error
+    session[:error] = player_url_error
+    redirect "/groups/#{@group_id}"
+  else
+    @storage.make_organizer(@group_id, @player_id)
+    session[:success] = "Player promoted."
+    redirect "/groups/#{@group_id}"
+  end
 end
 
 # Demote player
 post "/groups/:group_id/players/:player_id/demote" do
   force_login
 
-  if !valid_group_id?
-    handle_invalid_group_id
-    redirect "/group_list"
-  end
-
   @group_id = params[:group_id].to_i
-
-  if !valid_player_id?
-    handle_invalid_player_id
-    redirect "/groups/#{@group_id}"
-  end
-
-  @group = load_group(@group_id)
-  check_group_permission(@group_id)
+  @group = @storage.find_game(@group_id)
 
   @player_id = params[:player_id].to_i
-  @player = load_player(@player_id)
+  @player = @storage.find_player(@player_id)
 
-  @storage.remove_organizer(@group_id, @player_id)
-  session[:success] = "Player demoted."
-  redirect "/groups/#{@group_id}"
+  group_url_error = url_error_for_group_need_permission
+  player_url_error = player_url_error_for_transition_player
+
+  if group_url_error
+    session[:error] = group_url_error
+    redirect "/group_list"
+  elsif player_url_error
+    session[:error] = player_url_error
+    redirect "/groups/#{@group_id}"
+  else
+    @storage.remove_organizer(@group_id, @player_id)
+    session[:success] = "Player demoted."
+    redirect "/groups/#{@group_id}"
+  end
 end
 
 # View group schedule
@@ -641,6 +704,9 @@ post "/games/:game_id/edit" do
   @total_slots = params[:total_slots].to_i
 
   @game = @storage.find_game(@game_id)
+  @group_id = @game&.group_id
+  @group = @storage.find_group(@group_id)
+
   url_error = url_error_for_edit_game
   input_error = input_error_for_edit_game
 
@@ -649,15 +715,13 @@ post "/games/:game_id/edit" do
     redirect "/game_list"
   elsif input_error
     session[:error] = input_error
+    status 422
 
     erb :game_edit, layout: :layout do
       erb :game_details
     end
   else
     @day_of_week = @game.start_time.wday
-
-    @group_id = @game.group_id
-    @group = @storage.find_group(@group_id)
     @group_players = @storage.find_group_players(@group_id)
 
     game = Game.new(id: @game_id,

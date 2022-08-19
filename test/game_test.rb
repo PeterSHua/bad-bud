@@ -65,6 +65,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: 'My backyard',
+      level: 'All level',
       total_slots: 9,
       fee: 19
     }
@@ -84,6 +85,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: '',
+      level: 'All level',
       total_slots: 9,
       fee: 19
     }
@@ -110,6 +112,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: location,
+      level: 'All level',
       total_slots: 9,
       fee: 19
     }
@@ -129,6 +132,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: 'My backard',
+      level: 'All level',
       total_slots: 'abc',
       fee: 19
     }
@@ -147,6 +151,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: 'My backard',
+      level: 'All level',
       total_slots: 1001,
       fee: 19
     }
@@ -165,6 +170,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: 'My backard',
+      level: 'All level',
       total_slots: 9,
       fee: 'abc'
     }
@@ -183,6 +189,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: 'My backard',
+      level: 'All level',
       total_slots: 9,
       fee: 1001
     }
@@ -248,6 +255,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: 'My backyard',
+      level: 'All level',
       total_slots: 9,
       fee: 19
     }
@@ -266,23 +274,20 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_game_no_permission
-    skip
     get "/games/1/edit"
 
     assert_equal 302, last_response.status
-    assert_equal "You don't have permission to do that!", session[:error]
+    assert_equal "You must be logged in to do that.", session[:error]
   end
 
   def test_edit_invalid_game1
-    skip
     post "/games/15/edit", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
-    assert_equal "You don't have permission to do that!", session[:error]
+    assert_equal "The specified game was not found.", session[:error]
   end
 
   def test_edit_invalid_game2
-    skip
     post "/games/abc/edit", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
@@ -290,7 +295,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_invalid_game3
-    skip
     post "/games/1abc/edit", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
@@ -298,7 +302,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_game_location_too_short
-    skip
     game_details = {
       group_id: 1,
       date: "2022/8/15",
@@ -306,6 +309,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: '',
+      level: 'All level',
       total_slots: 9,
       fee: 19
     }
@@ -318,7 +322,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_game_location_too_long
-    skip
     location = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
                "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
                "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
@@ -333,6 +336,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: location,
+      level: 'All level',
       total_slots: 9,
       fee: 19
     }
@@ -344,12 +348,55 @@ class BadBudsTest < Minitest::Test
     refute_includes last_response.body, "Badminton Vancouver"
   end
 
+  def test_edit_game_level_too_short
+    game_details = {
+      group_id: 1,
+      date: "2022/8/15",
+      hour: 1,
+      am_pm: 'am',
+      duration: 4,
+      location: 'My backyard',
+      level: '',
+      total_slots: 9,
+      fee: 19
+    }
+
+    post "/games/1/edit", game_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Level cannot be empty and total length cannot exceed 300 characters."
+    refute_includes last_response.body, "Badminton Vancouver"
+  end
+
   def test_edit_level_too_long
-    skip
+    level = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+            "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+            "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+            "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+            "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+            "zzzzzz"
+
+    game_details = {
+      group_id: "",
+      date: "2022/8/15",
+      hour: 1,
+      am_pm: 'am',
+      duration: 4,
+      location: location,
+      level: 'All level',
+      level: level,
+      total_slots: 9,
+      fee: 19
+    }
+
+    post "/games/1/edit", game_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Level cannot be empty and total length cannot exceed 300 characters."
+    refute_includes last_response.body, "Badminton Vancouver"
   end
 
   def test_edit_game_invalid_slots
-    skip
     game_details = {
       group_id: 1,
       date: "2022/8/15",
@@ -357,6 +404,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: 'My backard',
+      level: 'All level',
       total_slots: 'abc',
       fee: 19
     }
@@ -368,7 +416,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_game_slots_too_high
-    skip
     game_details = {
       group_id: 1,
       date: "2022/8/15",
@@ -376,6 +423,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: 'My backard',
+      level: 'All level',
       total_slots: 1001,
       fee: 19
     }
@@ -387,7 +435,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_game_invalid_fee
-    skip
     game_details = {
       group_id: 1,
       date: "2022/8/15",
@@ -395,6 +442,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: 'My backard',
+      level: 'All level',
       total_slots: 9,
       fee: 'abc'
     }
@@ -406,7 +454,6 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_edit_game_fee_too_high
-    skip
     game_details = {
       group_id: 1,
       date: "2022/8/15",
@@ -414,6 +461,7 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: 'My backard',
+      level: 'All level',
       total_slots: 9,
       fee: 1001
     }
@@ -444,7 +492,7 @@ class BadBudsTest < Minitest::Test
     post "/games/20/delete", {}, logged_in_as_david
 
     get last_response["Location"]
-    assert_includes last_response.body, "You don't have permission to do that!"
+    assert_includes last_response.body, "The specified game was not found."
   end
 
   def test_delete_invalid_game2

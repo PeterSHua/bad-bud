@@ -30,23 +30,6 @@ def handle_player_already_signed_up
   session[:error] = "Player already signed up!"
 end
 
-def check_group_permission(group_id)
-  if group_have_permission?(group_id)
-    return
-  end
-
-  session[:error] = "You don't have permission to do that!"
-  redirect "/group_list"
-end
-
-def group_have_permission?(group_id)
-  if session[:logged_in] && @storage.group_organizer?(group_id, session[:player_id])
-    true
-  else
-    false
-  end
-end
-
 def error_for_create_game
   if !valid_location?
     handle_invalid_location
@@ -116,10 +99,28 @@ end
 def error_for_delete_game
   if !valid_game_id?
     handle_invalid_game_id
-  elsif !game_have_permission?
-    handle_no_game_permission
   elsif !@game
     handle_game_not_found
+  elsif !game_have_permission?
+    handle_no_game_permission
+  end
+end
+
+def game_url_error_for_player_confirm_payment_in_game
+  if !valid_game_id?
+    handle_invalid_game_id
+  elsif !@game
+    handle_game_not_found
+  elsif !game_have_permission?
+    handle_no_game_permission
+  end
+end
+
+def player_url_error_for_player_confirm_payment_in_game
+  if !valid_player_id?
+    handle_invalid_player_id
+  elsif !@player
+    handle_player_not_found
   end
 end
 
@@ -139,7 +140,7 @@ def input_error_for_add_anon_player_to_game
   end
 end
 
-def game_url_error_for_add_reg_player_to_game
+def game_url_error_for_player_rsvp_in_game
   if !valid_game_id?
     handle_invalid_game_id
   elsif !@game
@@ -147,7 +148,7 @@ def game_url_error_for_add_reg_player_to_game
   end
 end
 
-def player_url_error_for_add_reg_player_to_game
+def player_url_error_for_player_rsvp_in_game
   if !valid_player_id?
     handle_invalid_player_id
   elsif !@player
@@ -163,6 +164,52 @@ def input_error_for_add_reg_player_to_game
   end
 end
 
+def url_error_for_group_need_permission
+  if !valid_group_id?
+    handle_invalid_group_id
+  elsif !@group
+    handle_group_not_found
+  elsif !group_have_permission?
+    handle_group_no_permission
+  end
+end
+
+def player_url_error_for_transition_player
+  if !valid_player_id?
+    handle_invalid_player_id
+  elsif !@player
+    handle_player_not_found
+  end
+end
+
+def error_for_group_no_permission
+  if !valid_group_id?
+    handle_invalid_group_id
+  elsif !@group
+    handle_group_not_found
+  end
+end
+
+def error_for_edit_group
+  if !valid_group_id?
+    handle_invalid_group_id
+  elsif !@group
+    handle_group_not_found
+  elsif !group_have_permission?
+    handle_group_no_permission
+  end
+end
+
+def input_error_for_group
+  if !valid_group_name?
+    handle_invalid_group_name
+  elsif group_exists?
+    handle_group_already_exists
+  elsif !valid_group_about?
+    handle_invalid_group_about
+  end
+end
+
 def no_group_selected?
   params[:group_id].empty?
 end
@@ -172,14 +219,6 @@ def create_group_entry_for_game_without_group
   group = Group.new(id: @group_id)
   @storage.add_group(group)
   @storage.make_organizer(@group_id, @player_id)
-end
-
-def load_group(id)
-  group = @storage.find_group(id)
-  return group if group
-
-  session[:error] = "The specified group was not found."
-  redirect "/group_list"
 end
 
 def already_logged_in?
@@ -204,7 +243,7 @@ def handle_acc_exists
 end
 
 def valid_username?
-  (4..10).cover?(params[:username].size) && !/[^\w]/.match?(params[:username])
+  (4..10).cover?(params[:username]&.size) && !/[^\w]/.match?(params[:username])
 end
 
 def handle_invalid_username
@@ -214,7 +253,7 @@ def handle_invalid_username
 end
 
 def valid_password?
-  (4..10).cover?(params[:password].size) && !/\s/.match?(params[:password])
+  (4..10).cover?(params[:password]&.size) && !/\s/.match?(params[:password])
 end
 
 def handle_invalid_password
@@ -243,13 +282,6 @@ def register_acc
   session[:player_id] = @storage.find_player_id(params[:username])
 end
 
-def signup_player
-  @storage.rsvp_player(@game_id, @player_id)
-
-  session[:success] = "Player added to this game."
-  redirect "/games/#{@game_id}"
-end
-
 def valid_game_id?
   params[:game_id].to_i.to_s == params[:game_id]
 end
@@ -274,8 +306,20 @@ def handle_invalid_group_id
   session[:error] = "Invalid group."
 end
 
+def handle_group_not_found
+  session[:error] = "The specified group was not found."
+end
+
+def group_have_permission?
+  session[:logged_in] && @storage.group_organizer?(@group_id, session[:player_id])
+end
+
+def handle_group_no_permission
+  session[:error] = "You don't have permission to do that!"
+end
+
 def valid_location?
-  (1..300).cover?(params[:location].length)
+  (1..300).cover?(params[:location]&.length)
 end
 
 def handle_invalid_location
@@ -283,11 +327,11 @@ def handle_invalid_location
 end
 
 def valid_level?
-  (1..300).cover?(params[:location].length)
+  (1..300).cover?(params[:level]&.length)
 end
 
 def handle_invalid_level
-  session[:error] = "Level cannot be empty and total length cannot exceed 1000 characters."
+  session[:error] = "Level cannot be empty and total length cannot exceed 300 characters."
 end
 
 def valid_slots?
@@ -317,15 +361,15 @@ def handle_invalid_player_id
 end
 
 def valid_player_name?
-  (1..20).cover?(params[:player_name].strip.length)
+  (1..20).cover?(params[:player_name]&.strip&.length)
 end
 
 def handle_invalid_player_name
   session[:error] = "Your name must be between 1 and 20 characters."
 end
 
-def valid_group_name
-  (1..20).cover?(params[:name].length)
+def valid_group_name?
+  (1..20).cover?(params[:name]&.length)
 end
 
 def group_exists?
@@ -334,21 +378,18 @@ end
 
 def handle_group_already_exists
   session[:error] = "A group already exists with that name."
-  status 422
 end
 
 def handle_invalid_group_name
   session[:error] = "Group name must be between 1 and 20 characters."
-  status 422
 end
 
-def valid_group_about
+def valid_group_about?
   params[:about].nil? || (1..300).cover?(params[:about].length)
 end
 
 def handle_invalid_group_about
   session[:error] = "Group about max character limit is 300."
-  status 422
 end
 
 def valid_notes?(notes)
