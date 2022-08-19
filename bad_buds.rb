@@ -188,28 +188,28 @@ post "/games/:game_id/players/:player_id/add" do
   end
 end
 
-# Organizer remove player from game
-post "/games/:game_id/players/remove" do
-  @game_id = params[:game_id].to_i
 
-  if @storage.already_signed_up?(@game_id, session[:player_id])
-    @storage.un_rsvp_player(params[:game_id], session[:player_id])
-
-    session[:success] = "You have been removed from this game."
-  else
-    session[:error] = "You aren't signed up for this game!"
-
-    status 422
-    # Force a redirect to re-render the game view
-  end
-
-  redirect "/games/#{@game_id}"
-end
 
 # Remove player from game
 post "/games/:game_id/players/:player_id/remove" do
+  force_login
+
   @game_id = params[:game_id].to_i
+
+  if !valid_game_id?
+    handle_invalid_game_id
+    redirect "/game_list"
+  end
+
+  if !valid_player_id?
+    handle_invalid_player_id
+    redirect "/games/#{@game_id}"
+  end
+
+  @game = load_game(@game_id)
+
   @player_id = params[:player_id].to_i
+  @player = load_player(@player_id)
 
   check_game_permission(@game_id)
 
@@ -420,14 +420,28 @@ end
 
 # Remove player from group
 post "/groups/:group_id/players/:player_id/remove" do
+  force_login
+
+  if !valid_group_id?
+    handle_invalid_group_id
+    redirect "/group_list"
+  end
+
   @group_id = params[:group_id].to_i
-  check_group_permission(@group_id)
+
+  if !valid_player_id?
+    handle_invalid_player_id
+    redirect "/groups/#{@group_id}"
+  end
 
   @group = load_group(@group_id)
+  check_group_permission(@group_id)
+
   @player_id = params[:player_id].to_i
+  @player = load_player(@player_id)
 
   @storage.remove_player_from_group(@group_id, @player_id)
-
+  session[:success] = "Player removed."
   redirect "/groups/#{@group_id}"
 end
 
@@ -440,34 +454,48 @@ post "/groups/:group_id/players/:player_id/promote" do
     redirect "/group_list"
   end
 
+  @group_id = params[:group_id].to_i
+
   if !valid_player_id?
     handle_invalid_player_id
-    redirect "/groups/#{group_id}"
+    redirect "/groups/#{@group_id}"
   end
 
-  @group_id = params[:group_id].to_i
+  @group = load_group(@group_id)
   check_group_permission(@group_id)
 
-  @group = load_group(@group_id)
   @player_id = params[:player_id].to_i
+  @player = load_player(@player_id)
 
   @storage.make_organizer(@group_id, @player_id)
-
   session[:success] = "Player promoted."
-
   redirect "/groups/#{@group_id}"
 end
 
 # Demote player
 post "/groups/:group_id/players/:player_id/demote" do
+  force_login
+
+  if !valid_group_id?
+    handle_invalid_group_id
+    redirect "/group_list"
+  end
+
   @group_id = params[:group_id].to_i
-  check_group_permission(@group_id)
+
+  if !valid_player_id?
+    handle_invalid_player_id
+    redirect "/groups/#{@group_id}"
+  end
 
   @group = load_group(@group_id)
+  check_group_permission(@group_id)
+
   @player_id = params[:player_id].to_i
+  @player = load_player(@player_id)
 
   @storage.remove_organizer(@group_id, @player_id)
-
+  session[:success] = "Player demoted."
   redirect "/groups/#{@group_id}"
 end
 
@@ -675,8 +703,13 @@ post "/groups/:group_id/schedule/:day_of_week/add" do
 end
 
 # View player detail
-get "/players/:id" do
-  @player_id = params[:id].to_i
+get "/players/:player_id" do
+  if !valid_player_id?
+    handle_invalid_player_id
+    redirect "/game_list"
+  end
+
+  @player_id = params[:player_id].to_i
   @player = load_player(@player_id)
 
   erb :player, layout: :layout
@@ -772,4 +805,8 @@ post "/register" do
     register_acc
     redirect "/game_list"
   end
+end
+
+not_found do
+  'This is nowhere to be found.'
 end

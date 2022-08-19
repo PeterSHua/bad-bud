@@ -1,3 +1,5 @@
+require_relative "helper"
+
 class BadBudsTest < Minitest::Test
   def test_confirm_payment
     post "/games/1/players/4/remove", {}, logged_in_as_david
@@ -48,15 +50,28 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_confirm_payment_player_not_signed_up
-    test_view_add_game_to_group_schedule_for_day_of_week_no_permission
+
+  end
+
+  def test_confirm_payment_invalid_player1
+    post "/games/1/players/9/confirm_paid", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "The specified player was not found.", session[:error]
   end
 
   def test_confirm_payment_invalid_player2
-    skip
+    post "/games/1/players/abc/confirm_paid", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid player.", session[:error]
   end
 
   def test_confirm_payment_invalid_player3
-    skip
+    post "/games/1/players/1abc/confirm_paid", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid player.", session[:error]
   end
 
   def test_un_confirm_payment

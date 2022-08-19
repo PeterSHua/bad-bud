@@ -1,3 +1,5 @@
+require_relative "helper"
+
 class BadBudsTest < Minitest::Test
   def test_rsvp_anon_player
     post "/games/1/players/add", { player_name: "Groucho Marx" }
@@ -93,28 +95,73 @@ class BadBudsTest < Minitest::Test
     refute_includes last_response.body, "Minnie"
   end
 
-  def test_unrsvp_player
+  def test_remove_player
     post "/games/1/players/4/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
     assert_equal "Player removed from this game.", session[:success]
   end
 
-  def test_unrsvp_player_no_permission
+  def test_remove_player_no_permission
     post "/games/1/players/4/remove"
 
     assert_equal 302, last_response.status
 
     get last_response["Location"]
-    assert_includes last_response.body, "You don't have permission to do that!"
+    assert_includes last_response.body, "You must be logged in to do that."
   end
 
-  def test_unrsvp_player_not_signed_up
-    post "/games/4/players/remove", {}, logged_in_as_david
+  def test_remove_invalid_player_from_game1
+    post "/games/1/players/15/remove", {}, logged_in_as_david
 
     assert_equal 302, last_response.status
 
     get last_response["Location"]
-    assert_includes last_response.body, "You aren't signed up for this game!"
+    assert_includes last_response.body, "The specified player was not found."
+  end
+
+  def test_remove_invalid_player_from_game2
+    post "/games/1/players/abc/remove", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Invalid player."
+  end
+
+  def test_remove_invalid_player_from_game3
+    post "/games/1/players/1abc/remove", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Invalid player."
+  end
+
+  def test_remove_player_from_invalid_game1
+    post "/games/15/players/1/remove", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "The specified game was not found."
+  end
+
+  def test_remove_player_from_invalid_game2
+    post "/games/abc/players/1/remove", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Invalid game."
+  end
+
+  def test_remove_player_from_invalid_game3
+    post "/games/1abc/players/1/remove", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Invalid game."
   end
 end

@@ -1,3 +1,5 @@
+require_relative "helper"
+
 class BadBudsTest < Minitest::Test
   def test_view_group_schedule
     skip

@@ -1,3 +1,4 @@
+<br>
 <label for="hour_select">Start time:</label>
 
 <select name="hour" id="hour_select">
@@ -10,6 +11,8 @@
   <option value="am" <%= select_am %>>AM</option>
   <option value="pm" <%= select_pm %>>PM</option>
 </select>
+
+<br>
 
 <label for="duration_select">Duration (hours):</label>
 <select name="duration" id="duration_select">
@@ -24,7 +27,7 @@
 <input name="location" placeholder="Location name and address" type="text" value="<%= params[:location] || @game&.location %>">
 
 <label for="level">Skill Level:</label>
-<input name="level" placeholder="All level/intermediate/advanced/professional" type="text" value="<%= params[:level] || @game&.level %>">
+<input name="level" placeholder="Beginner/intermediate/advanced/all" type="text" value="<%= params[:level] || @game&.level %>">
 
 <label for="total_slots">Slots:</label>
 <input name="total_slots" placeholder="Number of total slots" type="text" value="<%= params[:total_slots] || @game&.total_slots %>">

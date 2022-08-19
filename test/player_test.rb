@@ -1,3 +1,5 @@
+require_relative "helper"
+
 class BadBudsTest < Minitest::Test
   def test_view_player
     get "/players/2"
@@ -20,13 +22,49 @@ class BadBudsTest < Minitest::Test
     get "/players/abc"
 
     assert_equal 302, last_response.status
-    assert_equal "The specified player was not found.", session[:error]
+    assert_equal "Invalid player.", session[:error]
   end
 
   def test_view_invalid_player3
-    get "/players/9abc"
+    get "/players/1abc"
 
     assert_equal 302, last_response.status
-    assert_equal "The specified player was not found.", session[:error]
+    assert_equal "Invalid player.", session[:error]
+  end
+
+  def test_view_edit_player
+
+  end
+
+  def test_view_edit_player_no_permission
+
+  end
+
+  def test_view_edit_invalid_player1
+
+  end
+
+  def test_view_edit_invalid_player2
+
+  end
+
+  def test_view_edit_invalid_player3
+
+  end
+
+  def test_edit_player_no_permission
+
+  end
+
+  def test_edit_invalid_player1
+
+  end
+
+  def test_edit_invalid_player2
+
+  end
+
+  def test_edit_invalid_player3
+
   end
 end
