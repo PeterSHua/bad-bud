@@ -58,7 +58,18 @@ end
 # Create game
 post "/games/create" do
   force_login
-  assign_create_game_params
+
+  @start_time = "#{params[:hour]}#{params[:am_pm]}"
+  @duration = params[:duration].to_i
+  @location = params[:location]
+  @level = params[:level]
+  @total_slots = params[:total_slots].to_i
+  @fee = params[:fee].to_i
+  @player_id = session[:player_id]
+  @groups = @storage.find_groups_is_organizer(@player_id)
+  @group_id = params[:group_id].to_i
+
+  @groups = @storage.find_groups_is_organizer(@player_id)
 
   if no_group_selected?
     create_group_entry_for_game_without_group
@@ -83,38 +94,48 @@ end
 
 # View game detail
 get "/games/:game_id" do
-  if !valid_game_id?
-    handle_invalid_game_id
-    redirect "/game_list"
-  end
-
+  @start_time = "#{params[:hour]}#{params[:am_pm]}"
+  @duration = params[:duration].to_i
+  @location = params[:location]
+  @level = params[:level]
+  @total_slots = params[:total_slots].to_i
+  @fee = params[:fee].to_i
+  @player_id = session[:player_id].to_i
   @game_id = params[:game_id].to_i
-  @game = load_game(@game_id)
-  @day_of_week = @game.start_time.wday
-  @group_id = @game.group_id
 
-  @group_players = @storage.find_group_players(@group_id)
+  @game = @storage.find_game(@game_id)
+  error = error_for_view_game
 
-  erb :game, layout: :layout
+  if error
+    session[:error] = error
+    redirect "/game_list"
+  else
+    @day_of_week = @game.start_time.wday
+    @group_id = @game.group_id
+    @group_players = @storage.find_group_players(@group_id)
+
+    erb :game, layout: :layout
+  end
 end
 
 # Delete game
 post "/games/:game_id/delete" do
   force_login
 
-  if !valid_game_id?
-    handle_invalid_game_id
+  @game_id = params[:game_id].to_i
+  @game = @storage.find_game(@game_id)
+
+  error = error_for_delete_game
+
+  if error
+    session[:error] = error
+    redirect "/game_list"
+  else
+    @storage.delete_game(@game_id)
+
+    session[:success] = "Game has been deleted."
     redirect "/game_list"
   end
-
-  @game_id = params[:game_id].to_i
-  check_game_permission(@game_id)
-
-  load_game(@game_id)
-  @storage.delete_game(@game_id)
-
-  session[:success] = "Game has been deleted."
-  redirect "/game_list"
 end
 
 def signup_anon_player(game_id, player_name)
@@ -125,47 +146,61 @@ end
 # Add unregistered player to game
 post "/games/:game_id/players/add" do
   @game_id = params[:game_id].to_i
-  @game = load_game(@game_id)
+  @game = @storage.find_game(@game_id)
   @group_id = @game.group_id
   @group_players = @storage.find_group_players(@group_id)
 
-  if @game.filled_slots >= @game.total_slots
-    session[:error] = "Sorry, no empty slots remaining."
+  url_error = url_error_for_add_anon_player_to_game
+  input_error = input_error_for_add_anon_player_to_game
 
-    # Force redirect to re-render page
-    redirect "/games/#{@game_id}"
-  elsif !valid_player_name?
-    handle_invalid_player_name
+  if url_error
+    session[:error] = url_error
+    redirect "/game_list"
+  elsif input_error
+    session[:error] = input_error
+    status 422
     erb :game, layout: :layout
   else
     signup_anon_player(@game_id, params[:player_name].strip)
+
+    session[:success] = "Player has been signed up."
     redirect "/games/#{@game_id}"
   end
 end
 
 # Add registered player to game
 post "/games/:game_id/players/:player_id/add" do
+  force_login
+
   @game_id = params[:game_id].to_i
+  @game = @storage.find_game(@game_id)
+
   @player_id = params[:player_id].to_i
-  @game = load_game(@game_id)
+  @player = @storage.find_player(@player_id)
+
   @group_id = @game.group_id
   @group_players = @storage.find_group_players(@group_id)
 
-  if @game.filled_slots >= @game.total_slots
-    session[:error] = "Sorry, no empty slots remaining."
-  elsif @storage.already_signed_up?(@game_id, @player_id)
-    session[:error] = "Player already signed up!"
+  game_url_error = game_url_error_for_add_reg_player_to_game
+  player_url_error = player_url_error_for_add_reg_player_to_game
+  input_error = input_error_for_add_reg_player_to_game
 
+  if game_url_error
+    session[:error] = game_url_error
+    redirect "/game_list"
+  elsif player_url_error
+    session[:error] = player_url_error
+    redirect "/#{@game_id}"
+  elsif input_error
+    session[:error] = input_error
     status 422
     erb :game, layout: :layout
   else
-    signup_player(@game_id, @player_id)
+    signup_player
 
     redirect "/games/#{@game_id}"
   end
 end
-
-
 
 # Remove player from game
 post "/games/:game_id/players/:player_id/remove" do
@@ -183,7 +218,7 @@ post "/games/:game_id/players/:player_id/remove" do
     redirect "/games/#{@game_id}"
   end
 
-  @game = load_game(@game_id)
+  @game = @storage.find_game(@game_id)
 
   @player_id = params[:player_id].to_i
   @player = load_player(@player_id)
@@ -215,7 +250,7 @@ post "/games/:game_id/players/:player_id/confirm_paid" do
   end
 
   @game_id = params[:game_id]
-  @game = load_game(@game_id)
+  @game = @storage.find_game(@game_id)
   check_game_permission(@game_id)
   @player_id = params[:player_id]
   @player = load_player(@player_id)
@@ -573,14 +608,18 @@ end
 # View edit game page
 get "/games/:game_id/edit" do
   force_login
-  assign_view_edit_game_params
+
+  @game_id = params[:game_id].to_i
+  @game = @storage.find_game(@game_id)
 
   error = error_for_view_edit_game
 
   if error
     redirect "/game_list"
   else
-    load_view_edit_game_info
+    @group_id = @game.group_id
+    @group = load_group(@group_id)
+    @day_of_week = @game.start_time.wday
 
     erb :game_edit, layout: :layout do
       erb :game_details
@@ -590,51 +629,37 @@ end
 
 # Edit game
 post "/games/:game_id/edit" do
+  force_login
+
   @game_id = params[:game_id].to_i
-
-  if !valid_game_id?
-    handle_invalid_game_id
-    redirect "/game_list"
-  end
-
-  check_game_permission(@game_id)
-
-  @game = @storage.find_game(@game_id)
-  @group_id = @game.group_id
-  check_group_permission(@group_id)
-
-  @group = load_group(@group_id)
-
   @start_time = "#{params[:hour]}#{params[:am_pm]}"
   @start_time = "#{params[:date]} #{@start_time}" if !params[:date].nil?
-
-  @day_of_week = @game.start_time.wday
-  @group_players = @storage.find_group_players(@group_id)
   @duration = params[:duration].to_i
   @location = params[:location]
   @level = params[:level]
   @fee = params[:fee].to_i
   @total_slots = params[:total_slots].to_i
 
-  if !valid_location?
-    handle_invalid_location
+  @game = @storage.find_game(@game_id)
+  url_error = url_error_for_edit_game
+  input_error = input_error_for_edit_game
 
-    erb :game_edit, layout: :layout do
-      erb :game_details
-    end
-  elsif !valid_slots?
-    handle_invalid_slots
-
-    erb :game_edit, layout: :layout do
-      erb :game_details
-    end
-  elsif !valid_fee?
-    handle_invalid_fee
+  if url_error
+    session[:error] = url_error
+    redirect "/game_list"
+  elsif input_error
+    session[:error] = input_error
 
     erb :game_edit, layout: :layout do
       erb :game_details
     end
   else
+    @day_of_week = @game.start_time.wday
+
+    @group_id = @game.group_id
+    @group = @storage.find_group(@group_id)
+    @group_players = @storage.find_group_players(@group_id)
+
     game = Game.new(id: @game_id,
                     group_id: @group_id,
                     group_name: @group.name,
@@ -645,8 +670,9 @@ post "/games/:game_id/edit" do
                     fee: @fee,
                     total_slots: @total_slots)
 
-    session[:success] = "Game was updated."
     @storage.edit_game(game)
+
+    session[:success] = "Game was updated."
     redirect "/games/#{@game_id}"
   end
 end

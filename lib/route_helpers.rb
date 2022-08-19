@@ -14,6 +14,22 @@ def handle_no_game_permission
   session[:error] = "You don't have permission to do that!"
 end
 
+def game_have_open_slots?
+  @game.filled_slots >= @game.total_slots
+end
+
+def handle_game_no_open_slots
+  session[:error] = "Sorry, no empty slots remaining."
+end
+
+def player_already_signed_up?
+  @storage.already_signed_up?(@game_id, @player_id)
+end
+
+def handle_player_already_signed_up
+  session[:error] = "Player already signed up!"
+end
+
 def check_group_permission(group_id)
   if group_have_permission?(group_id)
     return
@@ -43,18 +59,6 @@ def error_for_create_game
   end
 end
 
-def assign_create_game_params
-  @start_time = "#{params[:hour]}#{params[:am_pm]}"
-  @duration = params[:duration].to_i
-  @location = params[:location]
-  @level = params[:level]
-  @total_slots = params[:total_slots].to_i
-  @fee = params[:fee].to_i
-  @player_id = session[:player_id]
-  @groups = @storage.find_groups_is_organizer(@player_id)
-  @group_id = params[:group_id].to_i
-end
-
 def create_game
   game = Game.new(group_id: @group_id,
                   start_time: @start_time,
@@ -67,31 +71,96 @@ def create_game
   @storage.create_game(game)
 end
 
-def assign_view_edit_game_params
-  @game_id = params[:game_id].to_i
-end
-
 def error_for_view_edit_game
   if !valid_game_id?
     handle_invalid_game_id
   elsif !game_have_permission?
     handle_no_game_permission
+  elsif !@game
+    handle_game_not_found
   end
 end
 
-def load_view_edit_game_info
-  @game = load_game(@game_id)
-  @group_id = @game.group_id
-  @group = load_group(@group_id)
-  @day_of_week = @game.start_time.wday
+def assign_view_game_params
+  @game_id = params[:game_id].to_i
 end
 
-def load_game(id)
-  game = @storage.find_game(id)
-  return game if game
+def error_for_view_game
+  if !valid_game_id?
+    handle_invalid_game_id
+  elsif !@game
+    handle_game_not_found
+  end
+end
 
-  session[:error] = "The specified game was not found."
-  redirect "/game_list"
+def url_error_for_edit_game
+  if !valid_game_id?
+    handle_invalid_game_id
+  elsif !@game
+    handle_game_not_found
+  end
+end
+
+def input_error_for_edit_game
+  if !valid_location?
+    handle_invalid_location
+  elsif !valid_level?
+    handle_invalid_level
+  elsif !valid_slots?
+    handle_invalid_slots
+  elsif !valid_fee?
+    handle_invalid_fee
+  end
+end
+
+def error_for_delete_game
+  if !valid_game_id?
+    handle_invalid_game_id
+  elsif !game_have_permission?
+    handle_no_game_permission
+  elsif !@game
+    handle_game_not_found
+  end
+end
+
+def url_error_for_add_anon_player_to_game
+  if !valid_game_id?
+    handle_invalid_game_id
+  elsif !@game
+    handle_game_not_found
+  end
+end
+
+def input_error_for_add_anon_player_to_game
+  if !valid_player_name?
+    handle_invalid_player_name
+  elsif game_have_open_slots?
+    handle_game_no_open_slots
+  end
+end
+
+def game_url_error_for_add_reg_player_to_game
+  if !valid_game_id?
+    handle_invalid_game_id
+  elsif !@game
+    handle_game_not_found
+  end
+end
+
+def player_url_error_for_add_reg_player_to_game
+  if !valid_player_id?
+    handle_invalid_player_id
+  elsif !@player
+    handle_player_not_found
+  end
+end
+
+def input_error_for_add_reg_player_to_game
+  if game_have_open_slots?
+    handle_game_no_open_slots
+  elsif player_already_signed_up?
+    handle_player_already_signed_up
+  end
 end
 
 def no_group_selected?
@@ -111,14 +180,6 @@ def load_group(id)
 
   session[:error] = "The specified group was not found."
   redirect "/group_list"
-end
-
-def load_player(id)
-  player = @storage.find_player(id)
-  return player if player
-
-  session[:error] = "The specified player was not found."
-  redirect "/game_list"
 end
 
 def already_logged_in?
@@ -182,8 +243,8 @@ def register_acc
   session[:player_id] = @storage.find_player_id(params[:username])
 end
 
-def signup_player(game_id, player_id)
-  @storage.rsvp_player(game_id, player_id)
+def signup_player
+  @storage.rsvp_player(@game_id, @player_id)
 
   session[:success] = "Player added to this game."
   redirect "/games/#{@game_id}"
@@ -195,6 +256,14 @@ end
 
 def handle_invalid_game_id
   session[:error] = "Invalid game."
+end
+
+def handle_game_not_found
+  session[:error] = "The specified game was not found."
+end
+
+def handle_player_not_found
+  session[:error] = "The specified player was not found."
 end
 
 def valid_group_id?
@@ -253,7 +322,6 @@ end
 
 def handle_invalid_player_name
   session[:error] = "Your name must be between 1 and 20 characters."
-  status 422
 end
 
 def valid_group_name
