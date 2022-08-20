@@ -2,7 +2,7 @@ require_relative "helper"
 
 class BadBudsTest < Minitest::Test
   def test_rsvp_anon_player
-    post "/games/1/players/add", { player_name: "Groucho Marx" }
+    post "/games/1/players/add", { name: "Groucho Marx" }
 
     assert_equal 302, last_response.status
     assert_equal "Player has been signed up.", session[:success]
@@ -13,7 +13,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_rsvp_anon_player_short_name
-    post "/games/1/players/add", { player_name: "" }
+    post "/games/1/players/add", { name: "" }
 
     assert_equal 422, last_response.status
     assert_includes last_response.body,
@@ -21,7 +21,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_rsvp_anon_player_empty_name
-    post "/games/1/players/add", { player_name: "  " }
+    post "/games/1/players/add", { name: "  " }
 
     assert_equal 422, last_response.status
     assert_includes last_response.body,
@@ -30,7 +30,7 @@ class BadBudsTest < Minitest::Test
 
   def test_rsvp_anon_player_long_name
     post "/games/1/players/add",
-         { player_name: "Chico Harpo Groucho Gummo and Zeppo" },
+         { name: "Chico Harpo Groucho Gummo and Zeppo" },
          logged_in_as_peter
 
     assert_equal 422, last_response.status
@@ -41,14 +41,14 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_rsvp_anon_player_no_empty_slots
-    post "/games/2/players/add", { player_name: "Chico" }
-    post "/games/2/players/add", { player_name: "Harpo" }
-    post "/games/2/players/add", { player_name: "Groucho" }
-    post "/games/2/players/add", { player_name: "Gummo" }
-    post "/games/2/players/add", { player_name: "Zeppo" }
-    post "/games/2/players/add", { player_name: "Minnie" }
+    post "/games/2/players/add", { name: "Chico" }
+    post "/games/2/players/add", { name: "Harpo" }
+    post "/games/2/players/add", { name: "Groucho" }
+    post "/games/2/players/add", { name: "Gummo" }
+    post "/games/2/players/add", { name: "Zeppo" }
+    post "/games/2/players/add", { name: "Minnie" }
 
-    post "/games/2/players/add", { player_name: "Sam" }
+    post "/games/2/players/add", { name: "Sam" }
 
     assert_equal 422, last_response.status
     assert_includes last_response.body, "Sorry, no empty slots remaining."
@@ -56,7 +56,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_rvsp_player
-    post "/games/1/players/add", { player_name: "joe" }, logged_in_as_david
+    post "/games/1/players/add", { name: "joe" }, logged_in_as_david
 
     assert_equal 302, last_response.status
     assert_equal "Player has been signed up.", session[:success]
@@ -76,13 +76,13 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_rsvp_player_no_empty_slots
-    post "/games/2/players/add", { player_name: "Chico" }, logged_in_as_david
-    post "/games/2/players/add", { player_name: "Harpo" }
-    post "/games/2/players/add", { player_name: "Groucho" }
-    post "/games/2/players/add", { player_name: "Gummo" }
-    post "/games/2/players/add", { player_name: "Zeppo" }
+    post "/games/2/players/add", { name: "Chico" }, logged_in_as_david
+    post "/games/2/players/add", { name: "Harpo" }
+    post "/games/2/players/add", { name: "Groucho" }
+    post "/games/2/players/add", { name: "Gummo" }
+    post "/games/2/players/add", { name: "Zeppo" }
 
-    post "/games/2/players/add", { player_name: "Minnie" }
+    post "/games/2/players/add", { name: "Minnie" }
 
     assert_includes last_response.body, "Sorry, no empty slots remaining."
     refute_includes last_response.body, "Minnie"

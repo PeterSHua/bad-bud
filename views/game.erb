@@ -116,8 +116,8 @@
 <% unless @game.filled_slots >= @game.total_slots %>
   <% if session[:logged_in] && game_organizer?(@game.id, session[:player_id]) %>
     <form action="/games/<%= @game_id %>/players/add" method="post">
-      <label for="player_name">Sign up player for this game:</label>
-      <input name="player_name" placeholder="Player name" type="text">
+      <label for="name">Sign up player for this game:</label>
+      <input name="name" placeholder="Player name" type="text">
       <button type="submit">Sign up</button>
     </form>
   <% elsif session[:logged_in] %>
@@ -132,8 +132,8 @@
     <% end %>
   <% else %>
     <form action="/games/<%= @game_id %>/players/add" method="post">
-      <label for="player_name">Sign up for this game:</label>
-      <input name="player_name" placeholder="Player name" type="text">
+      <label for="name">Sign up for this game:</label>
+      <input name="name" placeholder="Player name" type="text">
       <button type="submit">Sign up</button>
     </form>
     <a class="orange-link" href="/register">Register an account to manage your RSVP.</a>

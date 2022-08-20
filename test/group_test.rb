@@ -290,4 +290,74 @@ class BadBudsTest < Minitest::Test
     get last_response["Location"]
     assert_includes last_response.body, "Invalid group."
   end
+
+  def test_join_group
+    post "/groups/2/join", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Joined group.", session[:success]
+  end
+
+  def test_join_group_no_permission
+    post "/groups/1/join"
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be logged in to do that.", session[:error]
+  end
+
+  def test_join_invalid_group1
+    post "/groups/9/join", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "The specified group was not found.", session[:error]
+  end
+
+  def test_join_invalid_group2
+    post "/groups/abc/join", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid group.", session[:error]
+  end
+
+  def test_join_invalid_group3
+    post "/groups/1abc/join", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Invalid group.", session[:error]
+  end
+
+  def test_left_group
+    post "/groups/2/leave", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Left group.", session[:success]
+  end
+
+  def test_left_group_no_permission
+    post "/groups/1/leave"
+
+    assert_equal 302, last_response.status
+    assert_equal "You must be logged in to do that.", session[:error]
+  end
+
+  def test_left_invalid_group1
+    post "/groups/9/leave", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "The specified group was not found.", session[:error]
+  end
+
+  def test_left_invalid_group2
+    post "/groups/9/leave", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "The specified group was not found.", session[:error]
+  end
+
+  def test_left_invalid_group3
+    post "/groups/9/leave", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "The specified group was not found.", session[:error]
+  end
 end

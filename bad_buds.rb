@@ -138,8 +138,8 @@ post "/games/:game_id/delete" do
   end
 end
 
-def signup_anon_player(game_id, player_name)
-  @storage.rsvp_anon_player(game_id, player_name)
+def signup_anon_player(game_id, name)
+  @storage.rsvp_anon_player(game_id, name)
   session[:success] = "Player has been signed up."
 end
 
@@ -161,7 +161,7 @@ post "/games/:game_id/players/add" do
     status 422
     erb :game, layout: :layout
   else
-    signup_anon_player(@game_id, params[:player_name].strip)
+    signup_anon_player(@game_id, params[:name].strip)
 
     session[:success] = "Player has been signed up."
     redirect "/games/#{@game_id}"
@@ -434,18 +434,40 @@ end
 
 # Join group
 post "/groups/:group_id/join" do
-  @group_id = params[:group_id].to_i
-  @storage.add_player_to_group(@group_id, session[:player_id])
+  force_login
 
-  redirect "/groups/#{@group_id}"
+  @group_id = params[:group_id].to_i
+  @group = @storage.find_group(@group_id)
+
+  error = error_for_group_no_permission
+
+  if error
+    redirect "/group_list"
+  else
+    @storage.add_player_to_group(@group_id, session[:player_id])
+    session[:success] = "Joined group."
+
+    redirect "/groups/#{@group_id}"
+  end
 end
 
 # Leave group
 post "/groups/:group_id/leave" do
-  @group_id = params[:group_id].to_i
-  @storage.remove_player_from_group(@group_id, session[:player_id])
+  force_login
 
-  redirect "/groups/#{@group_id}"
+  @group_id = params[:group_id].to_i
+  @group = @storage.find_group(@group_id)
+
+  error = error_for_group_no_permission
+
+  if error
+    redirect "/group_list"
+  else
+    @storage.remove_player_from_group(@group_id, session[:player_id])
+    session[:success] = "Left group."
+
+    redirect "/groups/#{@group_id}"
+  end
 end
 
 # View edit group page
@@ -461,7 +483,6 @@ get "/groups/:group_id/edit" do
     redirect "/group_list"
   else
     @group_players = @storage.find_group_players(@group_id)
-
     erb :group_edit, layout: :layout
   end
 end
@@ -507,7 +528,7 @@ post "/groups/:group_id/players/:player_id/remove" do
   @player = @storage.find_player(@player_id)
 
   group_url_error = url_error_for_group_need_permission
-  player_url_error = player_url_error_for_transition_player
+  player_url_error = player_url_error_no_permission
 
   if group_url_error
     session[:error] = group_url_error
@@ -532,8 +553,8 @@ post "/groups/:group_id/players/:player_id/promote" do
   @player_id = params[:player_id].to_i
   @player = @storage.find_player(@player_id)
 
-  group_url_error = group_url_error_for_transition_player
-  player_url_error = player_url_error_for_transition_player
+  group_url_error = url_error_for_group_need_permission
+  player_url_error = player_url_error_no_permission
 
   if group_url_error
     session[:error] = group_url_error
@@ -559,7 +580,7 @@ post "/groups/:group_id/players/:player_id/demote" do
   @player = @storage.find_player(@player_id)
 
   group_url_error = url_error_for_group_need_permission
-  player_url_error = player_url_error_for_transition_player
+  player_url_error = player_url_error_no_permission
 
   if group_url_error
     session[:error] = group_url_error
@@ -579,7 +600,7 @@ get "/groups/:group_id/schedule" do
   @group_id = params[:group_id].to_i
   check_group_permission(@group_id)
 
-  @group = load_group(@group_id)
+  @group = @storage.find_group(@group_id)
 
   erb :group_schedule, layout: :layout
 end
@@ -589,7 +610,7 @@ post "/groups/:group_id/schedule/edit" do
   @group_id = params[:group_id].to_i
   check_group_permission(@group_id)
 
-  @group = load_group(@group_id)
+  @group = @storage.find_group(@group_id)
 
   if !valid_notes?(params[:notes])
     session[:error] = "Note must be less than or equal to 1000 characters."
@@ -597,7 +618,6 @@ post "/groups/:group_id/schedule/edit" do
     erb :group_schedule, layout: :layout
   else
     @storage.edit_group_schedule_game_notes(@group_id, params[:notes])
-
     session[:success] = "Group notes updated."
 
     redirect "/groups/#{@group_id}/schedule"
@@ -609,7 +629,7 @@ get "/groups/:group_id/schedule/:day_of_week" do
   @group_id = params[:group_id].to_i
   check_group_permission(@group_id)
 
-  @group = load_group(@group_id)
+  @group = @storage.find_group(@group_id)
   @day_of_week = params[:day_of_week].to_i
 
   @games = @storage.find_group_template_games_for_day(@group_id, @day_of_week)
@@ -622,7 +642,7 @@ get "/groups/:group_id/schedule/:day_of_week/add" do
   @group_id = params[:group_id].to_i
   check_group_permission(@group_id)
 
-  @group = load_group(@group_id)
+  @group = @storage.find_group(@group_id)
   @day_of_week = params[:day_of_week].to_i
   @group_players = @storage.find_group_players(@group_id)
 
@@ -636,7 +656,7 @@ post "/groups/:group_id/schedule/publish" do
   @group_id = params[:group_id].to_i
   check_group_permission(@group_id)
 
-  @group = load_group(@group_id)
+  @group = @storage.find_group(@group_id)
   @publish_day = params[:publish_day].to_i
 
   scheduled_games = @storage.find_scheduled_games(@group_id)
@@ -681,7 +701,7 @@ get "/games/:game_id/edit" do
     redirect "/game_list"
   else
     @group_id = @game.group_id
-    @group = load_group(@group_id)
+    @group = @storage.find_group(@group_id)
     @day_of_week = @game.start_time.wday
 
     erb :game_edit, layout: :layout do
@@ -746,7 +766,7 @@ post "/groups/:group_id/schedule/:day_of_week/add" do
   @group_id = params[:group_id].to_i
   check_group_permission(@group_id)
 
-  @group = load_group(@group_id)
+  @group = @storage.find_group(@group_id)
   @day_of_week = params[:day_of_week].to_i
   @group_players = @storage.find_group_players(@group_id)
 
@@ -768,45 +788,76 @@ end
 
 # View player detail
 get "/players/:player_id" do
-  if !valid_player_id?
-    handle_invalid_player_id
-    redirect "/game_list"
-  end
-
   @player_id = params[:player_id].to_i
-  @player = load_player(@player_id)
+  @player = @storage.find_player(@player_id)
 
-  erb :player, layout: :layout
+  error = player_url_error_no_permission
+
+  if error
+    redirect "/game_list"
+  else
+    erb :player, layout: :layout
+  end
 end
 
 # View edit player detail
-get "/players/:id/edit" do
-  @player_id = params[:id].to_i
-  @player = load_player(@player_id)
+get "/players/:player_id/edit" do
+  force_login
 
-  erb :player_edit, layout: :layout
+  @player_id = params[:player_id].to_i
+  @player = @storage.find_player(@player_id)
+
+  error = player_url_error_need_permission
+
+  if error
+    redirect "/game_list"
+  else
+    erb :player_edit, layout: :layout
+  end
 end
 
 # Edit player detail
-post "/players/:id/edit" do
-  @player_id = params[:id].to_i
-  @player = load_player(@player_id)
+post "/players/:player_id/edit" do
+  force_login
+
+  @player_id = params[:player_id].to_i
+  @player = @storage.find_player(@player_id)
 
   @name = params[:name]
   @rating = params[:rating].to_i
   @about = params[:about]
-  @password = if params[:password].empty?
-                @player.password
-              else
-                BCrypt::Password.create(params[:password])
-              end
+  @password = params[:password]
 
-  player = Player.new(id: @player_id, name: @name, rating: @rating,
-                      about: @about, username: @player.username,
-                      password: @password)
-  @storage.edit_player(player)
+  url_error = player_url_error_need_permission
+  input_error = input_error_for_edit_player
 
-  redirect "/players/#{@player_id}"
+  if url_error
+    session[:error] = url_error
+    redirect "/game_list"
+  elsif input_error
+    session[:error] = input_error
+    status 422
+
+    erb :player_edit, layout: :layout
+  else
+    new_password = if @password.empty?
+                     @player.password
+                   else
+                     BCrypt::Password.create(@password)
+                   end
+
+    player = Player.new(id: @player_id,
+                        name: @name,
+                        rating: @rating,
+                        about: @about,
+                        username: @player.username,
+                        password: new_password)
+
+    @storage.edit_player(player)
+    session[:success] = "Player updated."
+
+    redirect "/players/#{@player_id}"
+  end
 end
 
 # View login page
@@ -816,16 +867,18 @@ end
 
 # Login
 post "/login" do
-  if valid_password? && correct_password?
+  error = error_for_login
+
+  if error
+    session[:error] = error
+    status 422
+    erb :login
+  else
     session[:username] = params[:username]
     session[:player_id] = @storage.find_player_id(params[:username])
     session[:success] = "Welcome!"
     session[:logged_in] = true
     redirect "/game_list"
-  else
-    session[:error] = "Invalid Credentials!"
-    status 422
-    erb :login
   end
 end
 
@@ -853,20 +906,31 @@ end
 
 # Register
 post "/register" do
-  if already_logged_in?
-    handle_already_logged_in
+  url_error = url_error_for_register
+  input_error = input_error_for_register
+
+  if url_error
+    session[:error] = url_error
     redirect "/game_list"
-  elsif acc_exists?
-    handle_acc_exists
-    erb :register, layout: :layout
-  elsif !valid_username?
-    handle_invalid_username
-    erb :register, layout: :layout
-  elsif !valid_password?
-    handle_invalid_password
+  elsif input_error
+    session[:error] = input_error
+    status 422
+
     erb :register, layout: :layout
   else
-    register_acc
+    encrypted_password = BCrypt::Password.create(params[:password]).to_s
+
+    player = Player.new(username: params[:username],
+                        password: encrypted_password,
+                        name: params[:username])
+
+                        @storage.add_player(player)
+
+    session[:success] = "Your account has been registered."
+    session[:logged_in] = true
+    session[:username] = params[:username]
+    session[:player_id] = @storage.find_player_id(params[:username])
+
     redirect "/game_list"
   end
 end

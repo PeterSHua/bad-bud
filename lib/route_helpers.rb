@@ -174,11 +174,33 @@ def url_error_for_group_need_permission
   end
 end
 
-def player_url_error_for_transition_player
+def player_url_error_no_permission
   if !valid_player_id?
     handle_invalid_player_id
   elsif !@player
     handle_player_not_found
+  end
+end
+
+def player_url_error_need_permission
+  if !valid_player_id?
+    handle_invalid_player_id
+  elsif !@player
+    handle_player_not_found
+  elsif !player_have_permission?
+    handle_player_no_permission
+  end
+end
+
+def input_error_for_edit_player
+  if !valid_player_name?
+    handle_invalid_player_name
+  elsif !valid_player_rating?
+    handle_invalid_player_rating
+  elsif !valid_player_about?
+    handle_invalid_player_about
+  elsif !valid_password?
+    handle_invalid_password
   end
 end
 
@@ -210,6 +232,34 @@ def input_error_for_group
   end
 end
 
+def error_for_login
+  if !valid_password?
+    handle_invalid_password
+  elsif !correct_password?
+    handle_incorrect_password
+  end
+end
+
+def url_error_for_register
+  if already_logged_in?
+    handle_already_logged_in
+  end
+end
+
+def input_error_for_register
+  if !valid_username?
+    handle_invalid_username
+  elsif !valid_password?
+    handle_invalid_password
+  elsif acc_exists?
+    handle_acc_exists
+  end
+end
+
+def handle_invalid_password
+  session[:error] = "Invalid Credentials!"
+end
+
 def no_group_selected?
   params[:group_id].empty?
 end
@@ -239,7 +289,6 @@ end
 
 def handle_acc_exists
   session[:error] = "That account name already exists."
-  status 422
 end
 
 def valid_username?
@@ -249,7 +298,6 @@ end
 def handle_invalid_username
   session[:error] = "Username must consist of only letters and numbers, "\
   "and must be between 4-10 characters."
-  status 422
 end
 
 def valid_password?
@@ -259,7 +307,10 @@ end
 def handle_invalid_password
   session[:error] = "Password must be between 4-10 characters and cannot "\
                     "contain spaces."
-  status 422
+end
+
+def handle_incorrect_password
+  session[:error] = "Invalid credentials."
 end
 
 def correct_password?
@@ -267,19 +318,6 @@ def correct_password?
   return false if password.nil?
 
   BCrypt::Password.new(password) == params[:password]
-end
-
-def register_acc
-  encrypted_password = BCrypt::Password.create(params[:password]).to_s
-  player = Player.new(username: params[:username],
-                      password: encrypted_password,
-                      name: params[:username])
-  @storage.add_player(player)
-
-  session[:success] = "Your account has been registered."
-  session[:logged_in] = true
-  session[:username] = params[:username]
-  session[:player_id] = @storage.find_player_id(params[:username])
 end
 
 def valid_game_id?
@@ -315,6 +353,14 @@ def group_have_permission?
 end
 
 def handle_group_no_permission
+  session[:error] = "You don't have permission to do that!"
+end
+
+def player_have_permission?
+  session[:player_id].to_i == @player_id
+end
+
+def handle_player_no_permission
   session[:error] = "You don't have permission to do that!"
 end
 
@@ -361,11 +407,28 @@ def handle_invalid_player_id
 end
 
 def valid_player_name?
-  (1..20).cover?(params[:player_name]&.strip&.length)
+  (1..20).cover?(params[:name]&.strip&.length)
 end
 
 def handle_invalid_player_name
   session[:error] = "Your name must be between 1 and 20 characters."
+end
+
+def valid_player_rating?
+  params[:rating].to_i.to_s == params[:rating] &&
+    params[:rating].to_i.between?(1, 6)
+end
+
+def handle_invalid_player_rating
+  session[:error] = "Invalid player rating!"
+end
+
+def valid_player_about?
+  (1..300).cover?(params[:about]&.length)
+end
+
+def handle_invalid_player_about
+  session[:error] = "About cannot exceed 300 characters."
 end
 
 def valid_group_name?
