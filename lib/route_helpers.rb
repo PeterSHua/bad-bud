@@ -173,6 +173,12 @@ def url_error_for_group_need_permission
   end
 end
 
+def url_error_for_schedule_day
+  if !valid_schedule_day?
+    handle_invalid_schedule_day
+  end
+end
+
 def player_url_error_no_permission
   if !valid_player_id?
     handle_invalid_player_id
@@ -228,6 +234,12 @@ def input_error_for_group
     handle_group_already_exists
   elsif !valid_group_about?
     handle_invalid_group_about
+  end
+end
+
+def input_error_for_group_schedule
+  if !valid_group_notes?
+    handle_invalid_group_notes
   end
 end
 
@@ -352,6 +364,15 @@ def handle_group_no_permission
   session[:error] = "You don't have permission to do that!"
 end
 
+def valid_schedule_day?
+  params[:day_of_week].to_i.to_s == params[:day_of_week] &&
+    (0..6).cover?(params[:day_of_week].to_i)
+end
+
+def handle_invalid_schedule_day
+  session[:error] = "Invalid day of the week."
+end
+
 def player_have_permission?
   session[:player_id].to_i == @player_id
 end
@@ -453,8 +474,12 @@ def handle_invalid_group_about
   session[:error] = "Group about max character limit is 300."
 end
 
-def valid_notes?(notes)
-  notes.nil? || notes.length <= 1000
+def valid_group_notes?
+  params[:notes].nil? || params[:notes].length <= 1000
+end
+
+def handle_invalid_group_notes
+  session[:error] = "Note cannot be greater than 1000 characters."
 end
 
 def normalize_day(day)

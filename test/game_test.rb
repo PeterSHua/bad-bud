@@ -318,7 +318,6 @@ class BadBudsTest < Minitest::Test
     assert_equal 422, last_response.status
 
     assert_includes last_response.body, "Location cannot be empty and total length cannot exceed 1000 characters."
-    refute_includes last_response.body, "Badminton Vancouver"
   end
 
   def test_edit_game_location_too_long
@@ -345,7 +344,6 @@ class BadBudsTest < Minitest::Test
     assert_equal 422, last_response.status
 
     assert_includes last_response.body, "Location cannot be empty and total length cannot exceed 1000 characters."
-    refute_includes last_response.body, "Badminton Vancouver"
   end
 
   def test_edit_game_level_too_short
@@ -410,6 +408,25 @@ class BadBudsTest < Minitest::Test
     }
 
     post "/games/1/edit", game_details, logged_in_as_david
+    assert_equal 422, last_response.status
+
+    assert_includes last_response.body, "Slots must be between 1 and 1000."
+  end
+
+  def test_edit_game_slots_too_small
+    game_details = {
+      group_id: 1,
+      date: "2022/8/15",
+      hour: 1,
+      am_pm: 'am',
+      duration: 4,
+      location: 'My backard',
+      level: 'All level',
+      total_slots: 0,
+      fee: 19
+    }
+
+    post "/games/create", game_details, logged_in_as_david
     assert_equal 422, last_response.status
 
     assert_includes last_response.body, "Slots must be between 1 and 1000."

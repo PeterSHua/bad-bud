@@ -10,6 +10,7 @@ gem "minitest"
 gem "bcrypt"
 gem "solargraph"
 gem "rake"
+gem "pry-byebug"
 
 group :production do
   gem "puma"

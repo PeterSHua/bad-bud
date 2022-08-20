@@ -2,6 +2,8 @@
   Copy to Clipboard
 </button>
 
+<br>
+
 <% if @game.template %>
   <a class="orange-link" href="/groups/<%= @game.group_id %>/schedule/<%= @day_of_week %>">&#128197; Back to <%= day_of_week_to_name(@game.start_time.wday) %> View</a>
 <% end %>
