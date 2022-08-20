@@ -269,21 +269,14 @@ post "/games/:game_id/players/confirm_all" do
   @game_id = params[:game_id].to_i
   @game = @storage.find_game(@game_id)
 
-  @player_id = params[:player_id].to_i
-  @player = @storage.find_player(@player_id)
-
   @group_id = @game&.group_id
   @group_players = @storage.find_group_players(@group_id)
 
-  game_url_error = game_url_error_for_player_confirm_payment_in_game
-  player_url_error = player_url_error_for_player_confirm_payment_in_game
+  error = game_url_error_for_player_confirm_payment_in_game
 
-  if game_url_error
-    session[:error] = game_url_error
+  if error
+    session[:error] = error
     redirect "/game_list"
-  elsif player_url_error
-    session[:error] = player_url_error
-    redirect "/games/#{@game_id}"
   else
     @storage.confirm_all_paid(@game_id)
 
@@ -327,25 +320,18 @@ post "/games/:game_id/players/unconfirm_all" do
   @game_id = params[:game_id].to_i
   @game = @storage.find_game(@game_id)
 
-  @player_id = params[:player_id].to_i
-  @player = @storage.find_player(@player_id)
-
   @group_id = @game&.group_id
   @group_players = @storage.find_group_players(@group_id)
 
-  game_url_error = game_url_error_for_player_confirm_payment_in_game
-  player_url_error = player_url_error_for_player_confirm_payment_in_game
+  error = game_url_error_for_player_confirm_payment_in_game
 
-  if game_url_error
+  if error
     session[:error] = game_url_error
     redirect "/game_list"
-  elsif player_url_error
-    session[:error] = player_url_error
-    redirect "/games/#{@game_id}"
   else
     @storage.unconfirm_all_paid(@game_id)
 
-    session[:success] = "All player payment confirmed."
+    session[:success] = "All player payment un-confirmed."
     redirect "/games/#{@game_id}"
   end
 end

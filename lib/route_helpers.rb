@@ -198,7 +198,7 @@ def input_error_for_edit_player
     handle_invalid_player_rating
   elsif !valid_player_about?
     handle_invalid_player_about
-  elsif !valid_password?
+  elsif !params[:password].empty? && !valid_password?
     handle_invalid_password
   end
 end
