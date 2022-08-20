@@ -75,8 +75,15 @@ class DatabasePersistence
   end
 
   def create_game(game)
-    query(create_game_sql_query, game.group_id, game.start_time, game.duration,
-          game.location, game.level, game.fee, game.total_slots, game.notes,
+    query(create_game_sql_query,
+          game.group_id,
+          game.start_time,
+          game.duration,
+          game.location,
+          game.level,
+          game.fee,
+          game.total_slots,
+          game.notes,
           game.template)
   end
 
@@ -94,8 +101,14 @@ class DatabasePersistence
   end
 
   def edit_game(game)
-    query(edit_game_sql_query, game.id, game.start_time, game.duration,
-          game.location, game.level, game.total_slots, game.fee)
+    query(edit_game_sql_query,
+          game.id,
+          game.start_time,
+          game.duration,
+          game.location,
+          game.level,
+          game.total_slots,
+          game.fee)
   end
 
   def delete_game(id)
@@ -246,7 +259,8 @@ class DatabasePersistence
   end
 
   def find_group_template_games_for_day(group_id, day_of_week)
-    result = query(find_group_template_games_for_day_sql_query, group_id,
+    result = query(find_group_template_games_for_day_sql_query,
+                   group_id,
                    day_of_week)
 
     result.map do |tuple|
@@ -314,8 +328,12 @@ class DatabasePersistence
        WHERE id = $1;
     SQL
 
-    query(sql, player.id, player.password, player.name,
-          player.rating, player.about)
+    query(sql,
+          player.id,
+          player.password,
+          player.name,
+          player.rating,
+          player.about)
   end
 
   def delete_group(group_id)
@@ -436,7 +454,11 @@ class DatabasePersistence
       VALUES ($1, $2, $3, $4, $5);
     SQL
 
-    query(sql, player.username, player.password, player.name, player.rating,
+    query(sql,
+          player.username,
+          player.password,
+          player.name,
+          player.rating,
           player.about)
   end
 
@@ -495,8 +517,15 @@ class DatabasePersistence
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
     SQL
 
-    query(sql, game.group_id, game.start_time, game.duration,
-          game.location, game.fee, game.total_slots, game.notes, game.template)
+    query(sql,
+          game.group_id,
+          game.start_time,
+          game.duration,
+          game.location,
+          game.fee,
+          game.total_slots,
+          game.notes,
+          game.template)
   end
 
   def last_game_id

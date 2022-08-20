@@ -8,13 +8,33 @@ MAX_DURATION_HOURS = 12
 HOURS_IN_DAY = 24
 
 class Game
-  attr_reader :id, :start_time, :duration, :group_name, :group_id, :location,
-              :level, :fee, :filled_slots, :total_slots, :players, :notes,
+  attr_reader :id,
+              :start_time,
+              :duration,
+              :group_name,
+              :group_id,
+              :location,
+              :level,
+              :fee,
+              :filled_slots,
+              :total_slots,
+              :players,
+              :notes,
               :template
 
-  def initialize(start_time:, duration:, group_id:, location:, level:, fee:,
-                 total_slots:, id: nil, group_name: "", players: {},
-                 filled_slots: 0, notes: "", template: false)
+  def initialize(start_time:,
+                duration:,
+                group_id:,
+                location:,
+                level:,
+                fee:,
+                total_slots:,
+                id: nil,
+                group_name: "",
+                players: {},
+                filled_slots: 0,
+                notes: "",
+                template: false)
 
     self.id = id
     self.start_time = Time.parse(start_time)
@@ -33,7 +53,17 @@ class Game
 
   private
 
-  attr_writer :id, :start_time, :duration, :group_name, :group_id, :location,
-              :level, :fee, :filled_slots, :total_slots, :players, :notes,
+  attr_writer :id,
+              :start_time,
+              :duration,
+              :group_name,
+              :group_id,
+              :location,
+              :level,
+              :fee,
+              :filled_slots,
+              :total_slots,
+              :players,
+              :notes,
               :template
 end

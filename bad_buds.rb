@@ -129,13 +129,12 @@ post "/games/:game_id/delete" do
 
   if error
     session[:error] = error
-    redirect "/game_list"
   else
     @storage.delete_game(@game_id)
-
     session[:success] = "Game has been deleted."
-    redirect "/game_list"
   end
+
+  redirect "/game_list"
 end
 
 def signup_anon_player(game_id, name)
@@ -423,13 +422,15 @@ post "/groups/:group_id/delete" do
   error = url_error_for_group_need_permission
 
   if error
+    session[:error] = error
+    status 422
     redirect "/group_list"
   else
     @storage.delete_group(@group_id)
     session[:success] = "Group has been deleted."
-
-    redirect "/group_list"
   end
+
+  redirect "/group_list"
 end
 
 # Join group
@@ -780,7 +781,26 @@ post "/groups/:group_id/schedule/:day_of_week/add" do
     handle_invalid_fee
     erb :group_schedule_day_of_week_add_game
   else
-    add_group_schedule_day_of_week_game
+    date = case @day_of_week
+    when 0 then "2022-07-03"
+    when 1 then "2022-07-04"
+    when 2 then "2022-07-05"
+    when 3 then "2022-07-06"
+    when 4 then "2022-07-07"
+    when 5 then "2022-07-08"
+    when 6 then "2022-07-09"
+    end
+
+    game = Game.new(start_time: "#{date} #{params[:hour]}#{params[:am_pm]}",
+                duration: params[:duration].to_i,
+                group_name: @group.name,
+                group_id: @group.id.to_i,
+                location: params[:location],
+                fee: params[:fee].to_i,
+                total_slots: params[:total_slots].to_i,
+                template: true)
+
+    @storage.add_game(game)
 
     redirect "/groups/#{@group_id}/schedule/#{@day_of_week}"
   end
@@ -924,7 +944,7 @@ post "/register" do
                         password: encrypted_password,
                         name: params[:username])
 
-                        @storage.add_player(player)
+    @storage.add_player(player)
 
     session[:success] = "Your account has been registered."
     session[:logged_in] = true

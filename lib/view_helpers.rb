@@ -21,7 +21,8 @@ helpers do
   end
 
   def display_time(game)
-    "#{game.start_time.strftime("%l:%M%p")} - #{(game.start_time + game.duration * 60 * 60).strftime("%l:%M%p")}"
+    "#{game.start_time.strftime('%l:%M%p')} - "\
+    "#{(game.start_time + game.duration * 60 * 60).strftime('%l:%M%p')}"
   end
 
   def todays_date
@@ -30,7 +31,7 @@ helpers do
 
   def select_duration(duration)
     if (params[:duration] && params[:duration] == duration) ||
-         (@game && (@game.duration == duration))
+       (@game && (@game.duration == duration))
       "selected"
     else
       ""
@@ -43,7 +44,8 @@ helpers do
   end
 
   def select_hour(hour)
-    if (params[:hour] && params[:hour] == hour) || (@game && (normalize_to_12hr(@game.start_time&.hour) == hour))
+    if (params[:hour] && params[:hour] == hour) ||
+       (@game && (normalize_to_12hr(@game.start_time&.hour) == hour))
       "selected"
     else
       ""
@@ -51,8 +53,9 @@ helpers do
   end
 
   def select_am
-    if (params[:am_pm] && params[:am_pm] == 'am') || (@game && ((@game.start_time.hour == MAX_DURATION_HOURS) ||
-          (@game.start_time.hour < HOUR_HAND_MAX)))
+    if (params[:am_pm] && params[:am_pm] == 'am') ||
+       (@game && ((@game.start_time.hour == MAX_DURATION_HOURS) ||
+       (@game.start_time.hour < HOUR_HAND_MAX)))
       "selected"
     else
       ""
@@ -60,8 +63,9 @@ helpers do
   end
 
   def select_pm
-    if (params[:am_pm] && params[:am_pm] == 'pm') || (@game && (@game.start_time.hour != MAX_DURATION_HOURS &&
-         @game.start_time.hour >= HOUR_HAND_MAX))
+    if (params[:am_pm] && params[:am_pm] == 'pm') ||
+       (@game && (@game.start_time.hour != MAX_DURATION_HOURS &&
+        @game.start_time.hour >= HOUR_HAND_MAX))
       "selected"
     else
       ""

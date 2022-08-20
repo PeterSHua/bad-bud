@@ -1,9 +1,8 @@
-# Route helpers
 def force_login
-  if !already_logged_in?
-    session[:error] = "You must be logged in to do that."
-    redirect "/game_list"
-  end
+  return unless !already_logged_in?
+
+  session[:error] = "You must be logged in to do that."
+  redirect "/game_list"
 end
 
 def game_have_permission?
@@ -241,9 +240,9 @@ def error_for_login
 end
 
 def url_error_for_register
-  if already_logged_in?
-    handle_already_logged_in
-  end
+  return unless already_logged_in?
+
+  handle_already_logged_in
 end
 
 def input_error_for_register
@@ -254,10 +253,6 @@ def input_error_for_register
   elsif acc_exists?
     handle_acc_exists
   end
-end
-
-def handle_invalid_password
-  session[:error] = "Invalid Credentials!"
 end
 
 def no_group_selected?
@@ -349,7 +344,8 @@ def handle_group_not_found
 end
 
 def group_have_permission?
-  session[:logged_in] && @storage.group_organizer?(@group_id, session[:player_id])
+  session[:logged_in] &&
+    @storage.group_organizer?(@group_id, session[:player_id])
 end
 
 def handle_group_no_permission
@@ -369,7 +365,8 @@ def valid_location?
 end
 
 def handle_invalid_location
-  session[:error] = "Location cannot be empty and total length cannot exceed 1000 characters."
+  session[:error] = "Location cannot be empty and total length cannot exceed "\
+                    "1000 characters."
 end
 
 def valid_level?
@@ -377,7 +374,8 @@ def valid_level?
 end
 
 def handle_invalid_level
-  session[:error] = "Level cannot be empty and total length cannot exceed 300 characters."
+  session[:error] = "Level cannot be empty and total length cannot exceed 300 "\
+                    "characters."
 end
 
 def valid_slots?
@@ -460,47 +458,23 @@ def valid_notes?(notes)
 end
 
 def normalize_day(day)
-  day += DAYS_OF_WEEK.size
+  day + DAYS_OF_WEEK.size
 end
 
 def calc_start_time(scheduled_game)
-  days_til_game_day_from_publish_day = scheduled_game.start_time.wday - @publish_day
+  days_btwn_publish_game = scheduled_game.start_time.wday - @publish_day
 
-  if days_til_game_day_from_publish_day <= 0
-    days_til_game_day_from_publish_day = normalize_day(days_til_game_day_from_publish_day)
+  if days_btwn_publish_game <= 0
+    days_btwn_publish_game = normalize_day(days_btwn_publish_game)
   end
 
-  days_til_publish_day = @publish_day - Time.now.wday
+  days_til_publish = @publish_day - Time.now.wday
 
-  if days_til_publish_day <= 0
-    normalize_day(days_til_publish_day)
-  end
+  normalize_day(days_til_publish) if days_til_publish <= 0
 
   game_day = Time.new +
-             (days_til_publish_day + days_til_game_day_from_publish_day) * DAY_TO_SEC
+             (days_til_publish + days_btwn_publish_game) * DAY_TO_SEC
 
-  "#{game_day.year}-#{game_day.mon}-#{game_day.day} #{scheduled_game.start_time.hour}"
-end
-
-def add_group_schedule_day_of_week_game
-  date = case @day_of_week
-         when 0 then "2022-07-03"
-         when 1 then "2022-07-04"
-         when 2 then "2022-07-05"
-         when 3 then "2022-07-06"
-         when 4 then "2022-07-07"
-         when 5 then "2022-07-08"
-         when 6 then "2022-07-09"
-         end
-
-  game = Game.new(start_time: "#{date} #{params[:hour]}#{params[:am_pm]}",
-                  duration: params[:duration].to_i,
-                  group_name: @group.name,
-                  group_id: @group.id.to_i,
-                  location: params[:location],
-                  fee: params[:fee].to_i,
-                  total_slots: params[:total_slots].to_i,
-                  template: true)
-
-  @storage.add_game(game)
+  "#{game_day.year}-#{game_day.mon}-#{game_day.day} "\
+  "#{scheduled_game.start_time.hour}"
 end
