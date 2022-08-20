@@ -237,6 +237,14 @@ def input_error_for_group
   end
 end
 
+def input_error_for_edit_group
+  if !valid_group_name?
+    handle_invalid_group_name
+  elsif !valid_group_about?
+    handle_invalid_group_about
+  end
+end
+
 def input_error_for_group_schedule
   if !valid_group_notes?
     handle_invalid_group_notes
@@ -443,7 +451,7 @@ def handle_invalid_player_rating
 end
 
 def valid_player_about?
-  (1..300).cover?(params[:about]&.length)
+  (0..300).cover?(params[:about]&.length)
 end
 
 def handle_invalid_player_about
@@ -467,7 +475,7 @@ def handle_invalid_group_name
 end
 
 def valid_group_about?
-  params[:about].nil? || (1..300).cover?(params[:about].length)
+  params[:about].nil? || (0..300).cover?(params[:about].length)
 end
 
 def handle_invalid_group_about
@@ -475,7 +483,7 @@ def handle_invalid_group_about
 end
 
 def valid_group_notes?
-  params[:notes].nil? || params[:notes].length <= 1000
+  params[:notes].nil? || (0..1000).cover?(params[:notes].length)
 end
 
 def handle_invalid_group_notes
@@ -495,7 +503,9 @@ def calc_start_time(scheduled_game)
 
   days_til_publish = @publish_day - Time.now.wday
 
-  normalize_day(days_til_publish) if days_til_publish <= 0
+  if days_til_publish <= 0
+    days_til_publish = normalize_day(days_til_publish)
+  end
 
   game_day = Time.new +
              (days_til_publish + days_btwn_publish_game) * DAY_TO_SEC

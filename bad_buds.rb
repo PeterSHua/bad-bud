@@ -365,7 +365,7 @@ post "/groups/create" do
     session[:error] = error
     status 422
 
-    erb :group_edit, layout: :layout
+    erb :group_create, layout: :layout
   else
     @group_id = @storage.last_group_id + 1
 
@@ -484,7 +484,7 @@ post "/groups/:group_id/edit" do
   @group = @storage.find_group(@group_id)
 
   url_error = url_error_for_group_need_permission
-  input_error = input_error_for_group
+  input_error = input_error_for_edit_group
 
   if url_error
     session[:error] = url_error
@@ -510,7 +510,7 @@ post "/groups/:group_id/players/:player_id/remove" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_game(@group_id)
+  @group = @storage.find_group(@group_id)
 
   @player_id = params[:player_id].to_i
   @player = @storage.find_player(@player_id)
@@ -536,7 +536,7 @@ post "/groups/:group_id/players/:player_id/promote" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_game(@group_id)
+  @group = @storage.find_group(@group_id)
 
   @player_id = params[:player_id].to_i
   @player = @storage.find_player(@player_id)
@@ -562,7 +562,7 @@ post "/groups/:group_id/players/:player_id/demote" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_game(@group_id)
+  @group = @storage.find_group(@group_id)
 
   @player_id = params[:player_id].to_i
   @player = @storage.find_player(@player_id)
@@ -677,39 +677,47 @@ end
 
 # Publish weekly schedule games
 post "/groups/:group_id/schedule/publish" do
+  force_login
+
   @group_id = params[:group_id].to_i
-  check_group_permission(@group_id)
-
   @group = @storage.find_group(@group_id)
-  @publish_day = params[:publish_day].to_i
 
-  scheduled_games = @storage.find_scheduled_games(@group_id)
+  url_error = url_error_for_group_need_permission
 
-  games_to_add = scheduled_games.map do |scheduled_game|
-    start_time = calc_start_time(scheduled_game)
+  if url_error
+    session[:error] = url_error
+    redirect "/group_list"
+  else
+    @publish_day = params[:publish_day].to_i
 
-    Game.new(start_time: start_time, duration: scheduled_game.duration,
-             group_name: scheduled_game.group_name,
-             group_id: scheduled_game.group_id,
-             location: scheduled_game.location,
-             level: scheduled_game.level,
-             fee: scheduled_game.fee,
-             filled_slots: scheduled_game.filled_slots,
-             total_slots: scheduled_game.total_slots,
-             players: scheduled_game.players,
-             notes: @group.schedule_game_notes, template: false)
-  end
+    scheduled_games = @storage.find_scheduled_games(@group_id)
 
-  games_to_add.each do |game|
-    @storage.add_game(game)
-    game_id = @storage.last_game_id
+    games_to_add = scheduled_games.map do |scheduled_game|
+      start_time = calc_start_time(scheduled_game)
 
-    game.players.each do |player|
-      @storage.rsvp_player(game_id, player.id)
+      Game.new(start_time: start_time, duration: scheduled_game.duration,
+               group_name: scheduled_game.group_name,
+               group_id: scheduled_game.group_id,
+               location: scheduled_game.location,
+               level: scheduled_game.level,
+               fee: scheduled_game.fee,
+               filled_slots: scheduled_game.filled_slots,
+               total_slots: scheduled_game.total_slots,
+               players: scheduled_game.players,
+               notes: @group.schedule_game_notes, template: false)
     end
-  end
 
-  redirect "/game_list"
+    games_to_add.each do |game|
+      @storage.add_game(game)
+      game_id = @storage.last_game_id
+
+      game.players.each do |player|
+        @storage.rsvp_player(game_id, player.id)
+      end
+    end
+
+    redirect "/game_list"
+  end
 end
 
 # View edit game page

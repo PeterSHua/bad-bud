@@ -172,17 +172,6 @@ class BadBudsTest < Minitest::Test
     refute_includes last_response.body, "Details of the new group"
   end
 
-  def test_edit_group_already_exists
-    group_details = {
-      name: 'Novice BM Vancouver',
-      about: 'Details of the new group'
-    }
-
-    post "/groups/1/edit", group_details, logged_in_as_david
-
-    assert_includes last_response.body, "A group already exists with that name."
-  end
-
   def test_edit_group_short_name
     group_details = {
       name: '',

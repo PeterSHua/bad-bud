@@ -471,6 +471,7 @@ class DatabasePersistence
     new_group_id = if group.id.nil?
                      'DEFAULT'
                    else
+                    query("SELECT nextval('groups_id_seq');")
                      group.id
                    end
 
