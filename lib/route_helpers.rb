@@ -466,7 +466,7 @@ def handle_invalid_player_about
 end
 
 def valid_group_name?
-  (1..20).cover?(params[:name]&.length)
+  (1..50).cover?(params[:name]&.length)
 end
 
 def group_exists?
