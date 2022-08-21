@@ -51,6 +51,7 @@ end
 get "/games/create" do
   force_login
 
+  @player_id = session[:player_id]
   @groups = @storage.find_groups_is_organizer(@player_id)
 
   erb :game_create, layout: :layout do
@@ -71,8 +72,6 @@ post "/games/create" do
   @player_id = session[:player_id]
   @groups = @storage.find_groups_is_organizer(@player_id)
   @group_id = params[:group_id].to_i
-
-  @groups = @storage.find_groups_is_organizer(@player_id)
 
   if no_group_selected?
     create_group_entry_for_game_without_group

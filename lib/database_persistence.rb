@@ -384,7 +384,8 @@ class DatabasePersistence
              INNER JOIN groups_players
              ON groups_players.group_id = groups.id
        WHERE is_organizer = TRUE AND
-             groups_players.player_id = $1;
+             groups_players.player_id = $1 AND
+             groups.name != '';
     SQL
   end
 

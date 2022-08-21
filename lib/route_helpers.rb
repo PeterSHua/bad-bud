@@ -1,5 +1,5 @@
 def https_required
-  unless request.secure?
+  if settings.production? && request.scheme == 'http'
     headers['Location'] = request.url.sub('http', 'https')
     halt 301
   end
