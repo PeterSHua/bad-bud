@@ -471,7 +471,7 @@ class DatabasePersistence
     new_group_id = group.id
 
     query(sql, new_group_id, group.name, group.about)
-    query("SELECT nextval('groups_id_seq');")
+    query("SELECT setval('groups_id_seq', $1);", new_group_id)
   end
 
   def edit_group(group)
