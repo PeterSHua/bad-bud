@@ -90,7 +90,7 @@ helpers do
   def game_notes_text
     return params[:notes] unless params[:notes].nil?
 
-    if !@game.nil? && !@game&.notes.empty?
+    if !@game.nil? && !@game&.notes&.empty?
       @game&.notes
     else
       @group&.schedule_game_notes
