@@ -44,7 +44,7 @@ CREATE TABLE IF NOT EXISTS games(
     level       varchar(300),
     fee         integer CHECK(fee <= 1000) NOT NULL,
     total_slots integer CHECK(total_slots BETWEEN 1 AND 1000) NOT NULL,
-    notes       varchar(300),
+    notes       varchar(1000),
     template    boolean NOT NULL
 );
 
