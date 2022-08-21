@@ -1,6 +1,8 @@
 def https_required
-  headers['Location'] = request.url.sub('http', 'https')
-  halt 301
+  unless request.secure?
+    headers['Location'] = request.url.sub('http', 'https')
+    halt 301
+  end
 end
 
 def force_login
