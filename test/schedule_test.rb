@@ -306,7 +306,7 @@ class BadBudsTest < Minitest::Test
       fee: 19
     }
 
-    post "/groups/1/schedule/1/add", {}, logged_in_as_david
+    post "/groups/1/schedule/1/add", game_details, logged_in_as_david
     assert_equal 422, last_response.status
 
     assert_includes last_response.body, "Location cannot be empty and total length cannot exceed 1000 characters."
@@ -332,7 +332,7 @@ class BadBudsTest < Minitest::Test
       fee: 19
     }
 
-    post "/groups/1/schedule/1/add", {}, logged_in_as_david
+    post "/groups/1/schedule/1/add", game_details, logged_in_as_david
     assert_equal 422, last_response.status
 
     assert_includes last_response.body, "Location cannot be empty and total length cannot exceed 1000 characters."
