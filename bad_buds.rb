@@ -11,8 +11,6 @@ require_relative "lib/player"
 require_relative "lib/view_helpers"
 require_relative "lib/route_helpers"
 
-require "pry-byebug"
-
 ROOT = File.expand_path(__dir__)
 
 configure do
@@ -69,6 +67,7 @@ post "/games/create" do
   @level = params[:level]
   @total_slots = params[:total_slots].to_i
   @fee = params[:fee].to_i
+  @notes = params[:notes]
   @player_id = session[:player_id]
   @groups = @storage.find_groups_is_organizer(@player_id)
   @group_id = params[:group_id].to_i
@@ -754,6 +753,7 @@ post "/games/:game_id/edit" do
   @level = params[:level]
   @fee = params[:fee].to_i
   @total_slots = params[:total_slots].to_i
+  @notes = params[:notes]
 
   @game = @storage.find_game(@game_id)
   @group_id = @game&.group_id
@@ -784,7 +784,8 @@ post "/games/:game_id/edit" do
                     location: @location,
                     level: @level,
                     fee: @fee,
-                    total_slots: @total_slots)
+                    total_slots: @total_slots,
+                    notes: @notes)
 
     @storage.edit_game(game)
 

@@ -95,7 +95,8 @@ class DatabasePersistence
             location = $4,
             level = $5,
             total_slots = $6,
-            fee = $7
+            fee = $7,
+            notes = $8
       WHERE id = $1;
     SQL
   end
@@ -108,7 +109,8 @@ class DatabasePersistence
           game.location,
           game.level,
           game.total_slots,
-          game.fee)
+          game.fee,
+          game.notes)
   end
 
   def delete_game(id)

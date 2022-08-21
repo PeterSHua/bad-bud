@@ -35,3 +35,5 @@
 <label for="fee">Fee:</label>
 <input name="fee" placeholder="Cost per player in whole dollars" type="text" value="<%= params[:fee] || @game&.fee %>">
 
+<label for="notes">Notes:</label>
+<textarea name="notes" id="notes" rows="8" cols="33"><%= params[:notes] || @game&.notes %></textarea>

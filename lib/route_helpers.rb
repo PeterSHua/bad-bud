@@ -55,7 +55,8 @@ def create_game
                   location: @location,
                   level: @level,
                   fee: @fee,
-                  total_slots: @total_slots)
+                  total_slots: @total_slots,
+                  notes: @notes)
 
   @storage.create_game(game)
 end
@@ -99,6 +100,8 @@ def input_error_for_edit_game
     handle_invalid_slots
   elsif !valid_fee?
     handle_invalid_fee
+  elsif !valid_game_notes?
+    handle_invalid_game_notes
   end
 end
 
@@ -430,6 +433,14 @@ end
 
 def handle_invalid_fee
   session[:error] = "Fee must be between 0 and 1000."
+end
+
+def valid_game_notes?
+  params[:notes].nil? || (0..1000).cover?(params[:notes].length)
+end
+
+def handle_invalid_game_notes
+  session[:error] = "Note cannot be greater than 1000 characters."
 end
 
 def valid_player_id?
