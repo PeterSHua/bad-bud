@@ -493,7 +493,7 @@ def handle_invalid_group_name
 end
 
 def valid_group_about?
-  params[:about].nil? || (0..300).cover?(params[:about].length)
+  params[:about].nil? || (0..1000).cover?(params[:about].length)
 end
 
 def handle_invalid_group_about

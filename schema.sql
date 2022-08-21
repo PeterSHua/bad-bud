@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS groups(
     PRIMARY KEY (id),
     id    serial,
     name  varchar(50) NOT NULL,
-    about varchar(300),
+    about varchar(1000),
     schedule_game_notes varchar(1000)
 );
 
