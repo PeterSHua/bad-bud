@@ -521,9 +521,16 @@ class DatabasePersistence
 
   def add_game(game)
     sql = <<~SQL
-      INSERT INTO games (group_id, start_time, duration, location, fee,
-                         total_slots, notes, template)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8);
+      INSERT INTO games (group_id,
+                         start_time,
+                         duration,
+                         location,
+                         level,
+                         fee,
+                         total_slots,
+                         notes,
+                         template)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
     SQL
 
     query(sql,
@@ -531,6 +538,7 @@ class DatabasePersistence
           game.start_time,
           game.duration,
           game.location,
+          game.level,
           game.fee,
           game.total_slots,
           game.notes,

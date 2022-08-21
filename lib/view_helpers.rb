@@ -86,4 +86,14 @@ helpers do
   def profile_pic_exists?
     File.file?("#{ROOT}/public/images/#{@player.username}.jpg")
   end
+
+  def game_notes_text
+    return params[:notes] unless params[:notes].nil?
+
+    if !@game&.notes&.empty?
+      @game&.notes
+    else
+      @group&.schedule_game_notes
+    end
+  end
 end
