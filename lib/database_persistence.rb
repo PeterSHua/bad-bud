@@ -496,6 +496,15 @@ class DatabasePersistence
     query(sql, group_id, player_id)
   end
 
+  def add_organizer(group_id, player_id)
+    sql = <<~SQL
+      INSERT INTO groups_players (group_id, player_id, is_organizer)
+      VALUES ($1, $2, true)
+    SQL
+
+    query(sql, group_id, player_id)
+  end
+
   def remove_organizer(group_id, player_id)
     sql = <<~SQL
       UPDATE groups_players

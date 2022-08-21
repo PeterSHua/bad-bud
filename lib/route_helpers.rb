@@ -283,7 +283,7 @@ def create_group_entry_for_game_without_group
   @group_id = @storage.last_group_id + 1
   group = Group.new(id: @group_id)
   @storage.add_group(group)
-  @storage.make_organizer(@group_id, @player_id)
+  @storage.add_organizer(@group_id, @player_id)
 end
 
 def already_logged_in?
