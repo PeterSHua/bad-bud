@@ -1,14 +1,15 @@
-require "time"
-
-MONTHS = %w(Jan Feb Mar Apr May Jun Jul Aug Sept Oct Nov Dec)
-DAYS_OF_WEEK = %w(Sunday Monday Tuesday Wednesday Thursday Friday Saturday)
-DAY_TO_SEC = 86400
-HOUR_HAND_MAX = 12
-MAX_DURATION_HOURS = 12
-HOURS_IN_DAY = 24
-MAX_RATING = 6
-
 class Game
+  MIN_SLOTS = 1
+  MAX_SLOTS = 1000
+  MIN_FEE = 0
+  MAX_FEE = 1000
+  MIN_NOTE_LEN = 0
+  MAX_NOTE_LEN = 1000
+  MIN_LOCATION_LEN = 1
+  MAX_LOCATION_LEN = 300
+  MIN_LEVEL_LEN = 1
+  MAX_LEVEL_LEN = 300
+
   attr_reader :id,
               :start_time,
               :duration,
@@ -24,18 +25,18 @@ class Game
               :template
 
   def initialize(start_time:,
-                duration:,
-                group_id:,
-                location:,
-                level:,
-                fee:,
-                total_slots:,
-                id: nil,
-                group_name: "",
-                players: {},
-                filled_slots: 0,
-                notes: "",
-                template: false)
+                 duration:,
+                 group_id:,
+                 location:,
+                 level:,
+                 fee:,
+                 total_slots:,
+                 id: nil,
+                 group_name: "",
+                 players: {},
+                 filled_slots: 0,
+                 notes: "",
+                 template: false)
 
     self.id = id
     self.start_time = Time.parse(start_time)

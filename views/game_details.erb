@@ -2,7 +2,7 @@
 <label for="hour_select">Start time:</label>
 
 <select name="hour" id="hour_select">
-  <% (1..HOUR_HAND_MAX).each do |hour| %>
+  <% (1..TimeDate::HOUR_HAND_MAX).each do |hour| %>
     <option value="<%= hour %>" <%= select_hour(hour) %>><%= hour %></option>
   <% end %>
 </select>
@@ -16,7 +16,7 @@
 
 <label for="duration_select">Duration (hours):</label>
 <select name="duration" id="duration_select">
-  <% (1..MAX_DURATION_HOURS).each do |duration| %>
+  <% (1..TimeDate::MAX_DURATION_HOURS).each do |duration| %>
     <option value="<%= duration %>" <%= select_duration(duration) %>><%= duration %></option>
   <% end %>
 </select>

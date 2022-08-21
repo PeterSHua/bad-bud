@@ -63,7 +63,9 @@ class BadBudsTest < Minitest::Test
     post "/groups/create", group_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Group name must be between 1 and 20 characters."
+    flash_msg = "Group name must be between 1 and 50 characters."
+
+    assert_includes last_response.body, flash_msg
   end
 
   def test_create_group_long_name
@@ -82,7 +84,9 @@ class BadBudsTest < Minitest::Test
     post "/groups/create", group_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Group name must be between 1 and 20 characters."
+    flash_msg = "Group name must be between 1 and 50 characters."
+
+    assert_includes last_response.body, flash_msg
   end
 
   def test_create_group_long_about
@@ -115,7 +119,8 @@ class BadBudsTest < Minitest::Test
     post "/groups/create", group_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Group about max character limit is 300."
+    flash_msg = "Group about max character limit is 1000."
+    assert_includes last_response.body, flash_msg
   end
 
   def test_view_group
@@ -195,7 +200,8 @@ class BadBudsTest < Minitest::Test
     post "/groups/1/edit", group_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Group name must be between 1 and 20 characters."
+    flash_msg = "Group name must be between 1 and 50 characters."
+    assert_includes last_response.body, flash_msg
   end
 
   def test_edit_group_long_name
@@ -214,7 +220,8 @@ class BadBudsTest < Minitest::Test
     post "/groups/1/edit", group_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Group name must be between 1 and 20 characters."
+    flash_msg = "Group name must be between 1 and 50 characters."
+    assert_includes last_response.body, flash_msg
   end
 
   def test_edit_group_long_about
@@ -247,7 +254,8 @@ class BadBudsTest < Minitest::Test
     post "/groups/1/edit", group_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Group about max character limit is 300."
+    flash_msg = "Group about max character limit is 1000."
+    assert_includes last_response.body, flash_msg
   end
 
   def test_edit_invalid_group1

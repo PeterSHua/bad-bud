@@ -1,5 +1,4 @@
 helpers do
-  # Fix - remove
   def already_signed_up?(game_id, player_id)
     @storage.already_signed_up?(game_id, player_id)
   end
@@ -17,12 +16,15 @@ helpers do
   end
 
   def day_of_week_to_name(day_of_week)
-    DAYS_OF_WEEK[day_of_week]
+    TimeDate::DAYS_OF_WEEK[day_of_week]
   end
 
   def display_time(game)
+    game_duration_secs = game.duration * TimeDate::MINS_IN_HOUR *
+                         TimeDate::SECS_IN_MIN
+
     "#{game.start_time.strftime('%l:%M%p')} - "\
-    "#{(game.start_time + game.duration * 60 * 60).strftime('%l:%M%p')}"
+    "#{(game.start_time + game_duration_secs).strftime('%l:%M%p')}"
   end
 
   def todays_date
@@ -49,7 +51,7 @@ helpers do
 
   def normalize_to_12hr(hour)
     return nil if hour.nil?
-    hour > HOUR_HAND_MAX ? hour - HOUR_HAND_MAX : hour
+    hour > TimeDate::HOUR_HAND_MAX ? hour - TimeDate::HOUR_HAND_MAX : hour
   end
 
   def select_hour(hour)
@@ -63,8 +65,8 @@ helpers do
 
   def select_am
     if (params[:am_pm] && params[:am_pm] == 'am') ||
-       (@game && ((@game.start_time.hour == MAX_DURATION_HOURS) ||
-       (@game.start_time.hour < HOUR_HAND_MAX)))
+       (@game && ((@game.start_time.hour == TimeDate::MAX_DURATION_HOURS) ||
+       (@game.start_time.hour < TimeDate::HOUR_HAND_MAX)))
       "selected"
     else
       ""
@@ -73,8 +75,8 @@ helpers do
 
   def select_pm
     if (params[:am_pm] && params[:am_pm] == 'pm') ||
-       (@game && (@game.start_time.hour != MAX_DURATION_HOURS &&
-        @game.start_time.hour >= HOUR_HAND_MAX))
+       (@game && (@game.start_time.hour != TimeDate::MAX_DURATION_HOURS &&
+        @game.start_time.hour >= TimeDate::HOUR_HAND_MAX))
       "selected"
     else
       ""

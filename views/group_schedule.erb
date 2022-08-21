@@ -26,13 +26,9 @@
 <form action="/groups/<%= @group_id %>/schedule/publish" method="post">
   <label for="publish_day_select">Next week schedule starts on</label>
   <select name="publish_day" id="publish_day_select">
-    <option value="0"><%= DAYS_OF_WEEK[0] %></option>
-    <option value="1"><%= DAYS_OF_WEEK[1] %></option>
-    <option value="2"><%= DAYS_OF_WEEK[2] %></option>
-    <option value="3"><%= DAYS_OF_WEEK[3] %></option>
-    <option value="4"><%= DAYS_OF_WEEK[4] %></option>
-    <option value="5"><%= DAYS_OF_WEEK[5] %></option>
-    <option value="6"><%= DAYS_OF_WEEK[6] %></option>
+    <% (0...TimeDate::DAYS_OF_WEEK.size).each do |day| %>
+      <option value="<%= day %>"><%= TimeDate::DAYS_OF_WEEK[day] %></option>
+    <% end %>
   </select>
 
   <button type="submit" value="Publish">Publish Scheduled Games</button>

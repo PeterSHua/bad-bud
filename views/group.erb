@@ -15,7 +15,7 @@
   <% @group_games.each do |game| %>
     <a href="/games/<%= game.id %>">
       <li>
-        <h2><%= DAYS_OF_WEEK[game.start_time.wday] %>, <%= MONTHS[game.start_time.month - 1] %> <%= game.start_time.day %></h2>
+        <h2><%= TimeDate::DAYS_OF_WEEK[game.start_time.wday] %>, <%= TimeDate::MONTHS[game.start_time.month - 1] %> <%= game.start_time.day %></h2>
         <p>
           &#128100; <%= game.filled_slots %> / <%= game.total_slots %>
         </p>

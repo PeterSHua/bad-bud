@@ -17,7 +17,6 @@ class BadBudsTest < Minitest::Test
     assert session[:logged_in]
   end
 
-
   def test_login_fail
     post "/login", { username: "groucho", password: "marx" }
 
@@ -25,7 +24,6 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Invalid credentials."
     refute session[:logged_in]
   end
-
 
   def test_logout
     post "/login", { username: "david", password: "abc123" }
@@ -135,4 +133,3 @@ class BadBudsTest < Minitest::Test
                     "contain spaces."
   end
 end
-

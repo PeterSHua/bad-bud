@@ -15,11 +15,11 @@
 </h2>
 
 <h2>
-  &#128198; <span id="gameDate"><%= DAYS_OF_WEEK[@game.start_time.wday] %>, <!--
+  &#128198; <span id="gameDate"><%= TimeDate::DAYS_OF_WEEK[@game.start_time.wday] %>, <!--
 --><% if @game.template %><!--
     Weekly Game Template
 --><% else %><!--
---><%= MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %></span>
+--><%= TimeDate::MONTHS[@game.start_time.month - 1] %> <%= @game.start_time.day %></span>
   <% end %>
 </h2>
 

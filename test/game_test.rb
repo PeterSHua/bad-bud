@@ -93,7 +93,10 @@ class BadBudsTest < Minitest::Test
     post "/games/create", game_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Location cannot be empty and total length cannot exceed 1000 characters."
+    flash_msg = "Location cannot be empty and total length cannot exceed 300 "\
+                "characters."
+
+    assert_includes last_response.body, flash_msg
     refute_includes last_response.body, "My backyard"
   end
 
@@ -120,7 +123,10 @@ class BadBudsTest < Minitest::Test
     post "/games/create", game_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Location cannot be empty and total length cannot exceed 1000 characters."
+    flash_msg = "Location cannot be empty and total length cannot exceed 300 "\
+                "characters."
+
+    assert_includes last_response.body, flash_msg
     refute_includes last_response.body, "My backyard"
   end
 
@@ -208,8 +214,8 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Jul 25"
     assert_includes last_response.body, "Novice BM Vancouver"
     assert_includes last_response.body, "Badminton Vancouver"
-    assert_includes last_response.body, "Attendees: 3 / 18"
-    assert_includes last_response.body, "Fee: $12"
+    assert_includes last_response.body, "3 / 18"
+    assert_includes last_response.body, "$12"
     assert_includes last_response.body, "E-transfer the fee to David"
   end
 
@@ -317,7 +323,10 @@ class BadBudsTest < Minitest::Test
     post "/games/1/edit", game_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Location cannot be empty and total length cannot exceed 1000 characters."
+    flash_msg = "Location cannot be empty and total length cannot exceed 300 "\
+                "characters."
+
+    assert_includes last_response.body, flash_msg
   end
 
   def test_edit_game_location_too_long
@@ -343,7 +352,10 @@ class BadBudsTest < Minitest::Test
     post "/games/1/edit", game_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Location cannot be empty and total length cannot exceed 1000 characters."
+    flash_msg = "Location cannot be empty and total length cannot exceed 300 "\
+                "characters."
+
+    assert_includes last_response.body, flash_msg
   end
 
   def test_edit_game_level_too_short
@@ -362,7 +374,10 @@ class BadBudsTest < Minitest::Test
     post "/games/1/edit", game_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Level cannot be empty and total length cannot exceed 300 characters."
+    flash_msg = "Level cannot be empty and total length cannot exceed 300 "\
+                "characters."
+
+    assert_includes last_response.body, flash_msg
     refute_includes last_response.body, "Badminton Vancouver"
   end
 
@@ -389,7 +404,10 @@ class BadBudsTest < Minitest::Test
     post "/games/1/edit", game_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Level cannot be empty and total length cannot exceed 300 characters."
+    flash_msg = "Level cannot be empty and total length cannot exceed 300 "\
+                "characters."
+
+    assert_includes last_response.body, flash_msg
     refute_includes last_response.body, "Badminton Vancouver"
   end
 

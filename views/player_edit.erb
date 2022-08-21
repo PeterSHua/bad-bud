@@ -5,7 +5,7 @@
 
     <label for="rating_select">Rating:</label>
     <select name="rating" id="rating_select">
-      <% (1..MAX_RATING).each do |rating| %>
+      <% (1..Player::MAX_RATING).each do |rating| %>
         <option value="<%= rating  %>" <%= select_rating(rating) %>><%= rating %></option>
       <% end %>
     </select>

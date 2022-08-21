@@ -1,4 +1,14 @@
 class Player
+  MIN_RATING = 1
+  MAX_RATING = 6
+  MAX_USERNAME_LEN = 10
+  MIN_USERNAME_LEN = 4
+  MAX_PASS_LEN = 10
+  MIN_PASS_LEN = 4
+  MIN_NAME_LEN = 1
+  MAX_NAME_LEN = 20
+  MAX_ABOUT_LEN = 300
+
   attr_reader :id,
               :username,
               :password,

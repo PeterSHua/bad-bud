@@ -1,8 +1,8 @@
 def https_required
-  if settings.production? && request.scheme == 'http'
-    headers['Location'] = request.url.sub('http', 'https')
-    halt 301
-  end
+  return unless settings.production? && request.scheme == 'http'
+
+  headers['Location'] = request.url.sub('http', 'https')
+  halt 301
 end
 
 def force_login
@@ -317,20 +317,28 @@ def handle_acc_exists
 end
 
 def valid_username?
-  (4..10).cover?(params[:username]&.size) && !/[^\w]/.match?(params[:username])
+  username_range = Player::MIN_USERNAME_LEN..Player::MAX_USERNAME_LEN
+
+  (username_range).cover?(params[:username]&.size) &&
+    !/[^\w]/.match?(params[:username])
 end
 
 def handle_invalid_username
   session[:error] = "Username must consist of only letters and numbers, "\
-  "and must be between 4-10 characters."
+                    "and must be between #{Player::MIN_USERNAME_LEN}-"\
+                    "#{Player::MAX_USERNAME_LEN} characters."
 end
 
 def valid_password?
-  (4..10).cover?(params[:password]&.size) && !/\s/.match?(params[:password])
+  password_range = Player::MIN_PASS_LEN..Player::MAX_PASS_LEN
+
+  (password_range).cover?(params[:password]&.size) &&
+                          !/\s/.match?(params[:password])
 end
 
 def handle_invalid_password
-  session[:error] = "Password must be between 4-10 characters and cannot "\
+  session[:error] = "Password must be between #{Player::MIN_PASS_LEN}"\
+                    "-#{Player::MAX_PASS_LEN} characters and cannot "\
                     "contain spaces."
 end
 
@@ -384,7 +392,7 @@ end
 
 def valid_schedule_day?
   params[:day_of_week].to_i.to_s == params[:day_of_week] &&
-    (0..6).cover?(params[:day_of_week].to_i)
+    (0...TimeDate::DAYS_OF_WEEK.size).cover?(params[:day_of_week].to_i)
 end
 
 def handle_invalid_schedule_day
@@ -400,47 +408,53 @@ def handle_player_no_permission
 end
 
 def valid_location?
-  (1..300).cover?(params[:location]&.length)
+  location_range = Game::MIN_LOCATION_LEN..Game::MAX_LOCATION_LEN
+  (location_range).cover?(params[:location]&.length)
 end
 
 def handle_invalid_location
   session[:error] = "Location cannot be empty and total length cannot exceed "\
-                    "1000 characters."
+                    "#{Game::MAX_LOCATION_LEN} characters."
 end
 
 def valid_level?
-  (1..300).cover?(params[:level]&.length)
+  level_range = Game::MIN_LEVEL_LEN..Game::MAX_LEVEL_LEN
+  (level_range).cover?(params[:level]&.length)
 end
 
 def handle_invalid_level
-  session[:error] = "Level cannot be empty and total length cannot exceed 300 "\
-                    "characters."
+  session[:error] = "Level cannot be empty and total length cannot exceed "\
+                    "#{Game::MAX_LEVEL_LEN} characters."
 end
 
 def valid_slots?
   params[:total_slots].to_i.to_s == params[:total_slots] &&
-    params[:total_slots].to_i.between?(1, 1000)
+    params[:total_slots].to_i.between?(Game::MIN_SLOTS, Game::MAX_SLOTS)
 end
 
 def handle_invalid_slots
-  session[:error] = "Slots must be between 1 and 1000."
+  session[:error] = "Slots must be between #{Game::MIN_SLOTS} "\
+                    "and #{Game::MAX_SLOTS}."
 end
 
 def valid_fee?
   params[:fee].to_i.to_s == params[:fee] &&
-    params[:fee].to_i.between?(0, 1000)
+    params[:fee].to_i.between?(Game::MIN_FEE, Game::MAX_FEE)
 end
 
 def handle_invalid_fee
-  session[:error] = "Fee must be between 0 and 1000."
+  session[:error] = "Fee must be between #{Game::MIN_FEE} "\
+                    "and #{Game::MAX_FEE}."
 end
 
 def valid_game_notes?
-  params[:notes].nil? || (0..1000).cover?(params[:notes].length)
+  note_range = Game::MIN_NOTE_LEN..Game::MAX_NOTE_LEN
+  params[:notes].nil? || (note_range).cover?(params[:notes].length)
 end
 
 def handle_invalid_game_notes
-  session[:error] = "Note cannot be greater than 1000 characters."
+  session[:error] = "Note cannot be greater than #{Game::MAX_NOTE_LEN} "\
+                    "characters."
 end
 
 def valid_player_id?
@@ -452,16 +466,18 @@ def handle_invalid_player_id
 end
 
 def valid_player_name?
-  (1..20).cover?(params[:name]&.strip&.length)
+  name_range = Player::MIN_NAME_LEN..Player::MAX_NAME_LEN
+  (name_range).cover?(params[:name]&.strip&.length)
 end
 
 def handle_invalid_player_name
-  session[:error] = "Your name must be between 1 and 20 characters."
+  session[:error] = "Your name must be between #{Player::MIN_NAME_LEN} and "\
+                    "#{Player::MAX_NAME_LEN} characters."
 end
 
 def valid_player_rating?
   params[:rating].to_i.to_s == params[:rating] &&
-    params[:rating].to_i.between?(1, 6)
+    params[:rating].to_i.between?(Player::MIN_RATING, Player::MAX_RATING)
 end
 
 def handle_invalid_player_rating
@@ -469,15 +485,20 @@ def handle_invalid_player_rating
 end
 
 def valid_player_about?
-  (0..300).cover?(params[:about]&.length)
+  (0..Player::MAX_ABOUT_LEN).cover?(params[:about]&.length)
 end
 
 def handle_invalid_player_about
-  session[:error] = "About cannot exceed 300 characters."
+  session[:error] = "About cannot exceed #{Player::MAX_ABOUT_LEN} characters."
 end
 
 def valid_group_name?
-  (1..50).cover?(params[:name]&.length)
+  (Group::MIN_NAME_LEN..Group::MAX_NAME_LEN).cover?(params[:name]&.length)
+end
+
+def handle_invalid_group_name
+  session[:error] = "Group name must be between #{Group::MIN_NAME_LEN} " \
+                    "and #{Group::MAX_NAME_LEN} characters."
 end
 
 def group_exists?
@@ -488,28 +509,40 @@ def handle_group_already_exists
   session[:error] = "A group already exists with that name."
 end
 
-def handle_invalid_group_name
-  session[:error] = "Group name must be between 1 and 20 characters."
-end
-
 def valid_group_about?
-  params[:about].nil? || (0..1000).cover?(params[:about].length)
+  about_range = Group::MIN_ABOUT_LEN..Group::MAX_ABOUT_LEN
+  params[:about].nil? || (about_range).cover?(params[:about].length)
 end
 
 def handle_invalid_group_about
-  session[:error] = "Group about max character limit is 300."
+  session[:error] = "Group about max character limit is "\
+                    "#{Group::MAX_ABOUT_LEN}."
 end
 
 def valid_group_notes?
-  params[:notes].nil? || (0..1000).cover?(params[:notes].length)
+  note_range = Group::MIN_SCHEDULE_NOTES..Group::MAX_SCHEDULE_NOTES
+  params[:notes].nil? || (note_range).cover?(params[:notes].length)
 end
 
 def handle_invalid_group_notes
-  session[:error] = "Note cannot be greater than 1000 characters."
+  session[:error] = "Note cannot be greater than "\
+                    "#{Group::MAX_SCHEDULE_NOTES} characters."
+end
+
+def day_of_week_to_date(day)
+  case day
+  when 0 then TimeDate::SUN_DATE
+  when 1 then TimeDate::MON_DATE
+  when 2 then TimeDate::TUES_DATE
+  when 3 then TimeDate::WED_DATE
+  when 4 then TimeDate::THURS_DATE
+  when 5 then TimeDate::FRI_DATE
+  when 6 then TimeDate::SAT_DATE
+  end
 end
 
 def normalize_day(day)
-  day + DAYS_OF_WEEK.size
+  day + TimeDate::DAYS_OF_WEEK.size
 end
 
 def calc_start_time(scheduled_game)
@@ -526,7 +559,7 @@ def calc_start_time(scheduled_game)
   end
 
   game_day = Time.new +
-             (days_til_publish + days_btwn_publish_game) * DAY_TO_SEC
+             (days_til_publish + days_btwn_publish_game) * TimeDate::DAY_TO_SEC
 
   "#{game_day.year}-#{game_day.mon}-#{game_day.day} "\
   "#{scheduled_game.start_time.hour}"

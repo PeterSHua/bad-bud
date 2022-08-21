@@ -8,6 +8,8 @@ require_relative "lib/game"
 require_relative "lib/group"
 require_relative "lib/player"
 
+require_relative "lib/time_date"
+
 require_relative "lib/view_helpers"
 require_relative "lib/route_helpers"
 
@@ -820,15 +822,7 @@ post "/groups/:group_id/schedule/:day_of_week/add" do
       erb :game_details
     end
   else
-    date = case @day_of_week
-           when 0 then "2022-07-03"
-           when 1 then "2022-07-04"
-           when 2 then "2022-07-05"
-           when 3 then "2022-07-06"
-           when 4 then "2022-07-07"
-           when 5 then "2022-07-08"
-           when 6 then "2022-07-09"
-           end
+    date = day_of_week_to_date(@day_of_week)
 
     game = Game.new(start_time: "#{date} #{params[:hour]}#{params[:am_pm]}",
                 duration: params[:duration].to_i,

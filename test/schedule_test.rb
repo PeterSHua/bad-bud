@@ -87,7 +87,8 @@ class BadBudsTest < Minitest::Test
     post "/groups/1/schedule/edit", group_notes, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Note cannot be greater than 1000 characters."
+    flash_msg = "Note cannot be greater than 1000 characters."
+    assert_includes last_response.body, flash_msg
   end
 
   def test_view_group_schedule_day_games1
@@ -309,16 +310,19 @@ class BadBudsTest < Minitest::Test
     post "/groups/1/schedule/1/add", game_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Location cannot be empty and total length cannot exceed 1000 characters."
+    flash_msg = "Location cannot be empty and total length cannot exceed 300 "\
+                "characters."
+
+    assert_includes last_response.body, flash_msg
   end
 
   def test_add_game_to_group_schedule_for_day_of_week_location_too_long
     location = "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
-    "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
-    "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
-    "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
-    "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
-    "zzzzzz"
+               "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+               "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+               "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+               "zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz"\
+               "zzzzzz"
 
     game_details = {
       group_id: "",
@@ -335,7 +339,10 @@ class BadBudsTest < Minitest::Test
     post "/groups/1/schedule/1/add", game_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Location cannot be empty and total length cannot exceed 1000 characters."
+    flash_msg = "Location cannot be empty and total length cannot exceed 300 "\
+                "characters."
+
+    assert_includes last_response.body, flash_msg
   end
 
   def test_add_game_to_group_schedule_for_day_of_week_level_too_short
@@ -354,7 +361,10 @@ class BadBudsTest < Minitest::Test
     post "/groups/1/schedule/1/add", game_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Level cannot be empty and total length cannot exceed 300 characters."
+    flash_msg = "Level cannot be empty and total length cannot exceed 300 "\
+                "characters."
+
+    assert_includes last_response.body, flash_msg
     refute_includes last_response.body, "Badminton Vancouver"
   end
 
@@ -381,7 +391,10 @@ class BadBudsTest < Minitest::Test
     post "/groups/1/schedule/1/add", game_details, logged_in_as_david
     assert_equal 422, last_response.status
 
-    assert_includes last_response.body, "Level cannot be empty and total length cannot exceed 300 characters."
+    flash_msg = "Level cannot be empty and total length cannot exceed 300 "\
+                "characters."
+
+    assert_includes last_response.body, flash_msg
     refute_includes last_response.body, "Badminton Vancouver"
   end
 
