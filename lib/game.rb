@@ -6,6 +6,7 @@ DAY_TO_SEC = 86400
 HOUR_HAND_MAX = 12
 MAX_DURATION_HOURS = 12
 HOURS_IN_DAY = 24
+MAX_RATING = 6
 
 class Game
   attr_reader :id,

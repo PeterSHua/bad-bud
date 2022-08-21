@@ -291,7 +291,7 @@ class DatabasePersistence
     result = query(all_groups_sql_query)
 
     result.map do |tuple|
-      Group.new(id: tuple["id"],
+      Group.new(id: tuple["id"].to_i,
                 name: tuple["name"],
                 about: tuple["about"],
                 schedule_game_notes: tuple["schedule_game_notes"])
@@ -312,11 +312,11 @@ class DatabasePersistence
 
     return nil if result.ntuples.zero?
 
-    Player.new(id: tuple["id"],
+    Player.new(id: tuple["id"].to_i,
                username: tuple["username"],
                password: tuple["password"],
                name: tuple["name"],
-               rating: tuple["rating"],
+               rating: tuple["rating"].to_i,
                about: tuple["about"])
   end
 
@@ -361,7 +361,7 @@ class DatabasePersistence
 
     return nil if result.ntuples.zero?
 
-    Group.new(id: tuple["id"],
+    Group.new(id: tuple["id"].to_i,
               name: tuple["name"],
               about: tuple["about"],
               schedule_game_notes: tuple["schedule_game_notes"])
@@ -397,7 +397,7 @@ class DatabasePersistence
     return [] if result.ntuples.zero?
 
     result.map do |group|
-      Group.new(id: group["id"],
+      Group.new(id: group["id"].to_i,
                 name: group["name"],
                 about: group["about"],
                 schedule_game_notes: group["schedule_game_notes"])
@@ -777,8 +777,11 @@ class DatabasePersistence
     result.map do |tuple|
       fee_paid = (tuple["fee_paid"] == 't')
 
-      Player.new(id: tuple["id"], name: tuple["name"], rating: tuple["rating"],
-                 about: tuple["about"], username: tuple["username"],
+      Player.new(id: tuple["id"].to_i,
+                 name: tuple["name"],
+                 rating: tuple["rating"].to_i,
+                 about: tuple["about"],
+                 username: tuple["username"],
                  fee_paid: fee_paid)
     end
   end

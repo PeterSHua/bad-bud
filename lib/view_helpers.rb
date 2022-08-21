@@ -30,8 +30,17 @@ helpers do
   end
 
   def select_duration(duration)
-    if (params[:duration] && params[:duration] == duration) ||
+    if (params[:duration] && params[:duration].to_i == duration) ||
        (@game && (@game.duration == duration))
+      "selected"
+    else
+      ""
+    end
+  end
+
+  def select_rating(rating)
+    if (params[:rating] && params[:rating].to_i == rating) ||
+       (@player && (@player.rating == rating))
       "selected"
     else
       ""

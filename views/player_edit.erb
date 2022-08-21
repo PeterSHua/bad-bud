@@ -5,12 +5,9 @@
 
     <label for="rating_select">Rating:</label>
     <select name="rating" id="rating_select">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
-      <option value="6">6</option>
+      <% (1..MAX_RATING).each do |rating| %>
+        <option value="<%= rating  %>" <%= select_rating(rating) %>><%= rating %></option>
+      <% end %>
     </select>
 
     <br>
