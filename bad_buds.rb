@@ -27,6 +27,7 @@ configure(:development) do
 end
 
 before do
+  redirect request.url.sub('http', 'https') unless request.secure?
   @storage = DatabasePersistence.new(logger)
 end
 
