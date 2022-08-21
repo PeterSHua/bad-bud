@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS players(
 CREATE TABLE IF NOT EXISTS groups(
     PRIMARY KEY (id),
     id    serial,
-    name  varchar(20) UNIQUE NOT NULL,
+    name  varchar(20) NOT NULL,
     about varchar(300),
     schedule_game_notes varchar(1000)
 );

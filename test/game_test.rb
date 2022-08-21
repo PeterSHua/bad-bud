@@ -381,7 +381,6 @@ class BadBudsTest < Minitest::Test
       am_pm: 'am',
       duration: 4,
       location: location,
-      level: 'All level',
       level: level,
       total_slots: 9,
       fee: 19
@@ -519,7 +518,7 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Invalid game."
   end
 
-  def test_delete_invalid_game2
+  def test_delete_invalid_game3
     post "/games/9abc/delete", {}, logged_in_as_david
 
     get last_response["Location"]

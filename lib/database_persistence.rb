@@ -471,11 +471,14 @@ class DatabasePersistence
     new_group_id = if group.id.nil?
                      'DEFAULT'
                    else
-                    query("SELECT nextval('groups_id_seq');")
                      group.id
                    end
 
     query(sql, new_group_id, group.name, group.about)
+
+    if new_group_id != 'DEFAULT'
+      query("SELECT nextval('groups_id_seq');")
+    end
   end
 
   def edit_group(group)
