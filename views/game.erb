@@ -124,7 +124,7 @@
     </form>
   <% elsif session[:logged_in] %>
     <% if already_signed_up?(@game_id, session[:player_id]) %>
-      <form class="inline" method="post" action="/games/<%= @game.id %>/players/remove">
+      <form class="inline" method="post" action="/games/<%= @game.id %>/players/<%= session[:player_id] %>/remove">
         <button type="submit">Remove me</button>
       </form>
     <% else %>
