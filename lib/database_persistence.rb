@@ -643,6 +643,16 @@ class DatabasePersistence
     query(sql, group_id, player_id)
   end
 
+  def organizer_count(group_id)
+    sql = <<~SQL
+      SELECT count(id)
+        FROM groups_players
+       WHERE group_id = $1 AND is_organizer = true;
+    SQL
+
+    query(sql, group_id).values.first.first.to_i
+  end
+
   def group_organizer?(group_id, player_id)
     sql = <<~SQL
       SELECT is_organizer

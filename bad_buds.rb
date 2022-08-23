@@ -392,7 +392,7 @@ get "/groups/:group_id" do
 
   if error
     session[:error] = error
-    redirect "/group_list_list"
+    redirect "/group_list"
   else
     @group_games = @storage.find_group_games(@group_id)
     @group_players = @storage.find_group_players(@group_id)
@@ -576,6 +576,9 @@ post "/groups/:group_id/players/:player_id/demote" do
     redirect "/group_list"
   elsif player_url_error
     session[:error] = player_url_error
+    redirect "/groups/#{@group_id}"
+  elsif @storage.organizer_count(@group_id) <= 1
+    session[:error] = "Can't demote the sole organizer."
     redirect "/groups/#{@group_id}"
   else
     @storage.remove_organizer(@group_id, @player_id)

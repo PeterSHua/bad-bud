@@ -60,7 +60,10 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_demote_player
-    post "/groups/1/players/1/demote", {}, logged_in_as_david
+    post "/groups/1/players/1/promote", {}, logged_in_as_david
+    get last_response["Location"]
+
+    post "/groups/1/players/1/demote"
 
     assert_equal 302, last_response.status
 
@@ -115,6 +118,13 @@ class BadBudsTest < Minitest::Test
 
     assert_equal 302, last_response.status
     assert_equal "Invalid group.", session[:error]
+  end
+
+  def test_demote_sole_organizer
+    post "/groups/1/players/2/demote", {}, logged_in_as_david
+
+    assert_equal 302, last_response.status
+    assert_equal "Can't demote the sole organizer.", session[:error]
   end
 
   def test_remove_player_from_group

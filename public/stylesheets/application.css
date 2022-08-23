@@ -28,6 +28,7 @@ nav {
 }
 
 p {
+  overflow-wrap: break-word;
   margin: 0 0 35px 0;
 }
 
