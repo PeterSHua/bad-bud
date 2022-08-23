@@ -28,13 +28,13 @@ nav {
 }
 
 p {
-  overflow-wrap: break-word;
   margin: 0 0 35px 0;
 }
 
 body {
   font: normal 1rem 'ArialRounded', Helvetica, Arial, sans-serif;
   margin: 0 20px 0 20px;
+  overflow-wrap: break-word;
 }
 
 body > header {
