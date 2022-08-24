@@ -283,7 +283,8 @@ class DatabasePersistence
   def all_groups_sql_query
     <<~SQL
       SELECT *
-        FROM groups;
+        FROM groups
+       ORDER BY lower(name);
     SQL
   end
 

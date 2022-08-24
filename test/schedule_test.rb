@@ -492,4 +492,36 @@ class BadBudsTest < Minitest::Test
 
     assert_includes last_response.body, "Fee must be between 0 and 1000."
   end
+
+  def test_publish_schedule
+    
+  end
+
+  def test_publish_schedule_no_permission
+
+  end
+
+  def test_publish_schedule_invalid_group1
+
+  end
+
+  def test_publish_schedule_invalid_group2
+
+  end
+
+  def test_publish_schedule_invalid_group3
+
+  end
+
+  def test_publish_schedule_invalid_day1
+
+  end
+
+  def test_publish_schedule_invalid_day2
+
+  end
+
+  def test_publish_schedule_invalid_day3
+
+  end
 end
