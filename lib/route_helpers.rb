@@ -48,25 +48,12 @@ def error_for_create_game
   end
 end
 
-def create_game
-  game = Game.new(group_id: @group_id,
-                  start_time: @start_time,
-                  duration: @duration,
-                  location: @location,
-                  level: @level,
-                  fee: @fee,
-                  total_slots: @total_slots,
-                  notes: @notes)
-
-  @storage.create_game(game)
-end
-
 def error_for_view_edit_game
   if !valid_game_id?
     handle_invalid_game_id
   elsif !game_have_permission?
     handle_no_game_permission
-  elsif !@game
+  elsif !@game.id
     handle_game_not_found
   end
 end
@@ -78,7 +65,7 @@ end
 def error_for_view_game
   if !valid_game_id?
     handle_invalid_game_id
-  elsif !@game
+  elsif !@game.id
     handle_game_not_found
   end
 end
@@ -86,7 +73,7 @@ end
 def url_error_for_edit_game
   if !valid_game_id?
     handle_invalid_game_id
-  elsif !@game
+  elsif !@game.id
     handle_game_not_found
   end
 end
@@ -108,7 +95,7 @@ end
 def error_for_delete_game
   if !valid_game_id?
     handle_invalid_game_id
-  elsif !@game
+  elsif !@game.id
     handle_game_not_found
   elsif !game_have_permission?
     handle_no_game_permission
@@ -118,7 +105,7 @@ end
 def game_url_error_for_player_confirm_payment_in_game
   if !valid_game_id?
     handle_invalid_game_id
-  elsif !@game
+  elsif !@game.id
     handle_game_not_found
   elsif !game_have_permission?
     handle_no_game_permission
@@ -136,7 +123,7 @@ end
 def url_error_for_add_anon_player_to_game
   if !valid_game_id?
     handle_invalid_game_id
-  elsif !@game
+  elsif !@game.id
     handle_game_not_found
   end
 end
@@ -152,7 +139,7 @@ end
 def game_url_error_for_player_rsvp_in_game
   if !valid_game_id?
     handle_invalid_game_id
-  elsif !@game
+  elsif !@game.id
     handle_game_not_found
   end
 end
@@ -184,6 +171,13 @@ def url_error_for_group_need_permission
 end
 
 def url_error_for_schedule_day
+  if !valid_schedule_day?
+    handle_invalid_schedule_day
+  end
+end
+
+
+def input_error_for_post_schedule
   if !valid_schedule_day?
     handle_invalid_schedule_day
   end
@@ -546,13 +540,13 @@ def normalize_day(day)
 end
 
 def calc_start_time(scheduled_game)
-  days_btwn_publish_game = scheduled_game.start_time.wday - @publish_day
+  days_btwn_publish_game = scheduled_game.start_time.wday - @day_of_week
 
   if days_btwn_publish_game <= 0
     days_btwn_publish_game = normalize_day(days_btwn_publish_game)
   end
 
-  days_til_publish = @publish_day - Time.now.wday
+  days_til_publish = @day_of_week - Time.now.wday
 
   if days_til_publish <= 0
     days_til_publish = normalize_day(days_til_publish)

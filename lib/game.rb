@@ -24,13 +24,13 @@ class Game
               :notes,
               :template
 
-  def initialize(start_time:,
-                 duration:,
-                 group_id:,
-                 location:,
-                 level:,
-                 fee:,
-                 total_slots:,
+  def initialize(start_time: "2022-07-25 20:00:00",
+                 duration: 0,
+                 group_id: nil,
+                 location: "",
+                 level: 1,
+                 fee: 0,
+                 total_slots: 0,
                  id: nil,
                  group_name: "",
                  players: {},
@@ -51,6 +51,103 @@ class Game
     self.players = players
     self.notes = notes
     self.template = template
+  end
+
+  def create(db)
+    query = <<~SQL
+      INSERT INTO games (group_id,
+                        start_time,
+                        duration,
+                        location,
+                        level,
+                        fee,
+                        total_slots,
+                        notes,
+                        template)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+    SQL
+
+    db.query(query,
+             self.group_id,
+             self.start_time,
+             self.duration,
+             self.location,
+             self.level,
+             self.fee,
+             self.total_slots,
+             self.notes,
+             self.template)
+  end
+
+  def read(db, id)
+    query = <<~SQL
+      SELECT gm.id,
+             gm.start_time,
+             gm.duration,
+             gm.location,
+             gm.level,
+             gp.id AS group_id,
+             gp.name AS group_name,
+             gm.fee,
+             gm.total_slots,
+             gm.notes,
+             gm.template
+        FROM games AS gm
+            LEFT JOIN games_players AS g_p
+            ON gm.id = g_p.game_id
+            LEFT JOIN groups AS gp
+            ON gm.group_id = gp.id
+      WHERE gm.id = $1
+      ORDER BY start_time ASC;
+    SQL
+
+    result = db.query(query, id)
+    tuple = result.first
+
+    return nil if result.ntuples.zero?
+
+    self.id = tuple["id"].to_i
+
+    read_players(db)
+
+    self.start_time = Time.parse(tuple["start_time"])
+    self.duration = tuple["duration"].to_i
+    self.group_name = tuple["group_name"]
+    self.group_id = tuple["group_id"].to_i
+    self.location = tuple["location"]
+    self.level = tuple["level"]
+    self.fee = tuple["fee"].to_i
+    self.total_slots = tuple["total_slots"].to_i
+    self.notes = tuple["notes"]
+    self.template = tuple["template"] == "t"
+  end
+
+  def read_players(db)
+    query = <<~SQL
+    SELECT players.id, name, rating, about, username, fee_paid
+      FROM players
+          INNER JOIN games_players
+          ON games_players.player_id = players.id
+    WHERE games_players.game_id = $1
+    SQL
+
+    result = db.query(query, self.id)
+
+    players = result.map do |tuple|
+      fee_paid = (tuple["fee_paid"] == 't')
+
+      Player.new(id: tuple["id"].to_i,
+                 name: tuple["name"],
+                 rating: tuple["rating"].to_i,
+                 about: tuple["about"],
+                 username: tuple["username"],
+                 fee_paid: fee_paid)
+    end
+
+    self.players = players
+    self.filled_slots = players.count
+
+    return players
   end
 
   private

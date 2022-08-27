@@ -12,81 +12,6 @@ class DatabasePersistence
     @logger = logger
   end
 
-  def find_game_sql_query
-    <<~SQL
-      SELECT gm.id,
-            gm.start_time,
-            gm.duration,
-            gm.location,
-            gm.level,
-            gp.id AS group_id,
-            gp.name AS group_name,
-            gm.fee,
-            gm.total_slots,
-            gm.notes,
-            template
-        FROM games AS gm
-            LEFT JOIN games_players AS g_p
-            ON gm.id = g_p.game_id
-            LEFT JOIN groups AS gp
-            ON gm.group_id = gp.id
-      WHERE gm.id = $1
-      ORDER BY start_time ASC;
-    SQL
-  end
-
-  def find_game(id)
-    result = query(find_game_sql_query, id)
-    tuple = result.first
-
-    return nil if result.ntuples.zero?
-
-    players = find_players_for_game(id)
-    filled_slots = players.count
-
-    Game.new(id: tuple["id"].to_i,
-             start_time: tuple["start_time"],
-             duration: tuple["duration"].to_i,
-             group_name: tuple["group_name"],
-             group_id: tuple["group_id"].to_i,
-             location: tuple["location"],
-             level: tuple["level"],
-             fee: tuple["fee"].to_i,
-             filled_slots: filled_slots,
-             total_slots: tuple["total_slots"].to_i,
-             players: players,
-             notes: tuple["notes"],
-             template: (tuple["template"] == "t"))
-  end
-
-  def create_game_sql_query
-    <<~SQL
-      INSERT INTO games (group_id,
-                        start_time,
-                        duration,
-                        location,
-                        level,
-                        fee,
-                        total_slots,
-                        notes,
-                        template)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
-    SQL
-  end
-
-  def create_game(game)
-    query(create_game_sql_query,
-          game.group_id,
-          game.start_time,
-          game.duration,
-          game.location,
-          game.level,
-          game.fee,
-          game.total_slots,
-          game.notes,
-          game.template)
-  end
-
   def edit_game_sql_query
     <<~SQL
       UPDATE games
@@ -125,13 +50,13 @@ class DatabasePersistence
   def find_group_games_sql_query
     <<~SQL
       SELECT gm.id,
-            gm.start_time,
-            gm.duration,
-            gm.location,
-            gp.id AS group_id,
-            gm.fee,
-            count(g_p.player_id) AS filled_slots,
-            total_slots
+             gm.start_time,
+             gm.duration,
+             gm.location,
+             gp.id AS group_id,
+             gm.fee,
+             count(g_p.player_id) AS filled_slots,
+             gm.total_slots
         FROM games AS gm
             LEFT JOIN games_players AS g_p
             ON gm.id = g_p.game_id
@@ -188,10 +113,7 @@ class DatabasePersistence
     return [] if result.ntuples.zero?
 
     result.map do |tuple|
-      players = find_players_for_game(tuple["id"].to_i)
-      filled_slots = players.count
-
-      Game.new(id: tuple["id"].to_i,
+      game = Game.new(id: tuple["id"].to_i,
                start_time: tuple["start_time"],
                duration: tuple["duration"].to_i,
                group_name: tuple["group_name"],
@@ -199,11 +121,13 @@ class DatabasePersistence
                location: tuple["location"],
                level: tuple["level"],
                fee: tuple["fee"].to_i,
-               filled_slots: filled_slots,
                total_slots: tuple["total_slots"].to_i,
-               players: players,
                notes: tuple["notes"],
                template: false)
+
+      game.read_players(self)
+
+      game
     end
   end
 
@@ -773,35 +697,11 @@ class DatabasePersistence
     @db.close
   end
 
-  private
-
   def query(statement, *params)
     @logger&.info "#{statement}: #{params}"
     @db.exec_params(statement, params)
   end
 
-  def find_players_for_game_sql_query
-    <<~SQL
-    SELECT players.id, name, rating, about, username, fee_paid
-      FROM players
-          INNER JOIN games_players
-          ON games_players.player_id = players.id
-    WHERE games_players.game_id = $1
-    SQL
-  end
+  private
 
-  def find_players_for_game(game_id)
-    result = query(find_players_for_game_sql_query, game_id)
-
-    result.map do |tuple|
-      fee_paid = (tuple["fee_paid"] == 't')
-
-      Player.new(id: tuple["id"].to_i,
-                 name: tuple["name"],
-                 rating: tuple["rating"].to_i,
-                 about: tuple["about"],
-                 username: tuple["username"],
-                 fee_paid: fee_paid)
-    end
-  end
 end

@@ -10,20 +10,20 @@ CREATE TABLE IF NOT EXISTS players(
 
 CREATE TABLE IF NOT EXISTS groups(
     PRIMARY KEY (id),
-    id    serial,
-    name  varchar(50) NOT NULL,
-    about varchar(1000),
+    id                  serial,
+    name                varchar(50) NOT NULL,
+    about               varchar(1000),
     schedule_game_notes varchar(1000)
 );
 
 CREATE TABLE IF NOT EXISTS groups_players(
     PRIMARY KEY (id),
-    id       serial,
-    group_id integer NOT NULL,
+    id           serial,
+    group_id     integer NOT NULL,
     FOREIGN KEY (group_id)
     REFERENCES groups (id)
     ON DELETE CASCADE,
-    player_id integer NOT NULL,
+    player_id    integer NOT NULL,
     FOREIGN KEY (player_id)
     REFERENCES players (id)
     ON DELETE CASCADE,
@@ -50,8 +50,8 @@ CREATE TABLE IF NOT EXISTS games(
 
 CREATE TABLE IF NOT EXISTS games_players(
     PRIMARY KEY (id),
-    id serial,
-    game_id integer NOT NULL,
+    id        serial,
+    game_id   integer NOT NULL,
     FOREIGN KEY (game_id)
     REFERENCES games (id)
     ON DELETE CASCADE,
@@ -59,6 +59,6 @@ CREATE TABLE IF NOT EXISTS games_players(
     FOREIGN KEY (player_id)
     REFERENCES players (id)
     ON DELETE CASCADE,
-    fee_paid boolean NOT NULL DEFAULT false,
+    fee_paid  boolean NOT NULL DEFAULT false,
     UNIQUE (game_id, player_id)
 );

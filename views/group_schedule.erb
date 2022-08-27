@@ -24,8 +24,8 @@
 </div>
 
 <form action="/groups/<%= @group_id %>/schedule/publish" method="post">
-  <label for="publish_day_select">Next week schedule starts on</label>
-  <select name="publish_day" id="publish_day_select">
+  <label for="day_of_week_select">Next week schedule starts on</label>
+  <select name="day_of_week" id="day_of_week_select">
     <% (0...TimeDate::DAYS_OF_WEEK.size).each do |day| %>
       <option value="<%= day %>"><%= TimeDate::DAYS_OF_WEEK[day] %></option>
     <% end %>

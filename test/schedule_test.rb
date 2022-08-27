@@ -494,34 +494,72 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_publish_schedule
-    
+    publish_details = { day_of_week: 2 }
+    post "/groups/1/schedule/publish", publish_details, logged_in_as_david
+
+    assert_equal 302, last_response.status
+
+    get last_response["Location"]
+    assert_includes last_response.body, "Sunday"
+    assert_includes last_response.body, "2:00PM"
+    assert_includes last_response.body, "4:00PM"
+
+    assert_includes last_response.body, "Thursday"
   end
 
   def test_publish_schedule_no_permission
+    publish_details = { day_of_week: 2 }
+    post "/groups/1/schedule/publish", publish_details
 
+    assert_equal 302, last_response.status
+    assert_equal "You must be logged in to do that.", session[:error]
   end
 
   def test_publish_schedule_invalid_group1
+    publish_details = { day_of_week: 2 }
+    post "/groups/9/schedule/publish", publish_details, logged_in_as_david
 
+    assert_equal 302, last_response.status
+    assert_equal "The specified group was not found.", session[:error]
   end
 
   def test_publish_schedule_invalid_group2
+    publish_details = { day_of_week: 2 }
+    post "/groups/abc/schedule/publish", publish_details, logged_in_as_david
 
+    assert_equal 302, last_response.status
+    assert_equal "Invalid group.", session[:error]
   end
 
   def test_publish_schedule_invalid_group3
+    publish_details = { day_of_week: 2 }
+    post "/groups/9abc/schedule/publish", publish_details, logged_in_as_david
 
+    assert_equal 302, last_response.status
+    assert_equal "Invalid group.", session[:error]
   end
 
   def test_publish_schedule_invalid_day1
+    publish_details = { day_of_week: 9 }
+    post "/groups/1/schedule/publish", publish_details, logged_in_as_david
 
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Invalid day of the week."
   end
 
   def test_publish_schedule_invalid_day2
+    publish_details = { day_of_week: "abc" }
+    post "/groups/1/schedule/publish", publish_details, logged_in_as_david
 
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Invalid day of the week."
   end
 
   def test_publish_schedule_invalid_day3
+    publish_details = { day_of_week: nil }
+    post "/groups/1/schedule/publish", publish_details, logged_in_as_david
 
+    assert_equal 200, last_response.status
+    assert_includes last_response.body, "Invalid day of the week."
   end
 end
