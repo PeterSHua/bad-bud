@@ -73,8 +73,8 @@ get "/games/:game_id" do
   @player_id = session[:player_id].to_i
   @game_id = params[:game_id].to_i
 
-  @game = Game.new
-  @game.read(@storage, @game_id)
+  @game = Game.new(id: @game_id)
+  @game.read(@storage)
 
   error = error_for_view_game
 
@@ -95,8 +95,8 @@ get "/games/:game_id/edit" do
   force_login
 
   @game_id = params[:game_id].to_i
-  @game = Game.new
-  @game.read(@storage, @game_id)
+  @game = Game.new(id: @game_id)
+  @game.read(@storage)
 
   @group_id = @game&.group_id
   @group = @storage.find_group(@group_id)
@@ -130,8 +130,8 @@ post "/games/:game_id/edit" do
   @total_slots = params[:total_slots].to_i
   @notes = params[:notes]
 
-  @game = Game.new
-  @game.read(@storage, @game_id)
+  @game = Game.new(id: @game_id)
+  @game.read(@storage)
 
   @group_id = @game&.group_id
   @group = @storage.find_group(@group_id)
@@ -164,7 +164,7 @@ post "/games/:game_id/edit" do
                     total_slots: @total_slots,
                     notes: @notes)
 
-    @storage.edit_game(game)
+    game.update(@storage)
 
     session[:success] = "Game was updated."
     redirect "/games/#{@game_id}"
@@ -176,15 +176,15 @@ post "/games/:game_id/delete" do
   force_login
 
   @game_id = params[:game_id].to_i
-  @game = Game.new()
-  @game.read(@storage, @game_id)
+  @game = Game.new(id: @game_id)
+  @game.read(@storage)
 
   error = error_for_delete_game
 
   if error
     session[:error] = error
   else
-    @storage.delete_game(@game_id)
+    @game.delete(@storage)
     session[:success] = "Game has been deleted."
   end
 
@@ -199,8 +199,8 @@ end
 # Add unregistered player to game
 post "/games/:game_id/players/add" do
   @game_id = params[:game_id].to_i
-  @game = Game.new
-  @game.read(@storage, @game_id)
+  @game = Game.new(id: @game_id)
+  @game.read(@storage)
   @group_id = @game.group_id
   @group_players = @storage.find_group_players(@group_id)
 
@@ -227,8 +227,8 @@ post "/games/:game_id/players/:player_id/add" do
   force_login
 
   @game_id = params[:game_id].to_i
-  @game = Game.new
-  @game.read(@storage, @game_id)
+  @game = Game.new(id: @game_id)
+  @game.read(@storage)
 
   @player_id = params[:player_id].to_i
   @player = @storage.find_player(@player_id)
@@ -263,8 +263,8 @@ post "/games/:game_id/players/:player_id/remove" do
   force_login
 
   @game_id = params[:game_id].to_i
-  @game = Game.new
-  @game.read(@storage, @game_id)
+  @game = Game.new(id: @game_id)
+  @game.read(@storage)
 
   @player_id = params[:player_id].to_i
   @player = @storage.find_player(@player_id)
@@ -294,8 +294,8 @@ post "/games/:game_id/players/:player_id/confirm_paid" do
   force_login
 
   @game_id = params[:game_id].to_i
-  @game = Game.new
-  @game.read(@storage, @game_id)
+  @game = Game.new(id: @game_id)
+  @game.read(@storage)
 
   @player_id = params[:player_id].to_i
   @player = @storage.find_player(@player_id)
@@ -325,8 +325,8 @@ post "/games/:game_id/players/confirm_all" do
   force_login
 
   @game_id = params[:game_id].to_i
-  @game = Game.new
-  @game.read(@storage, @game_id)
+  @game = Game.new(id: @game_id)
+  @game.read(@storage)
 
   @group_id = @game&.group_id
   @group_players = @storage.find_group_players(@group_id)
@@ -349,8 +349,8 @@ post "/games/:game_id/players/:player_id/unconfirm_paid" do
   force_login
 
   @game_id = params[:game_id].to_i
-  @game = Game.new
-  @game.read(@storage, @game_id)
+  @game = Game.new(id: @game_id)
+  @game.read(@storage)
 
   @player_id = params[:player_id].to_i
   @player = @storage.find_player(@player_id)
@@ -378,8 +378,8 @@ post "/games/:game_id/players/unconfirm_all" do
   force_login
 
   @game_id = params[:game_id].to_i
-  @game = Game.new
-  @game.read(@storage, @game_id)
+  @game = Game.new(id: @game_id)
+  @game.read(@storage)
 
   @group_id = @game&.group_id
   @group_players = @storage.find_group_players(@group_id)

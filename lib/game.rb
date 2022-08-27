@@ -54,7 +54,7 @@ class Game
   end
 
   def create(db)
-    query = <<~SQL
+    sql = <<~SQL
       INSERT INTO games (group_id,
                         start_time,
                         duration,
@@ -67,7 +67,7 @@ class Game
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
     SQL
 
-    db.query(query,
+    db.query(sql,
              self.group_id,
              self.start_time,
              self.duration,
@@ -79,8 +79,8 @@ class Game
              self.template)
   end
 
-  def read(db, id)
-    query = <<~SQL
+  def read(db)
+    sql = <<~SQL
       SELECT gm.id,
              gm.start_time,
              gm.duration,
@@ -101,12 +101,13 @@ class Game
       ORDER BY start_time ASC;
     SQL
 
-    result = db.query(query, id)
+    result = db.query(sql, self.id)
     tuple = result.first
 
-    return nil if result.ntuples.zero?
-
-    self.id = tuple["id"].to_i
+    if result.ntuples.zero?
+      self.id = nil
+      return nil
+    end
 
     read_players(db)
 
@@ -123,7 +124,7 @@ class Game
   end
 
   def read_players(db)
-    query = <<~SQL
+    sql = <<~SQL
     SELECT players.id, name, rating, about, username, fee_paid
       FROM players
           INNER JOIN games_players
@@ -131,7 +132,7 @@ class Game
     WHERE games_players.game_id = $1
     SQL
 
-    result = db.query(query, self.id)
+    result = db.query(sql, self.id)
 
     players = result.map do |tuple|
       fee_paid = (tuple["fee_paid"] == 't')
@@ -148,6 +149,40 @@ class Game
     self.filled_slots = players.count
 
     return players
+  end
+
+  def update(db)
+    sql = <<~SQL
+    UPDATE games
+      SET start_time = $2,
+          duration = $3,
+          location = $4,
+          level = $5,
+          total_slots = $6,
+          fee = $7,
+          notes = $8
+    WHERE id = $1;
+  SQL
+
+    db.query(sql,
+             self.id,
+             self.start_time,
+             self.duration,
+             self.location,
+             self.level,
+             self.total_slots,
+             self.fee,
+             self.notes)
+  end
+
+
+  def delete(db)
+    sql = <<~SQL
+      DELETE FROM games
+       WHERE id = $1;
+    SQL
+
+    db.query(sql, self.id)
   end
 
   private

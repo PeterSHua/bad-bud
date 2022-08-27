@@ -43,7 +43,7 @@ post "/groups/:group_id/schedule/publish" do
   else
     @day_of_week = params[:day_of_week].to_i
 
-    scheduled_games = @storage.find_scheduled_games(@group_id)
+    scheduled_games = @group.read_scheduled_games(@storage)
 
     games_to_add = scheduled_games.map do |scheduled_game|
       start_time = calc_start_time(scheduled_game)

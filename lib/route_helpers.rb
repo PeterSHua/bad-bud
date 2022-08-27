@@ -286,7 +286,9 @@ end
 def create_group_entry_for_game_without_group
   @group_id = @storage.last_group_id + 1
   group = Group.new(id: @group_id)
-  @storage.add_group(group)
+
+  group.create(@storage)
+  
   @storage.add_organizer(@group_id, @player_id)
 end
 

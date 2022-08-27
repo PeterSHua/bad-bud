@@ -33,7 +33,8 @@ post "/groups/create" do
                       name: @group_name,
                       about: @group_about)
 
-    @storage.add_group(group)
+    group.create(@storage)
+
     @storage.add_player_to_group(@group_id, session[:player_id])
     @storage.make_organizer(@group_id, session[:player_id])
 
@@ -53,7 +54,7 @@ get "/groups/:group_id" do
     session[:error] = error
     redirect "/group_list"
   else
-    @group_games = @storage.find_group_games(@group_id)
+    @group_games = @group.read_games(@storage)
     @group_players = @storage.find_group_players(@group_id)
 
     erb :group, layout: :layout
@@ -99,7 +100,7 @@ post "/groups/:group_id/edit" do
                       name: params[:name],
                       about: params[:about])
 
-    @storage.edit_group(group)
+    group.update(@storage)
 
     session[:success] = "Group updated."
     redirect "/groups/#{@group_id}"
@@ -120,7 +121,7 @@ post "/groups/:group_id/delete" do
     status 422
     redirect "/group_list"
   else
-    @storage.delete_group(@group_id)
+    @group.delete(@storage)
     session[:success] = "Group has been deleted."
   end
 
