@@ -37,6 +37,60 @@ class Player
     self.is_organizer = is_organizer
   end
 
+  def create(db)
+    sql = <<~SQL
+      INSERT INTO players (username, password, name, rating, about)
+      VALUES ($1, $2, $3, $4, $5);
+    SQL
+
+    db.query(sql,
+             self.username,
+             self.password,
+             self.name,
+             self.rating,
+             self.about)
+  end
+
+  def read(db)
+    sql = <<~SQL
+      SELECT *
+        FROM players
+      WHERE id = $1;
+    SQL
+
+    result = db.query(sql, self.id)
+    tuple = result.first
+
+    if result.ntuples.zero?
+      self.id = nil
+      return nil
+    end
+
+    self.username = tuple["username"],
+    self.password = tuple["password"],
+    self.name = tuple["name"],
+    self.rating = tuple["rating"].to_i,
+    self.about = tuple["about"]
+  end
+
+  def update(db)
+    sql = <<~SQL
+      UPDATE players
+         SET password = $2,
+             name = $3,
+             rating = $4,
+             about = $5
+       WHERE id = $1;
+    SQL
+
+    db.query(sql,
+             self.id,
+             self.password,
+             self.name,
+             self.rating,
+             self.about)
+  end
+
   private
 
   attr_writer :id,

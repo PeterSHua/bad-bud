@@ -98,66 +98,6 @@ class DatabasePersistence
     end
   end
 
-  def find_player_sql_query
-    <<~SQL
-      SELECT *
-        FROM players
-      WHERE id = $1;
-    SQL
-  end
-
-  def find_player(id)
-    result = query(find_player_sql_query, id)
-    tuple = result.first
-
-    return nil if result.ntuples.zero?
-
-    Player.new(id: tuple["id"].to_i,
-               username: tuple["username"],
-               password: tuple["password"],
-               name: tuple["name"],
-               rating: tuple["rating"].to_i,
-               about: tuple["about"])
-  end
-
-  def edit_player(player)
-    sql = <<~SQL
-      UPDATE players
-         SET password = $2,
-             name = $3,
-             rating = $4,
-             about = $5
-       WHERE id = $1;
-    SQL
-
-    query(sql,
-          player.id,
-          player.password,
-          player.name,
-          player.rating,
-          player.about)
-  end
-
-  def find_group_sql_query
-    <<~SQL
-      SELECT *
-        FROM groups
-      WHERE id = $1;
-    SQL
-  end
-
-  def find_group(id)
-    result = query(find_group_sql_query, id)
-    tuple = result.first
-
-    return nil if result.ntuples.zero?
-
-    Group.new(id: tuple["id"].to_i,
-              name: tuple["name"],
-              about: tuple["about"],
-              schedule_game_notes: tuple["schedule_game_notes"])
-  end
-
   def group_name_exists_sql_query
     <<~SQL
       SELECT *
@@ -242,20 +182,6 @@ class DatabasePersistence
     end
   end
 
-  def add_player(player)
-    sql = <<~SQL
-      INSERT INTO players (username, password, name, rating, about)
-      VALUES ($1, $2, $3, $4, $5);
-    SQL
-
-    query(sql,
-          player.username,
-          player.password,
-          player.name,
-          player.rating,
-          player.about)
-  end
-
   def make_organizer(group_id, player_id)
     sql = <<~SQL
       UPDATE groups_players
@@ -285,32 +211,6 @@ class DatabasePersistence
     SQL
 
     query(sql, group_id, player_id)
-  end
-
-  def add_game(game)
-    sql = <<~SQL
-      INSERT INTO games (group_id,
-                         start_time,
-                         duration,
-                         location,
-                         level,
-                         fee,
-                         total_slots,
-                         notes,
-                         template)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
-    SQL
-
-    query(sql,
-          game.group_id,
-          game.start_time,
-          game.duration,
-          game.location,
-          game.level,
-          game.fee,
-          game.total_slots,
-          game.notes,
-          game.template)
   end
 
   def last_game_id

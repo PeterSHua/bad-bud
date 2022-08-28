@@ -115,7 +115,7 @@ end
 def player_url_error_for_player_confirm_payment_in_game
   if !valid_player_id?
     handle_invalid_player_id
-  elsif !@player
+  elsif !@player.id
     handle_player_not_found
   end
 end
@@ -147,7 +147,7 @@ end
 def player_url_error_for_player_rsvp_in_game
   if !valid_player_id?
     handle_invalid_player_id
-  elsif !@player
+  elsif !@player.id
     handle_player_not_found
   end
 end
@@ -163,7 +163,7 @@ end
 def url_error_for_group_need_permission
   if !valid_group_id?
     handle_invalid_group_id
-  elsif !@group
+  elsif !@group.id
     handle_group_not_found
   elsif !group_have_permission?
     handle_group_no_permission
@@ -186,7 +186,7 @@ end
 def player_url_error_no_permission
   if !valid_player_id?
     handle_invalid_player_id
-  elsif !@player
+  elsif !@player.id
     handle_player_not_found
   end
 end
@@ -194,7 +194,7 @@ end
 def player_url_error_need_permission
   if !valid_player_id?
     handle_invalid_player_id
-  elsif !@player
+  elsif !@player.id
     handle_player_not_found
   elsif !player_have_permission?
     handle_player_no_permission
@@ -216,7 +216,7 @@ end
 def error_for_group_no_permission
   if !valid_group_id?
     handle_invalid_group_id
-  elsif !@group
+  elsif !@group.id
     handle_group_not_found
   end
 end
@@ -224,7 +224,7 @@ end
 def error_for_edit_group
   if !valid_group_id?
     handle_invalid_group_id
-  elsif !@group
+  elsif !@group.id
     handle_group_not_found
   elsif !group_have_permission?
     handle_group_no_permission
@@ -288,7 +288,7 @@ def create_group_entry_for_game_without_group
   group = Group.new(id: @group_id)
 
   group.create(@storage)
-  
+
   @storage.add_organizer(@group_id, @player_id)
 end
 

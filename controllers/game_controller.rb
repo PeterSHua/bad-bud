@@ -99,7 +99,8 @@ get "/games/:game_id/edit" do
   @game.read(@storage)
 
   @group_id = @game&.group_id
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   error = error_for_view_edit_game
 
@@ -107,7 +108,8 @@ get "/games/:game_id/edit" do
     redirect "/game_list"
   else
     @group_id = @game.group_id
-    @group = @storage.find_group(@group_id)
+    @group = Group.new(id: @group_id)
+    @group.read(@storage)
     @day_of_week = @game.start_time.wday
 
     erb :game_edit, layout: :layout do
@@ -134,7 +136,8 @@ post "/games/:game_id/edit" do
   @game.read(@storage)
 
   @group_id = @game&.group_id
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   url_error = url_error_for_edit_game
   input_error = input_error_for_edit_game
@@ -231,7 +234,8 @@ post "/games/:game_id/players/:player_id/add" do
   @game.read(@storage)
 
   @player_id = params[:player_id].to_i
-  @player = @storage.find_player(@player_id)
+  @player = Player.new(id: @player_id)
+  @player.read(@storage)
 
   @group_id = @game.group_id
   @group_players = @storage.find_group_players(@group_id)
@@ -267,7 +271,8 @@ post "/games/:game_id/players/:player_id/remove" do
   @game.read(@storage)
 
   @player_id = params[:player_id].to_i
-  @player = @storage.find_player(@player_id)
+  @player = Player.new(id: @player_id)
+  @player.read(@storage)
 
   @group_id = @game&.group_id
   @group_players = @storage.find_group_players(@group_id)
@@ -298,7 +303,8 @@ post "/games/:game_id/players/:player_id/confirm_paid" do
   @game.read(@storage)
 
   @player_id = params[:player_id].to_i
-  @player = @storage.find_player(@player_id)
+  @player = Player.new(id: @player_id)
+  @player.read(@storage)
 
   @group_id = @game&.group_id
   @group_players = @storage.find_group_players(@group_id)
@@ -353,7 +359,8 @@ post "/games/:game_id/players/:player_id/unconfirm_paid" do
   @game.read(@storage)
 
   @player_id = params[:player_id].to_i
-  @player = @storage.find_player(@player_id)
+  @player = Player.new(id: @player_id)
+  @player.read(@storage)
 
   @group_id = @game&.group_id
   @group_players = @storage.find_group_players(@group_id)

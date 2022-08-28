@@ -3,7 +3,9 @@ get "/groups/:group_id/schedule/:day_of_week/add" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
+
   @day_of_week = params[:day_of_week].to_i
 
   group_url_error = url_error_for_group_need_permission
@@ -29,7 +31,8 @@ post "/groups/:group_id/schedule/publish" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   url_error = url_error_for_group_need_permission
   input_error = input_error_for_post_schedule
@@ -61,7 +64,7 @@ post "/groups/:group_id/schedule/publish" do
     end
 
     games_to_add.each do |game|
-      @storage.add_game(game)
+      game.create(@storage)
       game_id = @storage.last_game_id
 
       game.players.each do |player|
@@ -78,7 +81,9 @@ post "/groups/:group_id/schedule/:day_of_week/add" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
+
   @day_of_week = params[:day_of_week].to_i
   @group_players = @storage.find_group_players(@group_id)
 
@@ -111,7 +116,7 @@ post "/groups/:group_id/schedule/:day_of_week/add" do
                 total_slots: params[:total_slots].to_i,
                 template: true)
 
-    @storage.add_game(game)
+    game.create(@storage)
 
     session[:success] = "Added game to schedule."
     redirect "/groups/#{@group_id}/schedule/#{@day_of_week}"
@@ -123,7 +128,8 @@ get "/groups/:group_id/schedule" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   error = url_error_for_group_need_permission
 
@@ -140,7 +146,8 @@ post "/groups/:group_id/schedule/edit" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   url_error = url_error_for_group_need_permission
   input_error = input_error_for_group_schedule
@@ -165,7 +172,9 @@ get "/groups/:group_id/schedule/:day_of_week" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
+  
   @day_of_week = params[:day_of_week].to_i
 
   group_url_error = url_error_for_group_need_permission

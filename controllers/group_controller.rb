@@ -46,7 +46,8 @@ end
 # View group detail
 get "/groups/:group_id" do
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   error = error_for_group_no_permission
 
@@ -66,7 +67,8 @@ get "/groups/:group_id/edit" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   error = url_error_for_group_need_permission
 
@@ -83,7 +85,8 @@ post "/groups/:group_id/edit" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   url_error = url_error_for_group_need_permission
   input_error = input_error_for_edit_group
@@ -112,7 +115,8 @@ post "/groups/:group_id/delete" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   error = url_error_for_group_need_permission
 
@@ -133,7 +137,8 @@ post "/groups/:group_id/join" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   error = error_for_group_no_permission
 
@@ -152,7 +157,8 @@ post "/groups/:group_id/leave" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   error = error_for_group_no_permission
 
@@ -171,10 +177,12 @@ post "/groups/:group_id/players/:player_id/remove" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   @player_id = params[:player_id].to_i
-  @player = @storage.find_player(@player_id)
+  @player = Player.new(id: @player_id)
+  @player.read(@storage)
 
   group_url_error = url_error_for_group_need_permission
   player_url_error = player_url_error_no_permission
@@ -197,10 +205,12 @@ post "/groups/:group_id/players/:player_id/promote" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   @player_id = params[:player_id].to_i
-  @player = @storage.find_player(@player_id)
+  @player = Player.new(id: @player_id)
+  @player.read(@storage)
 
   group_url_error = url_error_for_group_need_permission
   player_url_error = player_url_error_no_permission
@@ -223,10 +233,12 @@ post "/groups/:group_id/players/:player_id/demote" do
   force_login
 
   @group_id = params[:group_id].to_i
-  @group = @storage.find_group(@group_id)
+  @group = Group.new(id: @group_id)
+  @group.read(@storage)
 
   @player_id = params[:player_id].to_i
-  @player = @storage.find_player(@player_id)
+  @player = Player.new(id: @player_id)
+  @player.read(@storage)
 
   group_url_error = url_error_for_group_need_permission
   player_url_error = player_url_error_no_permission

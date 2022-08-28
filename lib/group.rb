@@ -25,6 +25,26 @@ class Group
     db.query("SELECT setval('groups_id_seq', $1);", self.id)
   end
 
+  def read(db)
+    sql = <<~SQL
+    SELECT *
+      FROM groups
+    WHERE id = $1;
+    SQL
+
+    result = db.query(sql, self.id)
+    tuple = result.first
+
+    if result.ntuples.zero?
+      self.id = nil
+      return nil
+    end
+
+    self.name = tuple["name"]
+    self.about = tuple["about"]
+    self.schedule_game_notes = tuple["schedule_game_notes"]
+  end
+
   def read_games(db)
     sql = <<~SQL
     SELECT gm.id,
