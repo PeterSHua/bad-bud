@@ -13,7 +13,7 @@
 <form action="/games/<%= @game_id %>/edit" method="post">
   <% if !@game.template %>
     <label for="date">Date:</label>
-    <input id="date" type="date" name="date" min="<%= todays_date %>">
+    <input id="date" type="date" name="date" min="<%= todays_date %>" value="<%= params[:date] || select_date(@game.start_time) %>">
   <% end %>
 
   <%== yield %>

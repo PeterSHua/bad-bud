@@ -54,6 +54,10 @@ helpers do
     hour > TimeDate::HOUR_HAND_MAX ? hour - TimeDate::HOUR_HAND_MAX : hour
   end
 
+  def select_date(time)
+    time.to_s.split(' ').first
+  end
+
   def select_hour(hour)
     if (params[:hour] && params[:hour] == hour) ||
        (@game && (normalize_to_12hr(@game.start_time&.hour) == hour))

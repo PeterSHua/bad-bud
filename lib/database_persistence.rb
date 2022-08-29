@@ -262,11 +262,34 @@ class DatabasePersistence
     SQL
   end
 
-  def rsvp_anon_player(game_id, player_name)
-    query(add_anon_player_sql_query, player_name)
+  def find_player_id_by_name_query
+    <<~SQL
+      SELECT id
+        FROM players
+       WHERE name = $1 AND
+             username IS NULL AND
+             password IS NULL;
+    SQL
+  end
 
-    result = query(last_added_player_id_sql_query)
-    player_id = result.first["last_value"].to_i
+  def find_player_id_by_name(player_name)
+    result = query(find_player_id_by_name_query, player_name)
+
+    if result.ntuples.zero?
+      nil
+    else
+      result.first["id"].to_i
+    end
+  end
+
+  def rsvp_anon_player(game_id, player_name)
+    player_id = find_player_id_by_name(player_name)
+
+    if player_id.nil?
+      query(add_anon_player_sql_query, player_name)
+      result = query(last_added_player_id_sql_query)
+      player_id = result.first["last_value"].to_i
+    end
 
     query(add_player_to_game_sql_query, player_id, game_id)
   end

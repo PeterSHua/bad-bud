@@ -66,10 +66,10 @@ class Player
       return nil
     end
 
-    self.username = tuple["username"],
-    self.password = tuple["password"],
-    self.name = tuple["name"],
-    self.rating = tuple["rating"].to_i,
+    self.username = tuple["username"]
+    self.password = tuple["password"]
+    self.name = tuple["name"]
+    self.rating = tuple["rating"].to_i
     self.about = tuple["about"]
   end
 

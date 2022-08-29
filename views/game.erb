@@ -145,6 +145,8 @@
 <% if game_organizer?(@game.id, session[:player_id]) %>
   <table>
     <% @group_players.each do |player| %>
+      <% next if already_signed_up?(@game_id, player.id) %>
+
       <tr>
         <td>
           <form action="/games/<%= @game_id %>/players/<%= player.id %>/add" method="post">

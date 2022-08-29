@@ -12,6 +12,15 @@ class BadBudsTest < Minitest::Test
     assert_includes last_response.body, "Groucho Marx"
   end
 
+  def test_rsvp_anon_player_already_rsvpd
+    post "/games/1/players/add", { name: "Groucho Marx" }
+    get last_response["Location"]
+    post "/games/1/players/add", { name: "Groucho Marx" }
+
+    assert_equal 422, last_response.status
+    assert_includes last_response.body, "Player already signed up!"
+  end
+
   def test_rsvp_anon_player_short_name
     post "/games/1/players/add", { name: "" }
 

@@ -4,6 +4,8 @@ require "tilt/erubis"
 require "bcrypt"
 require "require_all"
 
+require "pry-byebug"
+
 require_all "lib"
 require_all "controllers"
 
@@ -17,6 +19,7 @@ end
 
 configure(:development) do
   require "sinatra/reloader" if development?
+  also_reload "controllers/*.rb"
   also_reload "lib/*.rb"
 end
 

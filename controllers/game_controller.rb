@@ -33,7 +33,12 @@ post "/games/create" do
   @group_id = params[:group_id].to_i
 
   if no_group_selected?
-    create_group_entry_for_game_without_group
+    @group_id = @storage.last_group_id + 1
+    group = Group.new(id: @group_id)
+
+    group.create(@storage)
+
+    @storage.add_organizer(@group_id, @player_id)
   end
 
   error = error_for_create_game
@@ -206,6 +211,7 @@ post "/games/:game_id/players/add" do
   @game.read(@storage)
   @group_id = @game.group_id
   @group_players = @storage.find_group_players(@group_id)
+  @player_id = @storage.find_player_id_by_name(params[:name].strip)
 
   url_error = url_error_for_add_anon_player_to_game
   input_error = input_error_for_add_anon_player_to_game
