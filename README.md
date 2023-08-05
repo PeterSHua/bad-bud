@@ -1,16 +1,30 @@
-# Badminton Buddies
-Organize badminton matches and find friends to play together with in the [Bad Buds](https://badbuds.herokuapp.com) web app.
+# Badminton Buddy
+> Find friends, organize matches, play badminton together!
+
+- [Features](#features)
+- [Installation](#installation)
 
 ## Features
-Organizers, say goodbye to the headache of managing your games and signups.
-- Create groups
-- Post games
-- Create weekly game schedules
-- Keep track of player signups and payment
+Made for players and organizers.
 
-Badminton lovers, enjoy a simple and easy to use interface. No more fiddling with long group chat signup messages!
-- Find and sign up for games
-- Create an account to manage your signups
+## For badminton lovers
+No more fiddling with long group chat signups!
+### Find games
+![game](https://github.com/PeterSHua/bad-buds/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/game_list.png)
+
+### Sign up for games
+![signup](https://github.com/PeterSHua/bad-buds/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/game_details.png)
+
+## For organizers
+Say goodbye to the headache of managing your games and signups.
+### Create groups
+![groups](https://github.com/PeterSHua/bad-buds/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/group_list.png)
+
+### Create weekly game schedules
+![schedule](https://github.com/PeterSHua/bad-buds/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/schedules.png)
+
+### Keep track of player signups and payment
+![payment](https://github.com/PeterSHua/bad-buds/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/payment.png)
 
 ## Installation
 This app was tested on:
@@ -70,6 +84,3 @@ Deploy to Heroku
 ```unix
 rake deploy
 ```
-
-## License
-The source code in this project is released under the GNU GPLv3 License.
