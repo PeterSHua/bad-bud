@@ -1,6 +1,6 @@
 require_relative "helper"
 
-class BadBudsTest < Minitest::Test
+class BadBudTest < Minitest::Test
   def test_view_group_schedule
     get "/groups/1/schedule", {}, logged_in_as_david
 
@@ -494,7 +494,7 @@ class BadBudsTest < Minitest::Test
   end
 
   def test_publish_schedule
-    
+
   end
 
   def test_publish_schedule_no_permission

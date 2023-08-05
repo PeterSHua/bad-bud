@@ -1,6 +1,6 @@
 require_relative "helper"
 
-class BadBudsTest < Minitest::Test
+class BadBudTest < Minitest::Test
   def test_view_create_group
     get "/groups/create", {}, logged_in_as_david
 

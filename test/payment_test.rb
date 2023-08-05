@@ -1,6 +1,6 @@
 require_relative "helper"
 
-class BadBudsTest < Minitest::Test
+class BadBudTest < Minitest::Test
   def test_confirm_payment
     post "/games/1/players/4/remove", {}, logged_in_as_david
     post "/games/1/players/5/remove", {}, logged_in_as_david

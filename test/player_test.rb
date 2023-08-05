@@ -1,6 +1,6 @@
 require_relative "helper"
 
-class BadBudsTest < Minitest::Test
+class BadBudTest < Minitest::Test
   def test_view_player
     get "/players/2"
 

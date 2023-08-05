@@ -6,7 +6,7 @@ task default: :launch
 
 desc 'Launch on localhost'
 task :launch do
-  sh "bundle exec ruby #{ROOT}/bad_buds.rb"
+  sh "bundle exec ruby #{ROOT}/bad_bud.rb"
 end
 
 desc 'Deploy to Heroku'

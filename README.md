@@ -10,21 +10,21 @@ Made for players and organizers.
 ## For badminton lovers
 No more fiddling with long group chat signups!
 ### Find games
-![game](https://github.com/PeterSHua/bad-buds/blob/019a719a45a6a7d848069392efb9175c93512c1e/public/images/games.png)
+![game](https://github.com/PeterSHua/bad-bud/blob/019a719a45a6a7d848069392efb9175c93512c1e/public/images/games.png)
 
 ### Sign up for games
-![signup](https://github.com/PeterSHua/bad-buds/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/game_details.png)
+![signup](https://github.com/PeterSHua/bad-bud/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/game_details.png)
 
 ## For organizers
 Say goodbye to the headache of managing your games and signups.
 ### Create groups
-![groups](https://github.com/PeterSHua/bad-buds/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/group_list.png)
+![groups](https://github.com/PeterSHua/bad-bud/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/group_list.png)
 
 ### Create weekly game schedules
-![schedule](https://github.com/PeterSHua/bad-buds/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/schedules.png)
+![schedule](https://github.com/PeterSHua/bad-bud/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/schedules.png)
 
 ### Keep track of player signups and payment
-![payment](https://github.com/PeterSHua/bad-buds/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/payment.png)
+![payment](https://github.com/PeterSHua/bad-bud/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/payment.png)
 
 ## Installation
 This app was tested on:

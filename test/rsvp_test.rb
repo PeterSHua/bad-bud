@@ -1,6 +1,6 @@
 require_relative "helper"
 
-class BadBudsTest < Minitest::Test
+class BadBudTest < Minitest::Test
   def test_rsvp_anon_player
     post "/games/1/players/add", { name: "Groucho Marx" }
 

@@ -4,10 +4,10 @@ require "minitest/autorun"
 require "rack/test"
 require "pry-byebug"
 
-require_relative "../bad_buds"
+require_relative "../bad_bud"
 require_relative "test_helpers.rb"
 
-class BadBudsTest < Minitest::Test
+class BadBudTest < Minitest::Test
   include Rack::Test::Methods
 
   def app

@@ -5,9 +5,9 @@ class DatabasePersistence
     @db = if Sinatra::Base.production?
             PG.connect(ENV['DATABASE_URL'])
           elsif Sinatra::Base.test?
-            PG.connect(dbname: "bad_buds_test")
+            PG.connect(dbname: "bad_bud_test")
           else
-            PG.connect(dbname: "bad_buds")
+            PG.connect(dbname: "bad_bud")
           end
     @logger = logger
   end
@@ -753,7 +753,7 @@ class DatabasePersistence
   end
 
   def seed_data
-    system("psql -d bad_buds_test < data.sql")
+    system("psql -d bad_bud_test < data.sql")
   end
 
   def delete_data

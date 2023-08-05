@@ -1,6 +1,6 @@
 require_relative "helper"
 
-class BadBudsTest < Minitest::Test
+class BadBudTest < Minitest::Test
   def test_promote_player
     post "/groups/1/players/1/promote", {}, logged_in_as_david
 

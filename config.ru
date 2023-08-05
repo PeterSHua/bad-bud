@@ -1,2 +1,2 @@
-require './bad_buds'
+require './bad_bud'
 run Sinatra::Application
