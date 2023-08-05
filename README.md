@@ -10,7 +10,7 @@ Made for players and organizers.
 ## For badminton lovers
 No more fiddling with long group chat signups!
 ### Find games
-![game](https://github.com/PeterSHua/bad-buds/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/game_list.png)
+![game](https://github.com/PeterSHua/bad-buds/blob/019a719a45a6a7d848069392efb9175c93512c1e/public/images/games.png)
 
 ### Sign up for games
 ![signup](https://github.com/PeterSHua/bad-buds/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/game_details.png)
