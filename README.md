@@ -1,4 +1,4 @@
-# Badminton Buddy
+## Badminton Buddy
 > Find friends, organize matches, play badminton together!
 
 - [Features](#features)
