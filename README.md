@@ -23,9 +23,6 @@ Say goodbye to the headache of managing your games and signups.
 ### Create weekly game schedules
 ![schedule](https://github.com/PeterSHua/bad-bud/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/schedules.png)
 
-### Keep track of player signups and payment
-![payment](https://github.com/PeterSHua/bad-bud/blob/97fb9ee0fedece00671ac8162e3f2702bab259cc/public/images/payment.png)
-
 ## Installation
 This app was tested on:
 
